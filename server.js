@@ -14,8 +14,8 @@ io.on('connection', (socket) => {
     console.log('Um usuário deixou o chat :(');
   });
 
-  socket.on('onMessage', ({ message, username, color }) => {
-    io.emit('message', { message, username, color });
+  socket.on('onMessage', ({ chatMessage, nickname, color }) => {
+    io.emit('message', { chatMessage, nickname, color });
   });
 });
 
