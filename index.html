@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO - trybe</title>
+    <link 
+      href="http://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    >
+    <link 
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap"
+      rel="stylesheet"
+    >
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+   
+      }
+      body {
+        font-family: 'Montserrat', sans-serif;
+      }
+/* 
+      .clearfix:after{
+        content: "";
+        display: table;
+        clear: both;
+      } */
+
+      .messages-container {
+        margin-bottom: 200px;
+      }
+      .title-message {
+        display: flex;
+        align-items: center;
+      }
+
+      .cyan-icon {
+        color: #006064;
+      }
+
+      .styled-message {
+        font-size: 1rem;
+        margin: 5px !important;
+      }
+
+      .title {
+        font-weight: 700;
+      }
+
+      .collection-item  {
+        padding: 15px !important;
+      }
+      .footer-input {
+        background-color: #00695c ;
+        color: #f2f2f2;
+        position: fixed;
+        bottom: 0;
+        transition: background .2s linear;
+        width: 100%;
+      }
+      .footer-input:hover{
+        background-color: #00897b;  
+      }
+
+      .real-time {
+        right: 10px;
+        bottom: 10px;
+        position: absolute;
+      }
+
+      .nickname-change-btn {
+        background: transparent;
+        border: none;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-wrapper">
+        <div class="input-field cyan darken-4">
+          <input 
+            data-testid="nickname-box"
+            id="nickname"
+            type="search"
+            required
+            placeholder="Digite um nickname..."
+            autocomplete="off"
+          >
+          <label class="label-icon" for="nickname"><i class="material-icons">account_circle</i></label>
+          <i data-testid="nickname-save" class="material-icons"><button class="nickname-change-btn" type="button" onclick="changeNickname()">send</button></i>
+        </div>
+      </div>
+    </nav>
+    <ul class="collection messages-container clearfix" id="messages">
+      <li class="collection-item avatar">
+        <div class="title-message">
+            <a href="#!" class="secondary-content"><i class="material-icons">delete_sweep</i></a>
+          <i class="material-icons small cyan-icon">chat_bubble</i>
+          <span class="title" id="nameTitle"></span>
+        </div>
+        <p class="styled-message"><em>Suas mensagens irão aparecer aqui! Este é um exemplo de messagem :)</em></p>
+      
+      </li>
+      
+    </ul>
+    <!-- <form action="">
+      <input id="inputMessage" autocomplete="off" /><button>Send</button>
+    </form> -->
+   
+  <div id="sender" class="row footer-input" >
+    <form class="col s12" autocomplete="off">
+      <div class="row">
+        <div class="input-field col s12">
+          <input required data-testid="message-box" id="send-message" type="text">
+          <label for="send-message">Mande uma mensagem</label>
+          <button data-testid="send-button" class="btn waves-effect teal darken-4" type="submit" name="action">Enviar
+            <i class="material-icons right">send</i>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+        
+  </body>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
+  >
+  </script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"
+  >
+  </script>
+  
+  <script>
+    let randomName = '';
+    let randomColor = '';
+    window.onload = () => {
+      const  getRandomArbitrary = (min, max) => {
+      return Math.random() * (max - min) + min;
+      }
+      const colors = [
+        '#e57373',
+        '#e91e63',
+        '#8e24aa',
+        '#4a148c',
+        '#e040fb',
+        '#1a237e',
+        '#26c6da',
+        '#00bfa5',
+        '#827717',
+        '#e65100',
+        '#6d4c41',
+        '#6d4c41',
+        '#212121',
+        '#263238',
+      ];
+      const names =  [
+        'Anbu Kakashi',
+        'Ino',
+        'Choji',
+        'Shikamaru',
+        'Asuma',
+        'Sakura',
+        'Naruto',
+        'Sai',
+        'Yamato',
+        'Kiba',
+        'Shino',
+        'Hinata',
+        'Hurenai'
+      ];
+      const randomUser = (names, colors) => {
+        const position = parseInt(getRandomArbitrary(0, 12), 10);
+        return { name: names[position], color: colors[position] };
+      };
+      const { name, color } = randomUser(names, colors);
+      randomName = name;
+      randomColor = color;
+      
+      const spanName = document.getElementById('nameTitle');
+      spanName.innerHTML = randomName;
+      spanName.style.color = randomColor;   
+    }
+
+    const messageFormart = (message, userName, color) => {
+    const date = new Date();
+    setTimeout(() => {
+      const time = document.getElementById('time-id');
+      time.innerHTML = 'Há 1 minuto'
+    }, 60000);
+    setTimeout(() => {
+      const time = document.getElementById('time-id');
+      time.innerHTML = `Enviado às ${date.getHours()}:${date.getMinutes()} `;
+    }, 100000);
+     return (`
+      <li class="collection-item avatar">
+        <div class="title-message">
+        </div>
+        <p data-testid="message" class="styled-message">
+          <span class="title" style="color: ${color}">
+            ${userName}
+          </span><br>
+          ${message}
+        </p>
+        <em><span id="time-id" class="real-time">Agora mesmo</span><em>
+        <a href="#!" class="secondary-content"><i class="material-icons">delete_sweep</i></a>
+      </li>`);
+    }
+    const changeNickname = () => {
+      const inputName = document.getElementById("nickname").value;
+     
+      if (inputName !== '') {
+        const title = document.getElementById("nameTitle");
+        title.innerHTML = inputName;
+        randomName = inputName;
+      }
+
+    }
+    $(function () {
+       const socket = io();
+       $('form').submit(function(e) {
+         e.preventDefault();
+         socket.emit('onMessage', ({
+           username: randomName,
+           message: $('#send-message').val(),
+           color: randomColor,
+          }));
+         $('#send-message').val('');
+         return false;
+       });
+       socket.on('message', function({ message, username, color }){
+         $('#messages').append($(messageFormart(message, username || randomName, color)))
+       });
+     });
+  </script>
+</html>
