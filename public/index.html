@@ -3,9 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css" />
     <title>Trybe WebChat</title>
   </head>
   <body>
     <h2>Trybe WebChat</h2>
+
+    <form action="" autocomplete="off" class="is-fixed-bottom">
+      <div class="control m-2">
+        <input
+          type="text"
+          placeholder="type your message"
+          class="input is-success is-rounded m-2"
+        />
+        <button class="button is-success is-rounded m-2" type="button">Send</button>
+      </div>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./script.js"></script>
+
+    <script>
+      const socket = io();
+    </script>
   </body>
 </html>
