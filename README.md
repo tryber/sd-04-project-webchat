@@ -61,7 +61,7 @@ Através do cliente será possível, enviar e receber mensagens, trocar seu nome
 
 ### Data de Entrega
 
-O projeto tem até a seguinte data: `DD/MM/YYYY - 14:00h`. Para ser entregue a avaliação final.
+O projeto tem até a seguinte data: `04/01/2021 - 14:00h`. Para ser entregue a avaliação final.
 
 ---
 
