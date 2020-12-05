@@ -9,12 +9,10 @@
   <body>
     <h1>Webchat</h1>
     <div>
-      <form action="">
-        <input type="text" id="input-nickname" data-testid="nickname-box" />
-        <button type="submit" id="submit-nickname" data-testid="nickname-save">
-          Salvar Nickname
-        </button>
-      </form>
+      <input type="text" id="input-nickname" data-testid="nickname-box" />
+      <button type="button" id="submit-nickname" data-testid="nickname-save">
+        Alterar Nickname
+      </button>
     </div>
     <div>
       <form action="">
@@ -36,9 +34,7 @@
 
       const messagesList = document.getElementById('list');
 
-      btnSaveNickname.addEventListener('click', (e) => {
-        e.preventDefault();
-      });
+      // btnSaveNickname.addEventListener('click', (e) => {});
 
       btnSendMessage.addEventListener('click', (e) => {
         e.preventDefault();
@@ -46,14 +42,36 @@
         socket.emit('message', {
           message: messageInput.value,
           nickname: nicknameInput.value,
+          date: new Date(),
         });
         //
         messageInput.value = '';
       });
 
-      socket.on('serverResponse', (msg) => {
+      socket.on('defaultNickname', (data) => {
+        nicknameInput.value = data;
+      });
+
+      socket.on('loadMessages', (data) => {
+        console.log(data);
+        if (data.length) {
+          data.map((item) => {
+            const li = document.createElement('li');
+            li.textContent = `${new Date(item.date).toLocaleString(
+              'pt-BR'
+            )} - ${item.nickname}: ${item.message}`;
+            li.setAttribute('data-testid', 'message');
+            list.appendChild(li);
+          });
+        }
+      });
+
+      socket.on('serverResponse', (data) => {
+        console.log(data);
         const li = document.createElement('li');
-        li.textContent = msg;
+        li.textContent = `${new Date(data.date).toLocaleString('pt-BR')} ${
+          data.nickname
+        }: ${data.message}`;
         li.setAttribute('data-testid', 'message');
         list.appendChild(li);
       });
