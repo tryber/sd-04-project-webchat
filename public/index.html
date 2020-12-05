@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webchat</title>
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <h1>Webchat</h1>
+    <div>
+      <form action="">
+        <input type="text" id="input-nickname" data-testid="nickname-box" />
+        <button type="submit" id="submit-nickname" data-testid="nickname-save">
+          Salvar Nickname
+        </button>
+      </form>
+    </div>
+    <div>
+      <form action="">
+        <input type="text" id="input-message" data-testid="message-box" />
+        <button type="submit" id="submit-message" data-testid="send-button">
+          Enviar Mensagem
+        </button>
+      </form>
+    </div>
+    <ul id="list"></ul>
+    <script>
+      const socket = io();
+
+      const nicknameInput = document.getElementById('input-nickname');
+      const btnSaveNickname = document.getElementById('submit-nickname');
+
+      const messageInput = document.getElementById('input-message');
+      const btnSendMessage = document.getElementById('submit-message');
+
+      const messagesList = document.getElementById('list');
+
+      btnSaveNickname.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+
+      btnSendMessage.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Emitir o evento 'message'
+        socket.emit('message', {
+          message: messageInput.value,
+          nickname: nicknameInput.value,
+        });
+        //
+        messageInput.value = '';
+      });
+
+      socket.on('serverResponse', (msg) => {
+        const li = document.createElement('li');
+        li.textContent = msg;
+        li.setAttribute('data-testid', 'message');
+        list.appendChild(li);
+      });
+    </script>
+  </body>
+</html>
