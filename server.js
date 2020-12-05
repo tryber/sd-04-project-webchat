@@ -29,10 +29,11 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('message', async (data) => {
-    const { message, nickname, date } = data;
-    console.log(data);
-    await chatModel.saveMessage(message, nickname, date);
-    io.emit('serverResponse', data);
+    const { chatMessage, nickname } = data;
+
+    const result = await chatModel.saveMessage(chatMessage, nickname);
+
+    io.emit('serverResponse', result);
   });
 });
 
