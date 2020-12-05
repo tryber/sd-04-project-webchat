@@ -4,6 +4,8 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const path = require('path');
 
+const messageModel = require('./models/Messages');
+
 require('dotenv').config();
 
 app.use('/', express.static(path.join(__dirname, 'public')));
@@ -11,21 +13,19 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   console.log('Conectado');
   socket.on('disconnect', () => {
     console.log('Desconectado');
   });
-  app.post('/', (req, res) => {
-    console.log(process.env.DB_NAME);
-    const { title, msg } = req.body;
+  socket.on('message', async ({ nickname, chatMessage }) => {
+    const message = await messageModel.insertValues(nickname, chatMessage);
 
-    if (!title || !msg) {
-      return res.status(422).json({ message: 'Missing title or message' });
-    }
+    console.log(message);
 
-    io.emit('notification', { title, msg });
-    return res.status(200).json({ message: 'Succes!' });
+    const completeMessage = `${message.date} ${message.nickname}: ${message.message}`;
+
+    io.emit('message', completeMessage);
   });
 });
 http.listen(3000, () => {

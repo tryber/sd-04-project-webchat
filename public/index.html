@@ -1,29 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat Room</title>
-    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+<html>
+  <body>
+    Message:
+    <input data-testid="message-box" type="text" id="textInput" />
+    <button data-testid="send-button" onclick="sendMsg()">Send</button>
+    Nickname:
+    <input data-testid="nickname-box" type="text" id="nickInput" />
+    <button data-testid="nickname-save">Send</button>
+
+    <ul id="listaMensagem"></ul>
+
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-      const socket = io('http://localhost:3000');
+      const socket = io('http://localhost:3000/');
 
-      
-      socket.on('notification', (data) => {
-        const { title, msg } = data;
+      const sendMsg = () => {
+        const socket = io();
+
+        const chatMessage = document.getElementById('textInput').value;
+        const nickname = document.getElementById('nickInput').value;
+
+        socket.emit('message', { nickname, chatMessage });
+      };
+      socket.on('message', (data) => {
+        console.log(data);
         const li = document.createElement('li');
-        li.textContent = title;
-        const li2 = document.createElement('li');
-        li2.textContent = msg;
-
-        document.getElementById('mensagem').appendChild(li);
-        document.getElementById('mensagem').appendChild(li2);
-
-        /* alert(data) */
+        li.setAttribute('data-testid', 'message');
+        li.textContent = data;
+        document.getElementById('listaMensagem').appendChild(li);
       });
     </script>
-  </head>
-  <body>
-    <ul id="mensagem"></ul>
   </body>
 </html>
