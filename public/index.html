@@ -1,13 +1,14 @@
 <html>
   <body>
-    Message:
-    <input data-testid="message-box" type="text" id="textInput" />
-    <button data-testid="send-button" onclick="sendMsg()">Send</button>
-    Nickname:
+    
     <input data-testid="nickname-box" type="text" id="nickInput" />
-    <button data-testid="nickname-save">Send</button>
-
+    <button data-testid="nickname-save">Nick</button>
+    
     <ul id="listaMensagem"></ul>
+    
+    <input data-testid="message-box" id="textInput" autocomplete="off"/>
+    <button data-testid="send-button" onclick="sendMsg()">Send</button>
+    
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
