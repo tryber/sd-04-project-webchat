@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Room</title>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io('http://localhost:3000');
+
+      
+      socket.on('notification', (data) => {
+        const { title, msg } = data;
+        const li = document.createElement('li');
+        li.textContent = title;
+        const li2 = document.createElement('li');
+        li2.textContent = msg;
+
+        document.getElementById('mensagem').appendChild(li);
+        document.getElementById('mensagem').appendChild(li2);
+
+        /* alert(data) */
+      });
+    </script>
+  </head>
+  <body>
+    <ul id="mensagem"></ul>
+  </body>
+</html>
