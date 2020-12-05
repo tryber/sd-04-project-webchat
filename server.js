@@ -21,8 +21,6 @@ io.on('connection', async (socket) => {
   socket.on('message', async ({ nickname, chatMessage }) => {
     const message = await messageModel.insertValues(nickname, chatMessage);
 
-    console.log(message);
-
     const completeMessage = `${message.date} ${message.nickname}: ${message.message}`;
 
     io.emit('message', completeMessage);

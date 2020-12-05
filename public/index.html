@@ -9,21 +9,21 @@
     <button data-testid="send-button" onclick="sendMsg()">Send</button>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="http://chancejs.com/chance.min.js"></script>
     <script>
+      const socket = io('http://localhost:3000/');
+
+      const sendMsg = () => {
+        const socket = io();
+
+        const chatMessage = document.getElementById('textInput').value;
+        const nickname = document.getElementById('nickInput').value;
+
+        socket.emit('message', { nickname, chatMessage });
+      };
+
       window.onload = () => {
-        const socket = io('http://localhost:3000/');
-
-        const sendMsg = () => {
-          const socket = io();
-
-          const chatMessage = document.getElementById('textInput').value;
-          const nickname = document.getElementById('nickInput').value;
-
-          socket.emit('message', { nickname, chatMessage });
-        };
         socket.on('message', (data) => {
+          console.log(data);
           const li = document.createElement('li');
           li.setAttribute('data-testid', 'message');
           li.textContent = data;
