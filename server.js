@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 const app = require('express')();
 const express = require('express');
 const http = require('http').createServer(app);
@@ -17,6 +16,7 @@ app.use(express.json());
 const sockets = [];
 
 io.on('connection', async (socket) => {
+  const obj = {};
   console.log('Conectado');
 
   const allMessages = await messageModel.listMessages();
@@ -25,11 +25,11 @@ io.on('connection', async (socket) => {
   io.emit('history', allMessages);
 
   socket.on('message', async ({ nickname, chatMessage }) => {
-    if (!socket.user || !socket.user.includes(nickname)) {
-      socket.user = nickname;
+    if (!obj.user || !obj.user.includes(nickname)) {
+      obj.user = nickname;
     }
 
-    sockets.unshift(socket.user);
+    sockets.unshift(obj.user);
     const novaArr = sockets.filter((este, i) => sockets.indexOf(este) === i);
     console.log(novaArr);
 
@@ -44,7 +44,8 @@ io.on('connection', async (socket) => {
 
   socket.on('disconnect', () => {
     sockets.splice(sockets.indexOf(socket), 1);
-    const message = `${socket.user} > deixou o chat`;
+    const message = `${obj.user} > deixou o chat`;
+    console.log(sockets);
     console.log(message);
   });
 });
