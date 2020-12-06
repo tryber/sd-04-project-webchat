@@ -19,6 +19,8 @@ io.on('connection', async (socket) => {
   const allMessages = await messageModel.listMessages();
   console.log(allMessages);
 
+  io.emit('history', allMessages);
+
   socket.on('disconnect', () => {
     console.log('Desconectado');
   });
@@ -26,6 +28,7 @@ io.on('connection', async (socket) => {
     const message = await messageModel.insertValues(nickname, chatMessage);
 
     const completeMessage = `${message.date} ${message.nickname}: ${message.message}`;
+    console.log(completeMessage);
 
     io.emit('message', completeMessage);
   });

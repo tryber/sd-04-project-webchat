@@ -24,6 +24,14 @@
       };
 
       window.onload = () => {
+        socket.on('history', (data) => {
+          console.log(data)
+          document.getElementById('listaMensagem').innerHTML = data.map(
+            (mes) => `<li data-testid="message">${mes.date} - ${mes.nickname}: ${mes.message}</li>`
+          );
+        });
+
+
         socket.on('message', (data) => {
           console.log(data);
           const li = document.createElement('li');
