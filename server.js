@@ -14,9 +14,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 let sockets = [];
+const obj = {};
 
 io.on('connection', async (socket) => {
-  const obj = {};
   console.log('Conectado');
 
   const allMessages = await messageModel.listMessages();
@@ -24,7 +24,7 @@ io.on('connection', async (socket) => {
 
   io.emit('history', allMessages);
 
-  socket.on('newNick', async ({ nickname, chatMessage }) => {
+  const dispatch = (nickname) => {
     if (!obj.user || !obj.user.includes(nickname)) {
       obj.user = nickname;
       sockets.unshift(obj.user);
@@ -33,17 +33,14 @@ io.on('connection', async (socket) => {
 
       io.emit('userList', sockets);
     }
+  };
+
+  socket.on('newNick', async ({ nickname }) => {
+    await dispatch(nickname);
   });
 
   socket.on('message', async ({ nickname, chatMessage }) => {
-    if (!obj.user || !obj.user.includes(nickname)) {
-      obj.user = nickname;
-      sockets.unshift(obj.user);
-      sockets = sockets.filter((este, i) => sockets.indexOf(este) === i);
-      console.log(sockets);
-
-      io.emit('userList', sockets);
-    }
+    await dispatch(nickname);
 
     const message = await messageModel.insertValues(nickname, chatMessage);
 
