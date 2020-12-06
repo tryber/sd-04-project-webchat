@@ -5,7 +5,7 @@
   <body>
     <ul id="usuariosConectados"></ul>
     <input data-testid="nickname-box" type="text" id="nickInput" />
-    <button data-testid="nickname-save">Nick</button>
+    <button data-testid="nickname-save" onclick="sendMsg()">Nick</button>
 
     <ul id="listaMensagem"></ul>
 
@@ -25,9 +25,9 @@
       };
 
       window.onload = () => {
-        socket.on('userList', (data) => {
+        socket.on('userList', async(data) => {
           console.log(data);
-          document.getElementById('usuariosConectados').innerHTML = data.map(
+          document.getElementById('usuariosConectados').innerHTML = await data.map(
             (users) => `<li data-testid="online-user">${users}</li>`
           ).join('');
         });

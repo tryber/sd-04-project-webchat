@@ -13,7 +13,7 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-const sockets = [];
+let sockets = [];
 
 io.on('connection', async (socket) => {
   const obj = {};
@@ -27,13 +27,13 @@ io.on('connection', async (socket) => {
   socket.on('message', async ({ nickname, chatMessage }) => {
     if (!obj.user || !obj.user.includes(nickname)) {
       obj.user = nickname;
+      sockets.unshift(obj.user);
+      sockets = sockets.filter((este, i) => sockets.indexOf(este) === i);
+      console.log(sockets);
+
+      io.emit('userList', sockets);
     }
 
-    sockets.unshift(obj.user);
-    const novaArr = sockets.filter((este, i) => sockets.indexOf(este) === i);
-    console.log(novaArr);
-
-    io.emit('userList', novaArr);
     const message = await messageModel.insertValues(nickname, chatMessage);
 
     const completeMessage = `${message.date} ${message.nickname}: ${message.message}`;
@@ -47,6 +47,7 @@ io.on('connection', async (socket) => {
     const message = `${obj.user} > deixou o chat`;
     console.log(sockets);
     console.log(message);
+    io.emit('userList', sockets);
   });
 });
 http.listen(3000, () => {
