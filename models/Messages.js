@@ -24,6 +24,13 @@ const insertValues = async (nickname, message) => {
   return data.ops[0];
 };
 
+const listMessages = async () => {
+  const data = await connection().then((db) =>
+    db.collection('messages').find({}).toArray());
+  return data;
+};
+
 module.exports = {
   insertValues,
+  listMessages,
 };

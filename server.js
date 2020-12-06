@@ -15,6 +15,10 @@ app.use(express.json());
 
 io.on('connection', async (socket) => {
   console.log('Conectado');
+
+  const allMessages = await messageModel.listMessages();
+  console.log(allMessages);
+
   socket.on('disconnect', () => {
     console.log('Desconectado');
   });
