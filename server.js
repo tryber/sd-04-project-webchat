@@ -29,7 +29,7 @@ io.on('connection', async (socket) => {
 
   socket.on('disconnect', (msg) => {
     console.log(`user ${socket.id} disconnected from server`);
-    io.emit('disconnect', socket.id)
+    io.emit('disconnect', socket.id);
     console.log('msg do front:', msg);
   });
 
