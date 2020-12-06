@@ -23,22 +23,21 @@ app.get('/', (_req, res) => {
 io.on('connection', async (socket) => {
   const allMessages = await getAllMessages();
 
-  console.log('msgs vindas do DB', allMessages);
-
   socket.emit('history', allMessages);
 
   console.log('socket conectado com ID:', socket.id);
 
   socket.on('disconnect', (msg) => {
     console.log(`user ${socket.id} disconnected from server`);
-    io.emit('disconnect', msg);
+    io.emit('disconnect', socket.id)
+    console.log('msg do front:', msg);
   });
 
   socket.on('message', async (message) => {
     console.log('autor da msg:', message.nickname);
     console.log('msg vinda do client', message.chatMessage);
 
-    const timeformated = moment(new Date()).format('DD-MM-YY HH:mm:ss');
+    const timeformated = moment(new Date()).format('DD-MM-YYYY HH:mm:ss');
     const fullMessage = {
       nickname: message.nickname,
       chatMessage: message.chatMessage,

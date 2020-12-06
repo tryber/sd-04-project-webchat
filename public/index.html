@@ -82,7 +82,7 @@
 
       const renderMessage = (message) => {
         const li = document.createElement('li');
-        li.innerText = `${message.nickname}: ${message.chatMessage}`;
+        li.innerText = `${message.nickname || name}: ${message.chatMessage}`;
         li.setAttribute('data-testid', 'message');
 
         const spanTime = document.createElement('span');
@@ -113,18 +113,21 @@
         window.scrollTo(0, document.body.scrollHeight);
       });
 
-      socket.emit('disconnect', inputNick.value);
-
       socket.on('disconnect', (msg) => {
+        // socket.broadcast.emit('disconnect', msg)
         const disc = document.createElement('li');
-        disc.innerText = `user ${msg} disconnected`;
+        disc.innerText = `user ${inputNick.value} disconnected`;
         ulMessages.appendChild(disc);
-        console.log(`user ${msg} disconnected`);
+        console.log('msg do disconnect',msg);
+        console.log(`user ${inputNick.value} disconnected`);
       });
 
       formSendMessage.addEventListener('submit', (e) => {
         e.preventDefault();
-        socket.emit('message', { nickname: inputNick.value, chatMessage: inputMessage.value });
+        socket.emit('message', {
+          nickname: inputNick.value || name,
+          chatMessage: inputMessage.value,
+        });
       });
     </script>
   </body>
