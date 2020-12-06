@@ -3,6 +3,7 @@
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script src="http://chancejs.com/chance.min.js"></script>
   <body>
+    <ul id="usuariosConectados"></ul>
     <input data-testid="nickname-box" type="text" id="nickInput" />
     <button data-testid="nickname-save">Nick</button>
 
@@ -24,16 +25,23 @@
       };
 
       window.onload = () => {
-        socket.on('history', (data) => {
-          console.log(data)
-          document.getElementById('listaMensagem').innerHTML = data.map(
-            (mes) => `<li data-testid="message">${mes.date} - ${mes.nickname}: ${mes.message}</li>`
+        socket.on('userList', (data) => {
+          console.log(data);
+          document.getElementById('usuariosConectados').innerHTML = data.map(
+            (users) => `<li data-testid="online-user">${users}</li>`
           ).join('');
         });
 
+        socket.on('history', (data) => {
+          document.getElementById('listaMensagem').innerHTML = data
+            .map(
+              (mes) =>
+                `<li data-testid="message">${mes.date} - ${mes.nickname}: ${mes.message}</li>`
+            )
+            .join('');
+        });
 
         socket.on('message', (data) => {
-          console.log(data);
           const li = document.createElement('li');
           li.setAttribute('data-testid', 'message');
           li.textContent = data;
