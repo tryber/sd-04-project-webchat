@@ -1,5 +1,9 @@
 const socket = io('http://127.0.0.1:3000');
 
+const name = chance.name({ nationality: 'it' });
+
+console.log(name);
+
 console.log('socket conectado: ', socket);
 
 const inputNick = document.getElementById('nick-name');
@@ -44,12 +48,13 @@ const createMessage = (e) => {
   socket.on('message', (msg) => {
     const li = document.createElement('li');
     ulMessages.appendChild(li);
-    li.textContent = msg.chatMessage;
+    li.textContent = msg;
+    console.log(msg);
     window.scrollTo(0, document.body.scrollHeight);
   });
 
-  socket.emit('message', messageChatObject);
-  // socket.emit('message', { nickname: inputNick.value, chatMessage: inputMessage.value });
+  // socket.emit('message', messageChatObject);
+  socket.emit('message', { nickname: inputNick.value, chatMessage: inputMessage.value });
 
   inputMessage.value = '';
 

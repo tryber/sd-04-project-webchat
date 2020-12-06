@@ -8,9 +8,9 @@ const getAllMessages = async () =>
       throw err;
     });
 
-const insertMessage = async (message) => {
-  const savedMessage = await connection
-    .then((db) => db.collection('messages'.insertOne({ message })))
+const insertMessage = async (nickname, chatMessage, timeStamp) => {
+  const savedMessage = await connection()
+    .then((db) => db.collection('messages').insertOne({ nickname, chatMessage, timeStamp }))
     .catch((err) => {
       console.log(err);
       throw err;
