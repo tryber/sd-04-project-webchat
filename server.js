@@ -6,22 +6,16 @@ const path = require('path');
 
 const messageModel = require('./models/Messages');
 
-require('dotenv').config();
-
 app.use('/', express.static(path.join(__dirname, 'public')));
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
 let sockets = [];
 const obj = {};
 
 io.on('connection', async (socket) => {
   console.log('Conectado');
+  io.emit('userList', sockets);
 
   const allMessages = await messageModel.listMessages();
-  console.log(allMessages);
-
   io.emit('history', allMessages);
 
   const dispatch = (nickname) => {
