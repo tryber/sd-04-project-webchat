@@ -2,22 +2,39 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script src="http://chancejs.com/chance.min.js"></script>
+  <head>
+    <title>Web Chat</title>
+    <style>
+      ul {
+        list-style: none;
+      }
+      #usuariosConectados li{
+        display: inline;
+      }
+    </style>
+  </head>
   <body>
     <ul id="usuariosConectados"></ul>
     <input data-testid="nickname-box" type="text" id="nickInput" />
-    <button data-testid="nickname-save">Nick</button>
+    <button data-testid="nickname-save" onclick="sendNick()">Nick</button>
 
     <ul id="listaMensagem"></ul>
 
     <input data-testid="message-box" id="textInput" autocomplete="off" />
-    <button data-testid="send-button" onclick="sendMsg()">Send</button>
+    <button data-testid="send-button" onclick="sendMsg(event)">Send</button>
 
     <script>
       const socket = io('http://localhost:3000/');
+      const sendNick = () => {
+        const socket = io();
+        const chatMessage = document.getElementById('textInput').value;
+        const nickname = document.getElementById('nickInput').value;
+
+        socket.emit('newNick', { nickname, chatMessage });
+      };
 
       const sendMsg = () => {
         const socket = io();
-
         const chatMessage = document.getElementById('textInput').value;
         const nickname = document.getElementById('nickInput').value;
 
@@ -25,19 +42,18 @@
       };
 
       window.onload = () => {
-        socket.on('userList', async(data) => {
+        socket.on('userList', async (data) => {
           console.log(data);
-          document.getElementById('usuariosConectados').innerHTML = await data.map(
-            (users) => `<li data-testid="online-user">${users}</li>`
-          ).join('');
+          document.getElementById(
+            'usuariosConectados'
+          ).innerHTML = await data
+            .map((users) => `<li data-testid="online-user">${users}</li>`)
+            .join('');
         });
 
         socket.on('history', (data) => {
           document.getElementById('listaMensagem').innerHTML = data
-            .map(
-              (mes) =>
-                `<li data-testid="message">${mes.message}</li>`
-            )
+            .map((mes) => `<li data-testid="message">${mes.message}</li>`)
             .join('');
         });
 

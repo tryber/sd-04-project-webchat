@@ -24,6 +24,17 @@ io.on('connection', async (socket) => {
 
   io.emit('history', allMessages);
 
+  socket.on('newNick', async ({ nickname, chatMessage }) => {
+    if (!obj.user || !obj.user.includes(nickname)) {
+      obj.user = nickname;
+      sockets.unshift(obj.user);
+      sockets = sockets.filter((este, i) => sockets.indexOf(este) === i);
+      console.log(sockets);
+
+      io.emit('userList', sockets);
+    }
+  });
+
   socket.on('message', async ({ nickname, chatMessage }) => {
     if (!obj.user || !obj.user.includes(nickname)) {
       obj.user = nickname;
