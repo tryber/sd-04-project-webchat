@@ -36,7 +36,7 @@
           document.getElementById('listaMensagem').innerHTML = data
             .map(
               (mes) =>
-                `<li data-testid="message">${mes.date} - ${mes.nickname}: ${mes.message}</li>`
+                `<li data-testid="message">${mes.message}</li>`
             )
             .join('');
         });
