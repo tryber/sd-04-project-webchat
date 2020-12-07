@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>( Web Chat )</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <form id="form-chat">
+      <input
+        type="text"
+        data-testid="nickname-box"
+        name="nickname-box"
+        placeholder="Digite seu usuário"
+      />
+      <button type="submit" data-testid="nickname-save">Salvar Nickname</button>
+      <input
+        type="text"
+        data-testid="message-box"
+        id="idMessageBox"
+        name="message-box"
+        placeholder="Digite sua menssagem"
+      />
+      <button type="submit" data-testid="send-button">Enviar</button>
+      <fieldset>
+        <span>Mensagens: </span>
+        <ul id="mensage-input"></ul>
+      </fieldset>
+    </form>
+
+    <script>
+      const socket = io('http://localhost:3000');
+
+      socket.on('message', (message) => {
+        $('#mensage-input').append('<li data-testid="message">' + message + '</li>');
+      });
+
+      $('#form-chat').submit((e) => {
+      e.preventDefault();
+      let nickname = $('input[name=nickname-box]').val();
+      let chatMessage = $('input[name=message-box]').val();
+
+      socket.emit('message', { chatMessage, nickname });
+
+      const idMessageBox = document.getElementById('idMessageBox');
+      idMessageBox.value = '';
+    });
+    </script>
+
+    <!-- <script type="text/javascript" src="script.js"></script> -->
+  </body>
+</html>
