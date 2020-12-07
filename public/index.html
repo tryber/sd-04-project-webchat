@@ -29,6 +29,8 @@
       <button type="submit" data-testid="send-button">Enviar</button><br />
       <span>Mensagens: </span>
       <ul id="mensage-input"></ul>
+      <span>Conectados: </span>
+      <ul id="connected-user"></ul>
     </form>
 
     <script>
@@ -38,6 +40,11 @@
         $('#mensage-input').append('<li data-testid="message">' + message + '</li>');
       };
 
+      const connectedUser = (connected) => {
+        $('#connected-user').append('<li data-testid="online-user">' + connected + '</li>');
+      };
+
+      socket.on('online', connectedUser);
       socket.on('message', messagesChat);
       socket.on('historico', messagesChat);
 
@@ -47,6 +54,9 @@
         let chatMessage = $('input[name=message-box]').val();
 
         socket.emit('message', { chatMessage, nickname });
+
+        const idMessageBox = document.getElementById('idMessageBox');
+        idMessageBox.value = '';
       });
     </script>
 
