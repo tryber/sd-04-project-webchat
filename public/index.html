@@ -8,25 +8,35 @@
   </head>
   <body>
     <h1>Webchat</h1>
+    <ul id="messages"></ul>
     <div>
-      <input type="text" id="input-nickname" data-testid="nickname-box" />
+      <input
+        type="text"
+        id="input-nickname"
+        data-testid="nickname-box"
+        placeholder="Your nickname"
+      />
       <button type="button" id="submit-nickname" data-testid="nickname-save">
         Alterar Nickname
       </button>
     </div>
     <div>
-      <form action="">
-        <input type="text" id="input-message" data-testid="message-box" />
-        <button type="submit" id="submit-message" data-testid="send-button">
-          Enviar Mensagem
-        </button>
-      </form>
+      <input type="text" id="input-message" data-testid="message-box" />
+      <button type="button" id="submit-message" data-testid="send-button">
+        Enviar Mensagem
+      </button>
     </div>
-    <ul id="list"></ul>
+    <div>
+      <h3>Online Users</h3>
+      <ul id="users"></ul>
+    </div>
     <script>
       const socket = io();
 
       let nickname;
+
+      const messagesList = document.getElementById('messages');
+      const usersList = document.getElementById('users');
 
       const nicknameInput = document.getElementById('input-nickname');
       const btnSaveNickname = document.getElementById('submit-nickname');
@@ -34,26 +44,21 @@
       const messageInput = document.getElementById('input-message');
       const btnSendMessage = document.getElementById('submit-message');
 
-      const messagesList = document.getElementById('list');
+      btnSaveNickname.addEventListener('click', () => {
+        if (!nicknameInput.value) return;
+        nickname = nicknameInput.value;
+        nicknameInput.value = '';
+      });
 
-      btnSaveNickname.addEventListener(
-        'click',
-        () => (nickname = nicknameInput.value)
-      );
-
-      btnSendMessage.addEventListener('click', (e) => {
-        e.preventDefault();
+      btnSendMessage.addEventListener('click', () => {
         // Emitir o evento 'message'
+        if (!messageInput.value) return;
         socket.emit('message', {
           chatMessage: messageInput.value,
-          nickname,
+          nickname: nickname || 'Anonymous',
         });
         //
         messageInput.value = '';
-      });
-
-      socket.on('defaultNickname', (data) => {
-        nickname = data;
       });
 
       socket.on('loadMessages', (data) => {
@@ -62,7 +67,7 @@
             const li = document.createElement('li');
             li.textContent = `${item.date} - ${item.nickname}: ${item.chatMessage}`;
             li.setAttribute('data-testid', 'message');
-            list.appendChild(li);
+            messagesList.appendChild(li);
           });
         }
       });
@@ -71,7 +76,7 @@
         const li = document.createElement('li');
         li.textContent = `${msg.date} - ${msg.nickname}: ${msg.chatMessage}`;
         li.setAttribute('data-testid', 'message');
-        list.appendChild(li);
+        messagesList.appendChild(li);
       });
     </script>
   </body>
