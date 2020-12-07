@@ -17,13 +17,13 @@
         placeholder="Your nickname"
       />
       <button type="button" id="submit-nickname" data-testid="nickname-save">
-        Alterar Nickname
+        Save Nickname
       </button>
     </div>
     <div>
       <input type="text" id="input-message" data-testid="message-box" />
       <button type="button" id="submit-message" data-testid="send-button">
-        Enviar Mensagem
+        Send Message
       </button>
     </div>
     <div>
@@ -31,7 +31,7 @@
       <ul id="users"></ul>
     </div>
     <script>
-      const socket = io();
+      const socket = io('http://localhost:3000/');
 
       let nickname;
 
@@ -72,9 +72,10 @@
         }
       });
 
-      socket.on('serverResponse', (msg) => {
+      socket.on('message', (message) => {
+        console.log(message);
         const li = document.createElement('li');
-        li.textContent = `${msg.date} - ${msg.nickname}: ${msg.chatMessage}`;
+        li.textContent = message;
         li.setAttribute('data-testid', 'message');
         messagesList.appendChild(li);
       });

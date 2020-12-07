@@ -16,17 +16,22 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-io.on('connection', async (socket) => {
+const loadMessages = async (socket) => {
+  const messages = await chatModel.getMessages();
+  socket.emit('loadMessages', messages);
+};
+
+io.on('connection', (socket) => {
   console.log('user connected');
 
   // handle messages
-  const messages = await chatModel.getMessages();
-  socket.emit('loadMessages', messages);
+  loadMessages(socket);
 
   socket.on('message', async (data) => {
     const { chatMessage, nickname } = data;
     const result = await chatModel.saveMessage(chatMessage, nickname);
-    io.emit('serverResponse', result);
+    const { date } = result;
+    io.emit('message', `${date} - ${nickname}: ${chatMessage}`);
   });
   //
 
