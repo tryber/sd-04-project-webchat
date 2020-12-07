@@ -19,34 +19,50 @@ app.get('/', (_req, res) => {
   res.sendFile('index.html');
 });
 
+let newUsers = [];
 // SOCKET.IO
 io.on('connection', async (socket) => {
   const allMessages = await getAllMessages();
 
+  newUsers.push(socket.id);
+
+  socket.emit('newUser', socket.id);
+
+  socket.broadcast.emit('newUser', `User joined with ID: ${socket.id}`);
+
   socket.emit('history', allMessages);
 
   console.log('socket conectado com ID:', socket.id);
+  console.log('array de novos usuários', newUsers);
 
   socket.on('disconnect', (msg) => {
     console.log(`user ${socket.id} disconnected from server`);
-    io.emit('disconnect', socket.id);
+    newUsers = newUsers.filter((user) => user !== socket.id);
+    console.log(newUsers);
     console.log('msg do front:', msg);
+  });
+
+  socket.on('userDisconnected', (msg) => {
+    console.log('essa msg sim está vindo front-end, espero q seja o nome do usuario', msg);
   });
 
   socket.on('message', async (message) => {
     console.log('autor da msg:', message.nickname);
     console.log('msg vinda do client', message.chatMessage);
 
-    const timeformated = moment(new Date()).format('DD-MM-YYYY HH:mm:ss');
+    const timeformated = moment(new Date()).format('DD-MM-YYYY h:mm:ss a');
+
     const fullMessage = {
       nickname: message.nickname,
       chatMessage: message.chatMessage,
       timeStamp: timeformated,
     };
+    const fullMsgString = `${timeformated} ${message.nickname} ${message.chatMessage}`;
 
     await insertMessage(message.nickname, message.chatMessage, timeformated);
 
-    io.emit('message', fullMessage);
+    io.emit('message', fullMsgString);
+    // io.emit('message', fullMessage);
     // socket.broadcast.emit('message', message.chatMessage);
   });
 });

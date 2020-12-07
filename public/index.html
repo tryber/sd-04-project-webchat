@@ -5,32 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css" />
     <title>Trybe WebChat</title>
+    <!-- <style>
+      body: {
+        position: relative;
+      }
+      form {
+        position: fixed;
+        bottom: 0;
+      }
+      header {
+        position: fixed;
+      }
+      #main-messages {
+        position: absolute;
+        height: 50vh;
+      }
+    </style> -->
   </head>
   <body>
-    <h2 class="title">Trybe WebChat</h2>
+    <header>
+      <h2 id="div-nickname" class="title">Trybe WebChat</h2>
 
-    <div class="field is-flex">
-      <div class="is-flex is-align-items-center">
-        <input
-          class="input is-success is-rounded m-2"
-          id="nick-name"
-          type="text"
-          data-testid="nickname-box"
-          placeholder="your nickName here"
-        />
-        <button
-          onclick="preventDefault"
-          type="button"
-          id="nickname-button"
-          class="button is-success is-rounded"
-          data-testid="nickname-save"
-        >
-          salvar nick name
-        </button>
+      <div class="field is-flex">
+        <div class="is-flex is-align-items-center">
+          <input
+            class="input is-success is-rounded m-2"
+            id="nick-name"
+            type="text"
+            data-testid="nickname-box"
+            placeholder="your nickName here"
+          />
+          <button
+            type="button"
+            id="nickname-button"
+            class="button is-success is-rounded"
+            data-testid="nickname-save"
+          >
+            salvar nick name
+          </button>
+        </div>
       </div>
-    </div>
+    </header>
 
-    <div class="box has-background-primary">
+    <div id="main-messages" class="box has-background-primary">
       <h3>Mensagens:</h3>
       <ul id="ul-messages"></ul>
     </div>
@@ -68,6 +85,10 @@
 
       console.log('socket conectado: ', socket);
 
+      socket.on('connect', () => {
+        console.log('User connected');
+      });
+
       const inputNick = document.getElementById('nick-name');
 
       const inputMessage = document.getElementById('message-box');
@@ -80,6 +101,9 @@
 
       const ulMessages = document.getElementById('ul-messages');
 
+      const divNickName = document.getElementById('div-nickname');
+
+      // FUNÇÃO QUE RECEBE UM OBJETO COMO MENSAGEM E RENDERIZA NA TELA
       const renderMessage = (message) => {
         const li = document.createElement('li');
         li.innerText = `${message.nickname || name}: ${message.chatMessage}`;
@@ -89,22 +113,22 @@
         spanTime.innerText = message.timeStamp;
         spanTime.classList.add('is-italic');
         spanTime.classList.add('is-size-7');
-        spanTime.classList.add('has-text-right');
 
         const msgDiv = document.createElement('div');
         msgDiv.classList.add('box');
-        msgDiv.appendChild(li);
         msgDiv.appendChild(spanTime);
+        msgDiv.appendChild(li);
 
         ulMessages.appendChild(msgDiv);
         inputMessage.value = '';
       };
 
+      // PEGA O HISTÓRICO DE MSGS DO BANCO DE DADOS E RENDERIZA NA TELA USANDO A FUNÇÃO renderMessage
       socket.on('history', (msgHistoric) => {
         msgHistoric.forEach((msg) => {
           renderMessage(msg);
         });
-        console.log(msgHistoric);
+        // window.scrollTo(0, document.body.scrollHeight);
       });
 
       socket.on('message', (message) => {
@@ -114,12 +138,26 @@
       });
 
       socket.on('disconnect', (msg) => {
-        // socket.broadcast.emit('disconnect', msg)
         const disc = document.createElement('li');
-        disc.innerText = `user ${inputNick.value} disconnected`;
+        disc.innerText = `user ${inputNick.value || name} disconnected`;
         ulMessages.appendChild(disc);
-        console.log('msg do disconnect',msg);
+        console.log('msg do disconnect', msg);
         console.log(`user ${inputNick.value} disconnected`);
+        socket.emit('userDisconnected', inputNick.value || name);
+        // socket.broadcast.emit('disconnect', msg);
+      });
+
+      socket.on('newUser', (msg) => {
+        console.log('new user connected on server', msg);
+        // socket.emit('newUser', inputNick.value);
+      });
+
+      nickNameButton.addEventListener('click', () => {
+        const titleH2 = document.createElement('div');
+        titleH2.innerText = `${inputNick.value || name}`;
+        divNickName.appendChild(titleH2);
+        inputNick.disabled = true;
+        nickNameButton.innerText = 'Alterar nickName';
       });
 
       formSendMessage.addEventListener('submit', (e) => {
