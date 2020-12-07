@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web chat</title>
+</head>
+<body>
+  <form id="nickname-form">
+    <input type="text" id="nickname-input" placeholder="Type your nickname" data-testid="nickname-box">
+    <button class="nickname-save" data-testid="nickname-save">Save</button>
+  </form>
+  <div class="chat-messages"></div>
+  <div class="chat-form-container">
+    <form id="chat-form">
+      <input type="text" id="message" placeholder="Enter message" required data-testid="message-box">
+      <button class="send-btn" date-testid="send-button">Send</button>
+    </form>
+  </div>
+
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script type="module" defer src="./script.js"></script>
+</body>
+</html>
