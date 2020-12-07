@@ -8,7 +8,7 @@ const app = express();
 // vou criar apenas uma rota de servidor, poderia ser feito com rotas distintas também.
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const { saveMessages } = require('./models/messagesModel');
+const { saveMessages, allMessages } = require('./models/messagesModel');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_PATH = path.join(__dirname, 'public');
@@ -28,6 +28,11 @@ io.on('connection', async (socket) => {
     socket.emit('message', sendMessage);
     socket.broadcast.emit('message', sendMessage);
     await saveMessages({ nickname, chatMessage, timestamp });
+  });
+
+  const messageDB = await allMessages();
+  messageDB.forEach(({ nickname, chatMessage, timestamp }) => {
+    socket.emit('historico', `${nickname} ${chatMessage}: ${timestamp}`);
   });
 });
 
