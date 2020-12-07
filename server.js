@@ -57,7 +57,7 @@ io.on('connection', async (socket) => {
     //   chatMessage: message.chatMessage,
     //   timeStamp: timeformated,
     // };
-    const fullMsgString = `${timeformated} ${message.nickname} ${message.chatMessage}`;
+    const fullMsgString = `${timeformated} ${message.nickname}: ${message.chatMessage}`;
 
     await insertMessage(message.nickname, message.chatMessage, timeformated);
 

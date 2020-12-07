@@ -106,17 +106,18 @@
       // FUNÇÃO QUE RECEBE UM OBJETO COMO MENSAGEM E RENDERIZA NA TELA
       const renderMessage = (message) => {
         const li = document.createElement('li');
-        li.innerText = `${message.nickname || name}: ${message.chatMessage}`;
+        li.innerText = message;
+        // li.innerText = `${message.nickname || name}: ${message.chatMessage}`;
         li.setAttribute('data-testid', 'message');
 
-        const spanTime = document.createElement('span');
-        spanTime.innerText = message.timeStamp;
-        spanTime.classList.add('is-italic');
-        spanTime.classList.add('is-size-7');
+        // const spanTime = document.createElement('span');
+        // spanTime.innerText = message.timeStamp;
+        // spanTime.classList.add('is-italic');
+        // spanTime.classList.add('is-size-7');
 
         const msgDiv = document.createElement('div');
         msgDiv.classList.add('box');
-        msgDiv.appendChild(spanTime);
+        // msgDiv.appendChild(spanTime);
         msgDiv.appendChild(li);
 
         ulMessages.appendChild(msgDiv);
@@ -125,8 +126,9 @@
 
       // PEGA O HISTÓRICO DE MSGS DO BANCO DE DADOS E RENDERIZA NA TELA USANDO A FUNÇÃO renderMessage
       socket.on('history', (msgHistoric) => {
+        console.log('history', msgHistoric);
         msgHistoric.forEach((msg) => {
-          renderMessage(msg);
+          renderMessage(`${msg.timeStamp} ${msg.nickname} ${msg.chatMessage}`);
         });
         // window.scrollTo(0, document.body.scrollHeight);
       });
