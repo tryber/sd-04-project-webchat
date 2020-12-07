@@ -52,11 +52,11 @@ io.on('connection', async (socket) => {
 
     const timeformated = moment(new Date()).format('DD-MM-YYYY h:mm:ss a');
 
-    const fullMessage = {
-      nickname: message.nickname,
-      chatMessage: message.chatMessage,
-      timeStamp: timeformated,
-    };
+    // const fullMessage = {
+    //   nickname: message.nickname,
+    //   chatMessage: message.chatMessage,
+    //   timeStamp: timeformated,
+    // };
     const fullMsgString = `${timeformated} ${message.nickname} ${message.chatMessage}`;
 
     await insertMessage(message.nickname, message.chatMessage, timeformated);
