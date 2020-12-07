@@ -23,7 +23,7 @@ io.on('connection', async (socket) => {
   socket.on('message', async ({ chatMessage, nickname }) => {
     const date = new Date();
     const timestamp = moment(date).format('DD-MM-yyyy h:mm:ss A');
-    const sendMessage = `${timestamp} ${nickname}: ${chatMessage}`;
+    const sendMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
 
     socket.emit('message', sendMessage);
     socket.broadcast.emit('message', sendMessage);
@@ -31,9 +31,12 @@ io.on('connection', async (socket) => {
   });
 
   const messageDB = await allMessages();
-  messageDB.forEach(({ nickname, chatMessage, timestamp }) => {
-    socket.emit('historico', `${nickname} ${chatMessage}: ${timestamp}`);
+  const msgSend = [];
+  messageDB.map((element) => {
+    const { chatMessage, nickname, timestamp } = element;
+    return msgSend.push(`${timestamp} - ${nickname}: ${chatMessage}`);
   });
+  socket.emit('historico', msgSend);
 });
 
 server.listen(PORT, () => {

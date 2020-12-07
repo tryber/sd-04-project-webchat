@@ -47,9 +47,6 @@
         let chatMessage = $('input[name=message-box]').val();
 
         socket.emit('message', { chatMessage, nickname });
-
-        const idMessageBox = document.getElementById('idMessageBox');
-        idMessageBox.value = '';
       });
     </script>
 
