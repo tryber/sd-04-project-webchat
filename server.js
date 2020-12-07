@@ -34,10 +34,10 @@ io.on('connection', (socket) => {
       nickname: message.nickname,
       message: message.chatMessage,
     });
-    const messageTimestamp = ObjectID(insertedMessage._id).getTimestamp();
-    console.log(
-      formatMessage(message.nickname, message.chatMessage, messageTimestamp),
-    );
+    const messageId = '_id';
+    const messageTimestamp = ObjectID(
+      insertedMessage[messageId],
+    ).getTimestamp();
     io.emit(
       'message',
       formatMessage(message.nickname, message.chatMessage, messageTimestamp),
