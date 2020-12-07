@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 
-//  https://tableless.com.br/trabalhando-com-moment/
+//  Moment retirado de https://tableless.com.br/trabalhando-com-moment/
 const moment = require('moment');
 
 const app = express();

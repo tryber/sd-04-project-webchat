@@ -3,8 +3,7 @@ const connection = require('./connection');
 const saveMessages = async (message, nickname, timestamp) =>
   connection()
     .then((db) =>
-      db.collection('messages').insertOne({ message, nickname, timestamp }),
-    )
+      db.collection('messages').insertOne({ message, nickname, timestamp }))
     .then(({ insertedId }) => ({
       _id: insertedId,
       message,
