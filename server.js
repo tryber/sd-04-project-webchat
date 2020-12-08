@@ -29,9 +29,8 @@ io.on('connection', async (socket) => {
   const allMessages = await messageModel.listMessages();
   io.emit('history', allMessages); // Emit history messages on connected
 
-
-  socket.on('newNick', async ({ nickname }) => {
-    await dispatch(nickname);
+  socket.on('newNick', ({ nickname }) => {
+    dispatch(nickname);
   });
 
   // Create a nick and send a message
