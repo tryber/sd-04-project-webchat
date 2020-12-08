@@ -71,8 +71,8 @@
       window.onload = () => {
         user.innerText = `Usuário ${Math.floor(Math.random() * (5000 - 1)) + 1}`
         // Render Online Users
-        socket.on('userList', async (data) => {
-          onlineUsers.innerHTML = await data
+        socket.on('userList', (data) => {
+          onlineUsers.innerHTML = data
             .map((users) => `<li data-testid="online-user">${users}</li>`)
             .join('');
         });
