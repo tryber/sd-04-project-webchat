@@ -7,37 +7,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vem de Chat</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap"
+      rel="stylesheet"
+    />
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script src="http://chancejs.com/chance.min.js"></script>
   </head>
   <body>
     <section>
+      <!-- <div class="upper">
+
       <h1 id="name"></h1>
+    </div> -->
       <form>
-        <div id="top-div">
+        <div class="upper">
+          <h1 id="name"></h1>
+
+          <div class="noHidden" id="top-div">
+            <input
+              data-testid="nickname-box"
+              type="text"
+              name="nickname"
+              id="nickname-input"
+            />
+
+            <button data-testid="nickname-save" type="submit" id="nickname-btn">
+              Save name
+            </button>
+          </div>
+        </div>
+        <div class="chat" id="chat"></div>
+        <div class="botton">
           <input
-            data-testid="nickname-box"
+            data-testid="message-box"
             type="text"
-            name="nickname"
-            id="nickname-input"
+            name="message"
+            id="message-input"
           />
 
-          <button data-testid="nickname-save" type="submit" id="nickname-btn">
-            Salvar Nickname
+          <button data-testid="send-button" type="submit" id="message-btn">
+            ➤
           </button>
         </div>
-        <div id="chat"></div>
-
-        <input
-          data-testid="message-box"
-          type="text"
-          name="message"
-          id="message-input"
-        />
-
-        <button data-testid="send-button" type="submit" id="message-btn">
-          Enviar Mensagem
-        </button>
       </form>
     </section>
   </body>
@@ -84,11 +97,15 @@
       const newMessage = document.createElement('p');
 
       newMessage.setAttribute('data-testid', 'message');
+      newMessage.classList.add('message');
       newMessage.innerText = message;
 
       chat.appendChild(newMessage);
     };
     socket.on('message', (message) => {
+      addNewMessage(message);
+    });
+    socket.on('history', (message) => {
       addNewMessage(message);
     });
   </script>

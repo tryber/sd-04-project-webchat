@@ -17,6 +17,15 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 io.on('connection', async (socket) => {
   console.log('usuário se contectou');
 
+  const history = await webchatModel.getHistory();
+  console.log(history);
+  history.forEach(({ message, nickname, timestamp }) => {
+    const previousMessages = `${timestamp} ${nickname} ${message}`;
+    // const previousMessages = `${message}`;
+
+    socket.emit('history', previousMessages);
+  });
+
   socket.on('message', async ({ nickname, chatMessage }) => {
     const timestamp = moment().format('DD-MM-yyyy HH:mm:ss');
 
