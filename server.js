@@ -52,7 +52,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('user disconnected');
     onlineUsers = onlineUsers.filter((user) => user.userID !== socket.id);
-    socket.emit('onlineUsers', onlineUsers);
+    io.emit('onlineUsers', onlineUsers);
   });
 });
 
