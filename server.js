@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
 
     await webChatModel.add(dados);
 
-    socket.broadcast.emit("message", dados);
+    socket.broadcast.emit("message", `<strong>${dados.date} - ${dados.nickname}</strong>: ${dados.chatMessage}`);
   });
 });
 
