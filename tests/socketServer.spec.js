@@ -44,10 +44,10 @@ describe('Crie um back-end para conexão simultaneamente de clientes e troca de 
   it('Será validado que cada cliente conectado ao chat recebe todas as mensagens que já foram enviadas', (done) => {
     console.log('test msg 1');
     client1.emit('message', { chatMessage, nickname });
-      console.log('test msg');
+      console.log('test msg',chatMessage, nickname );
 
     client1.on('message', (message) => {
-      console.log('test msg', message);
+      console.log('test msg3', message);
       expect(message.includes(chatMessage)).toBeTruthy();
     });
     client2.on('message', (message) => {

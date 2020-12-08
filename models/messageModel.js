@@ -18,6 +18,7 @@ const getAllMessages = async () => {
 
 const storeMessage = async (nickname, chatMessage) => {
   try {
+    console.log('storeMessage', nickname, chatMessage);
     const dateToStore = dayjs(new Date()).format('DD-MM-YYYY hh:mm:ss');
     const db = await connection();
     const storeOneMessage = await db.collection('messages').insertOne({

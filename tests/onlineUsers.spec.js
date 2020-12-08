@@ -33,7 +33,7 @@ describe('Informe a todos os clientes quem está online no momento', () => {
     await connection.close();
   });
   
-  it.skip('Será validado que quando um usuário se conecta, seu nome aparece no frontend de todos', async () => {
+  it('Será validado que quando um usuário se conecta, seu nome aparece no frontend de todos', async () => {
     const nickname = 'Joao da carrocinha'
     const secondNickname = 'Zacarias'
 
@@ -69,7 +69,7 @@ describe('Informe a todos os clientes quem está online no momento', () => {
     await newPage.close(); 
   });
 
-  it.skip('Será validado que qunado um usuário se desconecta, seu nome desaparece do frontend dos outros usuários.', async () => {
+  it('Será validado que qunado um usuário se desconecta, seu nome desaparece do frontend dos outros usuários.', async () => {
     const nickname = 'Joao da carrocinha'
     const secondNickname = 'Zacarias'
 

@@ -81,7 +81,7 @@
         e.preventDefault(); // prevent if f5 on the page
         // send input value to server as type 'message'
         socket.emit('message', {
-          text: input.value,
+          chatMessage: input.value,
           nickname,
         });
         input.value = '';
