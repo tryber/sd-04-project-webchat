@@ -26,7 +26,7 @@ io.on('connection', async (socket) => {
     const sendMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
 
     io.emit('online', nickname);
-    socket.emit('message', sendMessage);
+    io.emit('message', sendMessage);
     socket.broadcast.emit('message', sendMessage);
     await saveMessages({ nickname, chatMessage, timestamp });
   });
