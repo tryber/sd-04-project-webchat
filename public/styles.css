@@ -1,4 +1,6 @@
-body { height: 100% }
+body {
+  height: 100%;
+}
 
 html , body , div , span , h1 , h2 , h3 , p , a , small , ol , ul , li , form , input {
   box-sizing: border-box;
