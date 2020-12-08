@@ -1,7 +1,7 @@
-const connection = require('./connection');
-const { ObjectId } = require('mongodb');
+// const { ObjectId } = require('mongodb');
 require('dotenv').config();
 const dayjs = require('dayjs');
+const connection = require('./connection');
 
 const getAllMessages = async () => {
   try {
@@ -21,7 +21,7 @@ const storeMessage = async (nickname, chatMessage) => {
     console.log('storeMessage', nickname, chatMessage);
     const dateToStore = dayjs(new Date()).format('DD-MM-YYYY hh:mm:ss');
     const db = await connection();
-    const storeOneMessage = await db.collection('messages').insertOne({
+    await db.collection('messages').insertOne({
       nickname,
       chatMessage,
       created_on: dateToStore,

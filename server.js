@@ -1,11 +1,11 @@
 const express = require('express');
-const messageModels = require('./models/messageModel');
 
 const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const cors = require('cors');
 const path = require('path');
+const messageModels = require('./models/messageModel');
 
 const loggedUsers = {};
 app.use(cors());
@@ -21,13 +21,16 @@ io.on('connection', (socket) => {
   io.emit('loggedUsers', loggedUsers);
 
   socket.on('send all messages', async () => {
-    let allMessages = await messageModels.getAllMessages();
+    const allMessages = await messageModels.getAllMessages();
     io.emit('allMessages', allMessages);
   });
 
   socket.on('message', async (msg) => {
     console.log('message', msg);
-    const result = await messageModels.storeMessage(msg.nickname, msg.chatMessage);
+    const result = await messageModels.storeMessage(
+      msg.nickname,
+      msg.chatMessage,
+    );
     console.log('result', result);
     io.emit('message', result);
   });
