@@ -13,10 +13,10 @@ const obj = {};
 
 io.on('connection', async (socket) => {
   console.log('Conectado');
-  io.emit('userList', sockets);
+  io.emit('userList', sockets); // Emit online users on connected
 
   const allMessages = await messageModel.listMessages();
-  io.emit('history', allMessages);
+  io.emit('history', allMessages); // Emit history messages on connected
 
   const dispatch = (nickname) => {
     if (!obj.user || !obj.user.includes(nickname)) {
@@ -48,6 +48,7 @@ io.on('connection', async (socket) => {
     sockets.splice(sockets.indexOf(socket), 1);
     const message = `${obj.user} > deixou o chat`;
     console.log(message);
+
     io.emit('userList', sockets);
   });
 });
