@@ -54,7 +54,6 @@
         user.innerText = nickname;
 
         socket.emit('newNick', { nickname });
-        nicknameInput.value = '';
       });
 
       // EventListener - button send msg
@@ -64,6 +63,8 @@
         let nickname = nicknameInput.value;
 
         socket.emit('message', { nickname, chatMessage });
+        nicknameInput.value = '';
+        chatMessageInput.value = ''; 
       });
       /* ----------------------------------------------------------------*/
 
