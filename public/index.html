@@ -69,7 +69,10 @@
       /* ----------------------------------------------------------------*/
 
       window.onload = () => {
-        user.innerText = `Usuário ${Math.floor(Math.random() * (5000 - 1)) + 1}`
+       
+        const nickname = user.innerText = `Usuário ${Math.floor(Math.random() * (5000 - 1)) + 1}`
+        socket.emit('newNick', { nickname });
+
         // Render Online Users
         socket.on('userList', (data) => {
           onlineUsers.innerHTML = data

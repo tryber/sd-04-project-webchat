@@ -12,12 +12,6 @@ let sockets = [];
 const obj = {};
 
 io.on('connection', async (socket) => {
-  console.log('Conectado');
-  io.emit('userList', sockets); // Emit online users on connected
-
-  const allMessages = await messageModel.listMessages();
-  io.emit('history', allMessages); // Emit history messages on connected
-
   // Helper to create and validate a nickname
   const dispatch = (nickname) => {
     if (!obj.user || !obj.user.includes(nickname)) {
@@ -30,8 +24,14 @@ io.on('connection', async (socket) => {
     }
   };
 
-  socket.on('newNick', async ({ nickname }) => {
-    await dispatch(nickname);
+  console.log('Conectado');
+  io.emit('userList', sockets); // Emit online users on connected
+
+  const allMessages = await messageModel.listMessages();
+  io.emit('history', allMessages); // Emit history messages on connected
+
+  socket.on('newNick', ({ nickname }) => {
+    dispatch(nickname);
   });
 
   // Create a nick and send a message
