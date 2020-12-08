@@ -27,13 +27,13 @@
       const socket = io('http://localhost:3000/');
       const sendNick = () => {
         const socket = io();
-        const chatMessage = document.getElementById('textInput').value;
         const nickname = document.getElementById('nickInput').value;
 
-        socket.emit('newNick', { nickname, chatMessage });
+        socket.emit('newNick', { nickname });
       };
 
-      const sendMsg = () => {
+      const sendMsg = (e) => {
+        e.preventDefault()
         const socket = io();
         const chatMessage = document.getElementById('textInput').value;
         const nickname = document.getElementById('nickInput').value;
