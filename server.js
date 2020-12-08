@@ -12,13 +12,13 @@ app.get('/', (_req, res) => {
 });
 
 io.on('connection', (socket) => {
-  userId + 1;
-  socket.user = `User ${userId}`;
+  socket.user = `User ${userId++}`;
   io.emit('sendNick', socket.user);
 
   socket.on('message', async (message) => {
     const newDate = new Date();
-    const data = newDate.toISOString().substr(0, 10).split('-').reverse().join('-');
+    const data = newDate.toISOString().substr(0, 10).split('-').reverse()
+    .join('-');
     const time = newDate.toLocaleString([], { hour12: true }).substr(11);
     const composeMessage = await `${data} ${time} - ${message.nickname}: ${message.chatMessage}`;
     io.emit('showMsg', composeMessage);
