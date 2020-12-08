@@ -16,7 +16,7 @@ io.on('connection', async (socket) => {
   const dispatch = (nickname) => {
     if (!obj.user || !obj.user.includes(nickname)) {
       obj.user = nickname;
-      sockets.push(obj.user);
+      sockets.unshift(obj.user);
       sockets = sockets.filter((este, i) => sockets.indexOf(este) === i);
       console.log(sockets);
 
