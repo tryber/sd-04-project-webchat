@@ -12,10 +12,6 @@ let sockets = [];
 const obj = {};
 
 io.on('connection', async (socket) => {
-
-  socket.on('guestId', (data) => {
-    console.log(data);
-  });
   console.log('Conectado');
   io.emit('userList', sockets);
 
@@ -49,6 +45,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('disconnect', () => {
+    sockets.splice(sockets.indexOf(socket), 1);
     const message = `${obj.user} > deixou o chat`;
     console.log(message);
     io.emit('userList', sockets);

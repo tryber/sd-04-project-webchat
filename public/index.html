@@ -8,15 +8,15 @@
       ul {
         list-style: none;
       }
-      #usuariosConectados li {
+      #usuariosConectados li{
         display: inline;
       }
     </style>
   </head>
   <body>
-    <h2 id="name"></h2>
+    <h1 id="name"></h1>
     <input data-testid="nickname-box" type="text" id="nickInput" />
-    <button data-testid="nickname-save" onclick="sendNick(event)">Nick</button>
+    <button data-testid="nickname-save" onclick="sendNick()">Nick</button>
 
     <ul id="listaMensagem"></ul>
 
@@ -24,28 +24,24 @@
     <button data-testid="send-button" onclick="sendMsg(event)">Send</button>
 
     <ul id="usuariosConectados"></ul>
+
     <script>
       const socket = io('http://localhost:3000/');
-
-      const sendNick = (event) => {
-        event.preventDefault();
+      const name = document.getElementById('name');
+      const sendNick = () => {
         const socket = io();
+        const chatMessage = document.getElementById('textInput').value;
         const nickname = document.getElementById('nickInput').value;
-        const name = document.getElementById('name');
-
         name.innerText = nickname;
-
-        socket.emit('newNick', { nickname });
+        socket.emit('newNick', { nickname, chatMessage });
       };
 
-      const sendMsg = (event) => {
-        event.preventDefault();
+      const sendMsg = () => {
         const socket = io();
         const chatMessage = document.getElementById('textInput').value;
         const nickname = document.getElementById('nickInput').value;
 
         socket.emit('message', { nickname, chatMessage });
-        chatMessage.value = '';
       };
 
       window.onload = () => {
@@ -54,7 +50,7 @@
           document.getElementById(
             'usuariosConectados'
           ).innerHTML = await data
-            .map((users) => `<li data-testid="online-user">${users} </li>`)
+            .map((users) => `<li data-testid="online-user">${users}</li>`)
             .join('');
         });
 
