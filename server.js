@@ -2,38 +2,39 @@ const app = require('express')();
 const express = require('express');
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
+const cors = require('cors');
 const path = require('path');
 
 const messageModel = require('./models/Messages');
 
+app.use(cors());
 app.use('/', express.static(path.join(__dirname, 'public')));
 
 let sockets = [];
 const obj = {};
 
-// Helper to create and validate a nickname
-const dispatch = (nickname) => {
-  if (!obj.user || !obj.user.includes(nickname)) {
-    obj.user = nickname;
-    sockets.push(obj.user);
-    sockets = sockets.filter((este, i) => sockets.indexOf(este) === i);
-    console.log(sockets);
-
-    io.emit('userList', sockets);
-  }
-};
 io.on('connection', async (socket) => {
   console.log('Conectado');
-  io.emit('userList', sockets); // Emit online users on connected
+  io.emit('userList', sockets);
 
   const allMessages = await messageModel.listMessages();
-  io.emit('history', allMessages); // Emit history messages on connected
+  io.emit('history', allMessages);
 
-  socket.on('newNick', ({ nickname }) => {
-    dispatch(nickname);
+  const dispatch = (nickname) => {
+    if (!obj.user || !obj.user.includes(nickname)) {
+      obj.user = nickname;
+      sockets.unshift(obj.user);
+      sockets = sockets.filter((este, i) => sockets.indexOf(este) === i);
+      console.log(sockets);
+
+      io.emit('userList', sockets);
+    }
+  };
+
+  socket.on('newNick', async ({ nickname }) => {
+    await dispatch(nickname);
   });
 
-  // Create a nick and send a message
   socket.on('message', async ({ nickname, chatMessage }) => {
     await dispatch(nickname);
 
@@ -46,11 +47,9 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('disconnect', () => {
-    // Split user from array
     sockets.splice(sockets.indexOf(socket), 1);
     const message = `${obj.user} > deixou o chat`;
     console.log(message);
-
     io.emit('userList', sockets);
   });
 });
