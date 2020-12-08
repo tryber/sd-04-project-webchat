@@ -49,7 +49,7 @@
           document.getElementById(
             'usuariosConectados'
           ).innerHTML = await data
-            .map((users) => `<li data-testid="online-user">${users}</li>`)
+            .map((users) => `<li data-testid="online-user">${users} </li>`)
             .join('');
         });
 
