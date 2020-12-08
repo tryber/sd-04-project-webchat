@@ -1,16 +1,17 @@
 const express = require('express');
 const path = require('path');
+const moment = require('moment');
 
 const webChatModel = require('./model/webchatModel');
 
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const moment = require('moment');
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'public'));
 app.engine('html', require('ejs').renderFile);
+
 app.set('view engine', 'html');
 
 app.use('/', (req, res) => {
@@ -31,7 +32,7 @@ io.on('connection', (socket) => {
 
     socket.broadcast.emit(
       'message',
-      `<strong>${dados.date} - ${dados.nickname}</strong>: ${dados.chatMessage}`
+      `<strong>${dados.date} - ${dados.nickname}</strong>: ${dados.chatMessage}`,
     );
   });
 });
