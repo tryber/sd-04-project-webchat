@@ -15,6 +15,7 @@
   </head>
   <body>
     <h1 id="name"></h1>
+
     <input data-testid="nickname-box" type="text" id="nickInput" />
     <button id="changeNick" data-testid="nickname-save">Nick</button>
 
@@ -53,6 +54,7 @@
         user.innerText = nickname;
 
         socket.emit('newNick', { nickname });
+        nicknameInput.value = '';
       });
 
       // EventListener - button send msg
