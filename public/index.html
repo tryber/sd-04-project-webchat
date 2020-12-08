@@ -11,12 +11,11 @@
     <button class="nickname-save" data-testid="nickname-save">Save</button>
   </form>
   <div class="chat-messages"></div>
-  <div class="chat-form-container">
-    <form id="chat-form">
-      <input type="text" id="message" placeholder="Enter message" required data-testid="message-box">
-      <button class="send-btn" data-testid="send-button">Send</button>
-    </form>
-  </div>
+  <form id="chat-form">
+    <input type="text" id="message" placeholder="Enter message" required data-testid="message-box">
+    <button class="send-btn" data-testid="send-button">Send</button>
+  </form>
+  <div id="users-list"></div>
 
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script>
@@ -33,6 +32,21 @@
       document.querySelector('.chat-messages').appendChild(div);
     };
 
+    // const addUserInList = (nickanme) => {
+    //   const div = document.createElement('div');
+    //   div.classList.add('online-user-container');
+    //   div.innerHTML = `<p class="online-user" data-testid="online-user">${nickanme}</p>`
+    //   document.querySelector('#users-list').appendChild(div);
+    // };
+
+    socket.on('connect', () => {
+      socket.emit('userOnline', localStorage.getItem('nickname') ? localStorage.getItem('nickname') : `User ${socket.id}`)
+    });
+
+    socket.on('loadMessagesHistory', (messages) => {
+      messages.forEach((message) => outputMessage(message))
+    })
+
     socket.on('message', (message) => {
       outputMessage(message);
       chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -41,7 +55,7 @@
     chatForm.addEventListener('submit', (event) => {
       event.preventDefault();
 
-      const nickname = localStorage.getItem('nickname')
+      const nickname = localStorage.getItem('nickname') ? localStorage.getItem('nickname') : `User ${socket.id}`
 
       const chatMessage = event.target.elements.message.value;
       socket.emit('message', { chatMessage, nickname });

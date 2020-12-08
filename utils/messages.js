@@ -4,11 +4,7 @@ const formatMessage = (nickname, chatMessage, timestamp) => {
   const message = {
     nickname,
     chatMessage,
-    timestamp: timestamp
-      ? moment(new Date(timestamp))
-        .locale('pt-br')
-        .format('DD-MM-YYYY HH:mm:ss')
-      : moment(new Date()).locale('pt-br').format('DD-MM-YYYY HH:mm:ss'),
+    timestamp: moment(new Date(timestamp)).format('DD-MM-yyyy hh:mm:ss A'),
   };
 
   return `${message.timestamp} - ${message.nickname}: ${message.chatMessage}`;

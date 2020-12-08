@@ -8,33 +8,35 @@ const formatMessage = require('./utils/messages');
 const messageModel = require('./models/messageModel');
 const router = require('./router');
 
-/* eslint no-underscore-dangle: 0 */
-
 const PORT = process.env.PORT || 3000;
 
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-io.on('connection', (socket) => {
-  // const botName = 'WebChat Bot';
-  // socket.emit('message', formatMessage(botName, 'Welcome to WebChat!'));
+const loadMessagesHistory = async (socket) => {
+  const messages = await messageModel.getAllMessages();
+  const messageId = '_id';
+  const formatedMessages = messages.map((message) => {
+    const messageTimestamp = ObjectID(message[messageId]).getTimestamp();
 
-  // socket.broadcast.emit(
-  //   'message',
-  //   formatMessage(botName, 'A user has joined the chat'),
-  // );
+    return formatMessage(message.nickname, message.message, messageTimestamp);
+  });
 
-  // socket.on('disconnect', () => {
-  //   io.emit('message', formatMessage(botName, 'A user has left the chat'));
-  // });
+  socket.emit('loadMessagesHistory', formatedMessages);
+};
+
+const userList = [];
+
+io.on('connection', async (socket) => {
+  await loadMessagesHistory(socket);
 
   socket.on('message', async (message) => {
+    const messageId = '_id';
     const insertedMessage = await messageModel.insertMessage({
       nickname: message.nickname,
       message: message.chatMessage,
     });
-    const messageId = '_id';
     const messageTimestamp = ObjectID(
       insertedMessage[messageId],
     ).getTimestamp();
@@ -43,10 +45,15 @@ io.on('connection', (socket) => {
       formatMessage(message.nickname, message.chatMessage, messageTimestamp),
     );
   });
+
+  socket.on('userOnline', (nickname) => {
+    userList.push(nickname);
+    console.log(userList);
+  });
 });
 
 app.use(bodyParser.json());
 app.use('/message', router);
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/', express.static(path.join(__dirname, 'public')));
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
