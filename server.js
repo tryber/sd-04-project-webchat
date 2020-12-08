@@ -12,6 +12,10 @@ let sockets = [];
 const obj = {};
 
 io.on('connection', async (socket) => {
+
+  socket.on('guestId', (data) => {
+    console.log(data);
+  });
   console.log('Conectado');
   io.emit('userList', sockets);
 

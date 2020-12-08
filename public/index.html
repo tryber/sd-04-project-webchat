@@ -14,7 +14,7 @@
     </style>
   </head>
   <body>
-    <ul id="usuariosConectados"></ul>
+    <h2 id="name"></h2>
     <input data-testid="nickname-box" type="text" id="nickInput" />
     <button data-testid="nickname-save" onclick="sendNick(event)">Nick</button>
 
@@ -23,6 +23,7 @@
     <input data-testid="message-box" id="textInput" autocomplete="off" />
     <button data-testid="send-button" onclick="sendMsg(event)">Send</button>
 
+    <ul id="usuariosConectados"></ul>
     <script>
       const socket = io('http://localhost:3000/');
 
@@ -30,6 +31,9 @@
         event.preventDefault();
         const socket = io();
         const nickname = document.getElementById('nickInput').value;
+        const name = document.getElementById('name');
+
+        name.innerText = nickname;
 
         socket.emit('newNick', { nickname });
       };
@@ -41,6 +45,7 @@
         const nickname = document.getElementById('nickInput').value;
 
         socket.emit('message', { nickname, chatMessage });
+        chatMessage.value = '';
       };
 
       window.onload = () => {
