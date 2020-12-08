@@ -11,27 +11,27 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 let sockets = [];
 const obj = {};
 
+// Helper to create and validate a nickname
+const dispatch = (nickname) => {
+  if (!obj.user || !obj.user.includes(nickname)) {
+    obj.user = nickname;
+    sockets.push(obj.user);
+    sockets = sockets.filter((este, i) => sockets.indexOf(este) === i);
+    console.log(sockets);
+
+    io.emit('userList', sockets);
+  }
+};
 io.on('connection', async (socket) => {
-  // Helper to create and validate a nickname
-  const dispatch = (nickname) => {
-    if (!obj.user || !obj.user.includes(nickname)) {
-      obj.user = nickname;
-      sockets.unshift(obj.user);
-      sockets = sockets.filter((este, i) => sockets.indexOf(este) === i);
-      console.log(sockets);
-
-      io.emit('userList', sockets);
-    }
-  };
-
   console.log('Conectado');
   io.emit('userList', sockets); // Emit online users on connected
 
   const allMessages = await messageModel.listMessages();
   io.emit('history', allMessages); // Emit history messages on connected
 
-  socket.on('newNick', ({ nickname }) => {
-    dispatch(nickname);
+
+  socket.on('newNick', async ({ nickname }) => {
+    await dispatch(nickname);
   });
 
   // Create a nick and send a message
