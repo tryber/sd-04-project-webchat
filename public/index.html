@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <form id="chat">
+    <form class="chat">
       <input
         type="text"
         name="username"
@@ -52,7 +52,7 @@
         $('.message').remove();
       });
 
-      $('#chat').submit(function (event) {
+      $('.chat').submit(function (event) {
         event.preventDefault();
 
         let nickname = $('input[name=username]').val();
