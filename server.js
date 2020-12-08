@@ -18,6 +18,7 @@ io.on('connection', async (socket) => {
   const allMessages = await messageModel.listMessages();
   io.emit('history', allMessages); // Emit history messages on connected
 
+  // Helper to create and validate a nickname
   const dispatch = (nickname) => {
     if (!obj.user || !obj.user.includes(nickname)) {
       obj.user = nickname;
@@ -33,6 +34,7 @@ io.on('connection', async (socket) => {
     await dispatch(nickname);
   });
 
+  // Create a nick and send a message
   socket.on('message', async ({ nickname, chatMessage }) => {
     await dispatch(nickname);
 
@@ -45,6 +47,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('disconnect', () => {
+    // Split user from array
     sockets.splice(sockets.indexOf(socket), 1);
     const message = `${obj.user} > deixou o chat`;
     console.log(message);

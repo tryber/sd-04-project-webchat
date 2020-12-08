@@ -6,7 +6,7 @@ let schema = null;
 async function connection() {
   if (schema) return Promise.resolve(schema);
   return MongoClient.connect(
-    process.env.DB_URL || 'mongodb://localhost:27017/webchat',
+    process.env.DB_URL || 'mongodb://mongodb:27017/webchat',
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
