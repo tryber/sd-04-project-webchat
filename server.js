@@ -12,7 +12,6 @@ app.get('/', (_req, res) => {
 });
 
 io.on('connection', (socket) => {
-  socket.user = `User ${userId++}`;
   io.emit('sendNick', socket.user);
 
   socket.on('message', async (message) => {
