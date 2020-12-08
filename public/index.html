@@ -16,7 +16,7 @@
   <body>
     <ul id="usuariosConectados"></ul>
     <input data-testid="nickname-box" type="text" id="nickInput" />
-    <button data-testid="nickname-save" onclick="sendNick()">Nick</button>
+    <button data-testid="nickname-save" onclick="sendNick(event)">Nick</button>
 
     <ul id="listaMensagem"></ul>
 
@@ -25,15 +25,17 @@
 
     <script>
       const socket = io('http://localhost:3000/');
-      const sendNick = () => {
+
+      const sendNick = (event) => {
+        event.preventDefault()
         const socket = io();
         const nickname = document.getElementById('nickInput').value;
 
         socket.emit('newNick', { nickname });
       };
 
-      const sendMsg = (e) => {
-        e.preventDefault()
+      const sendMsg = (event) => {
+        event.preventDefault()
         const socket = io();
         const chatMessage = document.getElementById('textInput').value;
         const nickname = document.getElementById('nickInput').value;
@@ -42,12 +44,13 @@
       };
 
       window.onload = () => {
+        socket.emit('newNick', { nickname: `Kim Jon ${Math.floor(Math.random() * 6) + 1}` });
         socket.on('userList', async (data) => {
           console.log(data);
           document.getElementById(
             'usuariosConectados'
           ).innerHTML = await data
-            .map((users) => `<li data-testid="online-user">${users}</li>`)
+            .map((users) => `<li data-testid="online-user">${users} </li>`)
             .join('');
         });
 
