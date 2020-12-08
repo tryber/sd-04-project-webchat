@@ -8,7 +8,7 @@
       ul {
         list-style: none;
       }
-      #usuariosConectados li{
+      #usuariosConectados li {
         display: inline;
       }
     </style>
@@ -27,7 +27,7 @@
       const socket = io('http://localhost:3000/');
 
       const sendNick = (event) => {
-        event.preventDefault()
+        event.preventDefault();
         const socket = io();
         const nickname = document.getElementById('nickInput').value;
 
@@ -35,7 +35,7 @@
       };
 
       const sendMsg = (event) => {
-        event.preventDefault()
+        event.preventDefault();
         const socket = io();
         const chatMessage = document.getElementById('textInput').value;
         const nickname = document.getElementById('nickInput').value;
@@ -44,13 +44,12 @@
       };
 
       window.onload = () => {
-        socket.emit('newNick', { nickname: `Kim Jon ${Math.floor(Math.random() * 6) + 1}` });
         socket.on('userList', async (data) => {
           console.log(data);
           document.getElementById(
             'usuariosConectados'
           ).innerHTML = await data
-            .map((users) => `<li data-testid="online-user">${users} </li>`)
+            .map((users) => `<li data-testid="online-user">${users}</li>`)
             .join('');
         });
 
