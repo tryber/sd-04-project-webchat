@@ -8,7 +8,7 @@
       ul {
         list-style: none;
       }
-      #usuariosConectados li{
+      #usuariosConectados li {
         display: inline;
       }
     </style>
@@ -16,46 +16,64 @@
   <body>
     <h1 id="name"></h1>
     <input data-testid="nickname-box" type="text" id="nickInput" />
-    <button data-testid="nickname-save" onclick="sendNick()">Nick</button>
+    <button id="changeNick" data-testid="nickname-save">Nick</button>
 
     <ul id="listaMensagem"></ul>
 
     <input data-testid="message-box" id="textInput" autocomplete="off" />
-    <button data-testid="send-button" onclick="sendMsg(event)">Send</button>
+    <button id="sendMSG" data-testid="send-button">Send</button>
 
     <ul id="usuariosConectados"></ul>
 
     <script>
       const socket = io('http://localhost:3000/');
-      const name = document.getElementById('name');
-      const sendNick = () => {
-        const socket = io();
-        const chatMessage = document.getElementById('textInput').value;
-        const nickname = document.getElementById('nickInput').value;
-        name.innerText = nickname;
-        socket.emit('newNick', { nickname, chatMessage });
-      };
 
-      const sendMsg = () => {
-        const socket = io();
-        const chatMessage = document.getElementById('textInput').value;
-        const nickname = document.getElementById('nickInput').value;
+      /* ----------------------------------------------------------------*/
+      // User
+      const user = document.querySelector('#name');
+
+      // Inputs
+      const chatMessageInput = document.querySelector('#textInput');
+      const nicknameInput = document.querySelector('#nickInput');
+
+      // Buttons
+      const nickBtn = document.querySelector('#changeNick');
+      const msgBtn = document.querySelector('#sendMSG');
+
+      // Lists
+      const onlineUsers = document.querySelector('#usuariosConectados');
+      const messages = document.querySelector('#listaMensagem');
+      /* ----------------------------------------------------------------*/
+
+      /* ----------------------------------------------------------------*/
+      // EventListener - button change nick
+      nickBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        let nickname = nicknameInput.value;
+        user.innerText = nickname;
+
+        socket.emit('newNick', { nickname });
+      });
+
+      // EventListener - button send msg
+      msgBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        let chatMessage = chatMessageInput.value;
+        let nickname = nicknameInput.value;
 
         socket.emit('message', { nickname, chatMessage });
-      };
+      });
+      /* ----------------------------------------------------------------*/
 
       window.onload = () => {
         socket.on('userList', async (data) => {
-          console.log(data);
-          document.getElementById(
-            'usuariosConectados'
-          ).innerHTML = await data
+          onlineUsers.innerHTML = await data
             .map((users) => `<li data-testid="online-user">${users}</li>`)
             .join('');
         });
 
         socket.on('history', (data) => {
-          document.getElementById('listaMensagem').innerHTML = data
+          messages.innerHTML = data
             .map((mes) => `<li data-testid="message">${mes.message}</li>`)
             .join('');
         });
@@ -64,7 +82,8 @@
           const li = document.createElement('li');
           li.setAttribute('data-testid', 'message');
           li.textContent = data;
-          document.getElementById('listaMensagem').appendChild(li);
+          
+          messages.appendChild(li);
         });
       };
     </script>
