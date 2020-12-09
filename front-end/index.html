@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatDoVitao</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="base">
+      <h1>Bem Vindo ao chat do vitao</h1>
+      <form class="container">
+        <div>
+          <input type="text" name="username" placeholder="Name" />
+          <input type="text" name="usermessage" placeholder="Message" /><br />
+          <button type="submit">Send</button>
+        </div>
+        <div class="messages"></div>
+      </form>
+    </div>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+       let socket = io();
+    </script>
+  </body>
+</html>

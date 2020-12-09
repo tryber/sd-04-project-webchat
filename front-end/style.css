@@ -1,0 +1,48 @@
+body {
+  height: 100%;
+  background-color: black;
+}
+
+.base {
+  margin: 15px;
+}
+.container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+input {
+  width: 85%;
+  border: 2px solid rgb(20, 233, 169);
+  padding: 1em;
+  font-size: medium;
+  margin: 5px;
+}
+
+h1 {
+  text-align: center;
+  color: rgb(20, 233, 169);
+}
+
+button {
+  width: 85%;
+  height: 50px;
+  font-size: 14px;
+  background: #069;
+  text-align: center;
+  line-height: 50px;
+  font-weight: bold;
+  color: #fff;
+  margin: 5px auto;
+}
+
+.messages {
+  width: 500px;
+  height: 200px;
+  margin: 20px 0;
+  border: 2px solid rgb(20, 233, 169);
+  padding: 20px;
+}
