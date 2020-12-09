@@ -9,16 +9,16 @@ async function connection() {
     process.env.DB_URL || 'mongodb://localhost:27017/webchat',
     {
       useNewUrlParser: true,
-      useUnifiedTopology: true
-    }
+      useUnifiedTopology: true,
+    },
   )
-    .then(conn => conn.db(process.env.DB_NAME))
-    .then(dbSchema => {
+    .then((conn) => conn.db(process.env.DB_NAME))
+    .then((dbSchema) => {
       schema = dbSchema;
       console.log('connected?');
       return schema;
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       process.exit(1);
     });
