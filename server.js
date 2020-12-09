@@ -14,8 +14,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // How to use app.get + CSS ?????
 
+// app.get('/', (req, res) => {
+//   res.sendFile(__dirname + '/index.html');
+// });
+
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, '/index.html'));
 });
 
 io.on('connection', (socket) => {

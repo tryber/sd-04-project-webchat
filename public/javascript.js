@@ -71,7 +71,7 @@ function addMessageToHTML(message) {
 
 function updateAllMessages(message) {
   messagesList.innerHTML = '';
-  for (let index = 0; index < message.length; index++) {
+  for (let index = 0; index < message.length; index += 1) {
     const li = document.createElement('li');
     li.setAttribute('data-testid', 'message');
     const time = message[index].created_on;
