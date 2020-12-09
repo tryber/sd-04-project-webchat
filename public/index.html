@@ -26,6 +26,7 @@
       />
       <button type="submit" data-testid="send-button">Enviar</button>
       <button type="submit" data-testid="nickname-save">Salvar</button>
+      <ul id="usersOnline"></ul>
     </form>
 
     <script type="text/javascript">
@@ -36,6 +37,10 @@
           <div class="message" data-testid="message">
             ${message}
           </div>`);
+      }
+
+      function renderUser(user) {
+        $('#usersOnline').append(`<li data-testid="online-user">${user}</li>`)
       }
 
       socket.on('message', (message) => {
@@ -49,9 +54,15 @@
         });
       });
 
-      socket.on('disconnect', () => {
-        $('.message').remove();
+      socket.on('userConnect', (user) => {
+        Object.entries(user).forEach(([key, value]) => renderUser(value));
       });
+
+      socket.on('offline', (user) => {
+        console.log(user);
+      });
+      // $(`li:contains(${user})`).remove()
+      // );
 
       $('.chat').submit(function (event) {
         event.preventDefault();
