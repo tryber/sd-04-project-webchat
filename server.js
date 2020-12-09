@@ -1,16 +1,16 @@
 const express = require('express');
 const http = require('http');
-const socket_io = require('socket.io');
-const cors = require('cors');
-const path = require('path');
-const port = 3000;
+const socketIo = require('socket.io');
+// const path = require('path');
 const chatModel = require('./model/chatModel');
+
+// const cors = require('cors');
 
 const app = express();
 
 const socketIoServer = http.createServer();
 
-const io = socket_io(socketIoServer, {
+const io = socketIo(socketIoServer, {
   cors: {
     origin: 'http://localhost:3000',
     methods: ['GET', 'POST'],
@@ -19,7 +19,7 @@ const io = socket_io(socketIoServer, {
 
 io.on('connection', (socket) => {
   socket.on('disconnect', () => {
-    console.log(`desconectou :(`);
+    console.log('desconectou :(');
   });
 
   socket.on('welcome', (data) => {
@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
       'historic',
       `${new Date().toLocaleString()} - ${data.nickname} enviou: ${
         data.chatMessage
-      }`
+      }`,
     );
   });
 });
@@ -48,9 +48,9 @@ app.get('/', (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log(`Server http running on 3000 port`);
+  console.log('Server http running on 3000 port');
 });
 
 socketIoServer.listen(4555, () => {
-  console.log(`Server http running on 4555 port`);
+  console.log('Server http running on 4555 port');
 });

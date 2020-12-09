@@ -1,4 +1,4 @@
-//const { db } = require('mongodb');
+// const { db } = require('mongodb');
 const connection = require('../helpers/db');
 
 const registerData = (data) => {
