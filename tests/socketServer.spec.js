@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const BASE_URL = 'http://localhost:3000/';
 
-describe('Crie um back-end para conexão simultaneamente de clientes e troca de mensagens em chat público', () => {
+describe('Crie um backend back-end que permite que várias pessoas se conectem simultâneamente e mandem mensagens em um chat', () => {
   const chatMessage = 'Olá meu caros amigos!';
   const nickname = 'Joel';
   let client1;
