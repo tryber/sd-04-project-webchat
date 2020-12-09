@@ -1,22 +1,20 @@
 // O PROJETO É MEU E EU COMENTO DO JEITO QUE QUISER.
-const app = require('express')();
-const http = require('http').createServer(app);
+const express = require('express');
+const http = require('http');
 const path = require('path');
-const io = require('socket.io')(http);
 
+const app = express();
 
-// ter arq html para conectar o socketIo
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+const socketIoServer = http.createServer(app);
+
+const io = require('socket.io')(socketIoServer);
+
+app.use('/', express.static(path.join(__dirname, '/public')));
+
+io.on('connection', (socket) => {
+  console.log('Cliente conectado', socket.id);
 });
 
-// app.use('/', app.static(path.join(__dirname + '/index.html')) );
-
-io.on("connection", (socket) => {
-  console.log('Cliente desconectado' );
-});
-
-http.listen(3000, () => {
+socketIoServer.listen(3000, () => {
   console.log('Servidor ouvindo na porta 3000');
 });
-

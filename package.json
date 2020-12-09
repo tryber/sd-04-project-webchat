@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest --runInBand  --detectOpenHandles --forceExit",
     "test-coverage": "jest --coverage",
-    "start": "node server.js",
+    "start": "nodemon server.js",
     "debug": "nodemon server.js",
     "lint": "eslint --no-inline-config --ext .js,.jsx --no-error-on-unmatched-pattern -c .eslintrc.json ."
   },
@@ -39,6 +39,7 @@
     "eslint-plugin-import": "^2.22.1",
     "jest-puppeteer": "^4.4.0",
     "jsdom": "^16.4.0",
+    "nodemon": "^2.0.6",
     "stylelint": "^13.8.0",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-order": "^4.1.0"
