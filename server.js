@@ -6,7 +6,6 @@ const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
 const formatMessage = require('./utils/messages');
 const messageModel = require('./models/messageModel');
-const router = require('./router');
 
 const PORT = process.env.PORT || 3000;
 
