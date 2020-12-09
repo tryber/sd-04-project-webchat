@@ -7,7 +7,7 @@ const nicknameValue = document.getElementById('nicknameValue');
 let nickname = '';
 
 // Start socket.io connection
-const socket = io();
+const socket = window.io();
 
 // Triggered on load: set a default nickname, call all stored messages
 function onLoadActions() {
