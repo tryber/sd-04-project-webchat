@@ -1,7 +1,7 @@
 {
   "requirements": [
     {
-      "description": "Crie um backend back-end que permite que várias pessoas se conectem simultâneamente e mandem mensagens em um chat",
+      "description": "Crie um back-end para conexão simultaneamente de clientes e troca de mensagens em chat público",
       "bonus": false
     },
     {
