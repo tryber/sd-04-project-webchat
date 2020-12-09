@@ -26,7 +26,7 @@ const loadMessagesHistory = async (socket) => {
   socket.emit('loadMessagesHistory', formatedMessages);
 };
 
-const userList = [];
+let userList = [];
 
 io.on('connection', async (socket) => {
   await loadMessagesHistory(socket);
@@ -47,7 +47,20 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('userOnline', (nickname) => {
-    userList.push(nickname);
+    userList.push({ userId: socket.id, nickname });
+    io.emit('userList', userList);
+    console.log(userList);
+  });
+
+  socket.on('updateNickname', (nickname) => {
+    userList = userList.filter((user) => user.userId !== socket.id);
+    userList.push({ userId: socket.id, nickname });
+    io.emit('userList', userList);
+  });
+
+  socket.on('disconnect', () => {
+    userList = userList.filter((user) => user.userId !== socket.id);
+    io.emit('userList', userList);
     console.log(userList);
   });
 });
