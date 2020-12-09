@@ -81,7 +81,7 @@ describe('Permita que usuários troquem mensagens particulares', () => {
     await sendButton.click();
 
     await page2.bringToFront();
-   
+
     await page.waitForSelector(dataTestid('private'));
     let secondPrivButton = await page2.$$(dataTestid('private'));
     wait(10000);

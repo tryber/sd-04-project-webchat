@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>( Web Chat )</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <form id="form-chat">
+      <input
+        type="text"
+        data-testid="nickname-box"
+        name="nickname-box"
+        placeholder="Digite seu usuário"
+      />
+      <button type="submit" data-testid="nickname-save" id="saveNick">Salvar Nickname</button>
+      <input
+        type="text"
+        data-testid="message-box"
+        id="idMessageBox"
+        name="message-box"
+        placeholder="Digite sua menssagem"
+      />
+      <button type="submit" data-testid="send-button">Enviar</button><br />
+      <span>Mensagens: </span>
+      <div id="mensage-input"></div>
+      <span>Conectados: </span>
+      <ul id="connected-user"></ul>
+    </form>
+
+    <script>
+      const socket = io('http://localhost:3000');
+
+      const messagesChat = (message) => {
+        $('#mensage-input').append('<div data-testid="message">' + message + '</div>');
+      };
+
+      const connectedUser = (connected) => {
+        $('#connected-user').append('<li data-testid="online-user">' + connected + '</li>');
+      };
+
+      socket.on('online', connectedUser);
+      socket.on('message', messagesChat);
+      socket.on('historico', messagesChat);
+
+      $('#form-chat').submit((e) => {
+        e.preventDefault();
+        let nickname = $('input[name=nickname-box]').val();
+        let chatMessage = $('input[name=message-box]').val();
+
+        socket.emit('message', { chatMessage, nickname });
+
+        const idMessageBox = document.getElementById('idMessageBox');
+        idMessageBox.value = '';
+      });
+
+      // $('#saveNick').click(function (e) {
+      //   nickname = $('#nickname-box').val();
+      //   socket.emit('nameChange', nickname);
+      //   $('#nickname-box').val('');
+      // });
+    </script>
+  </body>
+</html>
