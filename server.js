@@ -65,7 +65,6 @@ io.on('connection', async (socket) => {
 });
 
 app.use(bodyParser.json());
-app.use('/message', router);
 app.use('/', express.static(path.join(__dirname, 'public')));
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
