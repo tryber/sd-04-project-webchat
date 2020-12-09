@@ -15,7 +15,6 @@ async function connection() {
     .then((conn) => conn.db(process.env.DB_NAME))
     .then((dbSchema) => {
       schema = dbSchema;
-      console.log('connected?');
       return schema;
     })
     .catch((err) => {
