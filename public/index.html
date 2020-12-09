@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webchat</title>
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <h1>Webchat</h1>
+    <ul id="messages"></ul>
+    <div>
+      <input
+        type="text"
+        id="input-nickname"
+        data-testid="nickname-box"
+        placeholder="Your nickname"
+      />
+      <button type="button" id="submit-nickname" data-testid="nickname-save">
+        Save Nickname
+      </button>
+    </div>
+    <div>
+      <input type="text" id="input-message" data-testid="message-box" />
+      <button type="button" id="submit-message" data-testid="send-button">
+        Send Message
+      </button>
+    </div>
+    <div>
+      <h3>Online Users</h3>
+      <ul id="users"></ul>
+    </div>
+    <script>
+      const socket = io('http://localhost:3000/');
+
+      let nickname = '';
+
+      socket.on('connect', () => {
+        nickname = 'Anonymous';
+        socket.emit('connectedUser', nickname);
+      });
+
+      socket.on('onlineUsers', (users) => {
+        usersList.innerHTML = '';
+        users.map((user) => {
+          const li = document.createElement('li');
+          li.textContent = user.nickname;
+          li.setAttribute('data-testid', 'online-user');
+          usersList.appendChild(li);
+        });
+      });
+
+      const messagesList = document.getElementById('messages');
+      const usersList = document.getElementById('users');
+
+      const nicknameInput = document.getElementById('input-nickname');
+      const btnSaveNickname = document.getElementById('submit-nickname');
+
+      const messageInput = document.getElementById('input-message');
+      const btnSendMessage = document.getElementById('submit-message');
+
+      btnSaveNickname.addEventListener('click', () => {
+        if (!nicknameInput.value) return;
+        nickname = nicknameInput.value;
+        socket.emit('saveNickname', nickname);
+        nicknameInput.value = '';
+      });
+
+      btnSendMessage.addEventListener('click', () => {
+        // Emitir o evento 'message'
+        if (!messageInput.value) return;
+        socket.emit('message', {
+          chatMessage: messageInput.value,
+          nickname: nickname,
+        });
+        //
+        messageInput.value = '';
+      });
+
+      socket.on('loadMessages', (data) => {
+        if (data.length) {
+          data.map((item) => {
+            const li = document.createElement('li');
+            li.textContent = `${item.date} - ${item.nickname}: ${item.chatMessage}`;
+            li.setAttribute('data-testid', 'message');
+            messagesList.appendChild(li);
+          });
+        }
+      });
+
+      socket.on('message', (message) => {
+        const li = document.createElement('li');
+        li.textContent = message;
+        li.setAttribute('data-testid', 'message');
+        messagesList.appendChild(li);
+      });
+    </script>
+  </body>
+</html>
