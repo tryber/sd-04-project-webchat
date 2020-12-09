@@ -12,9 +12,11 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.get('/', (req, res) => {
-//   res.sendFile(__dirname + '/index.html');
-// });
+// How to use app.get + CSS ?????
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 
 io.on('connection', (socket) => {
   loggedUsers[socket.id] = socket.id;
