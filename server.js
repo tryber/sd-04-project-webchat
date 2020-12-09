@@ -55,8 +55,6 @@ server.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
 
-// Portas separadas
-
 // app.listen(3000, () => {
 //   console.log('Express ouvindo na porta 3000');
 // });
