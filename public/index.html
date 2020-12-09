@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="http://localhost:4555/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io('http://localhost:4555');
+
+      socket.on('message', (data) => {
+        document.getElementById('mensagem').innerHTML = data;
+      });
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>webChat</title>
+  </head>
+  <body>
+    <div id="mensagem"></div>
+  </body>
+</html>
