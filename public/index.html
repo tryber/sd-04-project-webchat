@@ -16,7 +16,7 @@
         name="nickname-box"
         placeholder="Digite seu usuário"
       />
-      <button type="submit" data-testid="nickname-save">Salvar Nickname</button>
+      <button type="submit" data-testid="nickname-save" id="saveNick">Salvar Nickname</button>
       <input
         type="text"
         data-testid="message-box"
@@ -26,7 +26,7 @@
       />
       <button type="submit" data-testid="send-button">Enviar</button><br />
       <span>Mensagens: </span>
-      <ul id="mensage-input"></ul>
+      <div id="mensage-input"></div>
       <span>Conectados: </span>
       <ul id="connected-user"></ul>
     </form>
@@ -35,7 +35,7 @@
       const socket = io('http://localhost:3000');
 
       const messagesChat = (message) => {
-        $('#mensage-input').append('<li data-testid="message">' + message + '</li>');
+        $('#mensage-input').append('<div data-testid="message">' + message + '</div>');
       };
 
       const connectedUser = (connected) => {
@@ -56,6 +56,12 @@
         const idMessageBox = document.getElementById('idMessageBox');
         idMessageBox.value = '';
       });
+
+      // $('#saveNick').click(function (e) {
+      //   nickname = $('#nickname-box').val();
+      //   socket.emit('nameChange', nickname);
+      //   $('#nickname-box').val('');
+      // });
     </script>
   </body>
 </html>
