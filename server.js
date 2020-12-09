@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    io.emit('adeus', { mensagem: 'Poxa, fica mais, vai ter bolo :)' });
+    io.emit('adeus', { message: 'Poxa, fica mais, vai ter bolo :)' });
   });
 });
 
