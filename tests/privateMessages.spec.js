@@ -45,7 +45,7 @@ describe('Permita que usuários troquem mensagens particulares', () => {
     await connection.close();
   });
 
-  it.skip('Será validado que existe o botão para entrar em um chat privado e para voltar ao chat principal.', async () => {
+  it('Será validado que existe o botão para entrar em um chat privado e para voltar ao chat principal.', async () => {
     const page2 = await browser.newPage();
     await page.goto(BASE_URL);
     await page.waitForTimeout(1000);
@@ -59,7 +59,7 @@ describe('Permita que usuários troquem mensagens particulares', () => {
     expect(publicButton).not.toBeNull();
   });
 
-  it.skip('Será validado que é possível enviar uma mensagem privada para um usuário.', async () => {
+  it('Será validado que é possível enviar uma mensagem privada para um usuário.', async () => {
     const chatMessage = "Vamos com tudo";
     await page.goto(BASE_URL);
 
@@ -93,7 +93,7 @@ describe('Permita que usuários troquem mensagens particulares', () => {
     expect(secondPageMessages[0]).toMatch('Vamos com tudo');
   });
 
-  it.skip('Será validado que é possível transitar entre o chat particular e o chat global.', async () => {
+  it('Será validado que é possível transitar entre o chat particular e o chat global.', async () => {
     const privateMessage = 'eae mano como ta';
     const publicMessage = 'fala jovens';
 
