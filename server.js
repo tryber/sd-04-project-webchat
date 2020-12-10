@@ -11,8 +11,26 @@ app.use('/', (_req, res) => {
   res.sendFile(path.join(__dirname, '/index.html'));
 });
 
+let onlineUsers = [];
+
 io.on('connection', async (socket) => {
   console.log('Conectado');
+  io.emit('onlineUsers', onlineUsers);
+  let userNickname;
+
+  socket.on('newUser', ({ nickname }) => {
+    userNickname = nickname;
+    onlineUsers.push({ socketId: socket.id, nickname });
+    io.emit('onlineUsers', onlineUsers);
+  });
+
+  socket.on('changeNickname', ({ newNickname }) => {
+    onlineUsers.map((user) => {
+      if (user.nickname === userNickname) user.nickname = newNickname;
+    });
+
+    io.emit('onlineUsers', onlineUsers);
+  });
 
   const allMessages = await chatModel.getMessages();
   allMessages.forEach((message) => {
@@ -30,7 +48,9 @@ io.on('connection', async (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Desconectado');
-    io.emit('disconnect', 'Tchau');
+
+    onlineUsers = onlineUsers.filter(({ socketId }) => socketId !== socket.id);
+    io.emit('onlineUsers', onlineUsers);
   });
 });
 

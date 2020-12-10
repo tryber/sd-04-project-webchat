@@ -30,13 +30,22 @@
         padding: 10px;
         cursor: pointer;
       }
-      #messages {
+      li {
+        list-style: none;
+      }
+      #info-box {
         position: fixed;
         top: 100px;
         width: 100%;
+        display: flex;
       }
-      #message {
-        background-color: blue;
+      #messages {
+        width: 80%;
+      }
+      #online-users-list {
+        border-left: 1px solid black;
+        padding-left: 10px;
+        width: 20%;
       }
       #input-message {
         background: #000;
@@ -52,17 +61,6 @@
         top: 0;
         width: 100%;
       }
-      #messagens {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-      #messagens li {
-        padding: 5px 10px;
-      }
-      #messagens li:nth-child(odd) {
-        background: #eee;
-      }
       #user-name {
         color: white;
       }
@@ -70,10 +68,11 @@
   </head>
 
   <body>
-    <button data-testid="private">Private chat</button>
-    <button data-testid="public">Public chat</button>
-
-    <ul id="messages"></ul>
+    <div id="info-box">
+      <ul id="messages"></ul>
+      <p>Online Users</p>
+      <ul id="online-users-list"></ul>
+    </div>
 
     <div id="input-message">
       <label>Write your message</label>
@@ -98,8 +97,9 @@
     const userNickname = document.getElementById('user-name');
     const nicknameBox = document.getElementById('nickname-box');
     const changeNicknameBtn = document.getElementById('nickname-save');
+    const onlineUsersList = document.getElementById('online-users-list');
 
-    const randomName = chance.name();
+    let randomName = chance.name();
     userNickname.innerText = randomName;
 
     const writeNewMsg = (message) => {
@@ -118,6 +118,8 @@
     changeNicknameBtn.addEventListener('click', () => {
       const newNickname = nicknameBox.value;
       userNickname.innerText = newNickname;
+      socket.emit('changeNickname', { newNickname });
+      randomName = newNickname;
       nicknameBox.value = '';
     });
 
@@ -128,7 +130,20 @@
       messages.appendChild(li);
     };
 
+    const updateOnlineUsers = (onlineUsers) => {
+      onlineUsersList.innerHTML = '';
+
+      onlineUsers.forEach((user) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'online-user');
+        li.textContent = user.nickname;
+        onlineUsersList.appendChild(li);
+      });
+    };
+
+    socket.emit('newUser', { nickname: randomName });
     socket.on('message', writeNewMsg);
     socket.on('oldMessages', getMessages);
+    socket.on('onlineUsers', updateOnlineUsers);
   </script>
 </html>
