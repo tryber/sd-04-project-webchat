@@ -184,7 +184,7 @@ Você pode também instalar o plugin do `ESLint` no `VSCode`, bastar ir em exten
 
 ## Variáveis
 
-Haverá um arquivo no caminho: `sd-04-project-webchat/helpers/db.js`. Neste arquivo, na linha 10, Haverá a seguinte comando:
+Haverá um arquivo no caminho: `sd-04-project-webchat/tests/helpers/db.js`. Neste arquivo, na linha 10, Haverá a seguinte comando:
 
 `.connect(process.env.DB_URL, {`
 
