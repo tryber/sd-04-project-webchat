@@ -1,0 +1,104 @@
+<html>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="http://chancejs.com/chance.min.js"></script>
+  <head>
+    <title>Web Chat</title>
+    <style>
+      ul {
+        list-style: none;
+      }
+      #usuariosConectados li {
+        display: inline;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="name"></h1>
+
+    <input data-testid="nickname-box" type="text" id="nickInput" />
+    <button id="changeNick" data-testid="nickname-save">Nick</button>
+
+    <ul id="listaMensagem"></ul>
+
+    <input data-testid="message-box" id="textInput" autocomplete="off" />
+    <button id="sendMSG" data-testid="send-button">Send</button>
+
+    <ul id="usuariosConectados"></ul>
+
+    <button data-testid="public">Public</button>
+
+    <script>
+      const socket = io();
+
+      /* ----------------------------------------------------------------*/
+      // User
+      const user = document.querySelector('#name');
+
+      // Inputs
+      const chatMessageInput = document.querySelector('#textInput');
+      const nicknameInput = document.querySelector('#nickInput');
+
+      // Buttons
+      const nickBtn = document.querySelector('#changeNick');
+      const msgBtn = document.querySelector('#sendMSG');
+
+      // Lists
+      const onlineUsers = document.querySelector('#usuariosConectados');
+      const messages = document.querySelector('#listaMensagem');
+      /* ----------------------------------------------------------------*/
+
+      window.onload = () => {
+        user.innerText = chance.first();
+        let nickname = user.innerText;
+
+        socket.emit('newNick', { nickname });
+
+        /* ----------------------------------------------------------------*/
+        // EventListener - button change nick
+        nickBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          nickname = nicknameInput.value;
+          user.innerText = nickname;
+
+          socket.emit('newNick', { nickname });
+        });
+
+        // EventListener - button send msg
+        msgBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          let chatMessage = chatMessageInput.value;
+
+          socket.emit('message', { nickname, chatMessage });
+        });
+        /* ----------------------------------------------------------------*/
+
+        // Render Online Users
+        socket.on('userList', async (data) => {
+          onlineUsers.innerHTML = await data
+            .map(
+              (users) => `<li data-testid="online-user">${users}</li>
+            ${users === nickname ? '' : `<button id=${users} data-testid="private">Private</button>`}`
+            )
+            .join(' ');
+        });
+
+        // Load History
+        socket.on('history', (data) => {
+          messages.innerHTML = data
+            .map((mes) => `<li data-testid="message">${mes.message}</li>`)
+            .join('');
+        });
+
+        // Render Messages
+        socket.on('message', (data) => {
+          const li = document.createElement('li');
+          li.setAttribute('data-testid', 'message');
+          li.textContent = data;
+
+          messages.appendChild(li);
+        });
+      };
+    </script>
+  </body>
+</html>
