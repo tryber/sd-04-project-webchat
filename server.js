@@ -11,18 +11,18 @@ app.get('/', (_req, res) => {
 });
 
 io.on('connection', async (socket) => {
-  io.emit('sendNick', socket.user = 'Guest');
+  io.emit('sendNick', socket.user);
 
   const oldMessages = await getMessages();
   io.emit('oldMessages', oldMessages);
 
-  socket.on('message', async ({chatMessage, nickname}) => {
+  socket.on('message', async ({ chatMessage, nickname }) => {
     const newDate = new Date();
     const data = newDate.toISOString().substr(0, 10).split('-').reverse()
       .join('-');
     const time = newDate.toLocaleString([], { hour12: true }).substr(11);
     const date = `${data} ${time}`;
-    await saveMessage(date, chatMessage, nickname)
+    await saveMessage(date, chatMessage, nickname);
     const composeMessage = await `${date} - ${nickname}: ${chatMessage}`;
     io.emit('showMsg', composeMessage);
   });
