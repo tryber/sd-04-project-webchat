@@ -26,6 +26,8 @@
 
     <ul id="usuariosConectados"></ul>
 
+    <button data-testid="public">Public</button>
+
     <script>
       const socket = io();
 
@@ -46,31 +48,38 @@
       const messages = document.querySelector('#listaMensagem');
       /* ----------------------------------------------------------------*/
 
-      /* ----------------------------------------------------------------*/
-      // EventListener - button change nick
-      nickBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        let nickname = nicknameInput.value;
-        user.innerText = nickname;
+      window.onload = () => {
+        user.innerText = chance.first();
+        let nickname = user.innerText;
 
         socket.emit('newNick', { nickname });
-      });
 
-      // EventListener - button send Msg
-      msgBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        let chatMessage = chatMessageInput.value;
-        let nickname = nicknameInput.value;
+        /* ----------------------------------------------------------------*/
+        // EventListener - button change nick
+        nickBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          nickname = nicknameInput.value;
+          user.innerText = nickname;
 
-        socket.emit('message', { nickname, chatMessage });
-      });
-      /* ----------------------------------------------------------------*/
+          socket.emit('newNick', { nickname });
+        });
 
-      window.onload = () => {
+        // EventListener - button send msg
+        msgBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          let chatMessage = chatMessageInput.value;
+
+          socket.emit('message', { nickname, chatMessage });
+        });
+        /* ----------------------------------------------------------------*/
+
         // Render Online Users
         socket.on('userList', async (data) => {
           onlineUsers.innerHTML = await data
-            .map((users) => `<li data-testid="online-user">${users}</li>`)
+            .map(
+              (users) => `<li data-testid="online-user">${users}</li>
+            ${users === nickname ? '' : `<button id=${users} data-testid="private">Private</button>`}`
+            )
             .join(' ');
         });
 
