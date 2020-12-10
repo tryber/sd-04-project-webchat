@@ -17,10 +17,11 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 io.on('connection', async (socket) => {
   const conectados = [];
   const historyMessage = await models.getAllMessages();
-  historyMessage.forEach(({ chatMessage, nickname, timestamp }) => {
-    const historyMsg = `${timestamp} - ${nickname}: ${chatMessage}`;
-    socket.emit('Historico', historyMsg);
+  const msgHisto = [];
+  historyMessage.map(({ chatMessage, nickname, timestamp }) => {
+    return msgHisto.push(`${timestamp} - ${nickname}: ${chatMessage}`);
   });
+  socket.emit('Historico', msgHisto);
 
   socket.on('message', async ({ chatMessage, nickname }) => {
     const time = new Date();
