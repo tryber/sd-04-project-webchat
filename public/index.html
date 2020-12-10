@@ -30,6 +30,8 @@
 <button type="submit" data-testid="send-button" id="send-button">Enviar</button><br />
 <h2>Mensagens:</h2>
 <div id="messages"></div>
+<h3>OnLine:</h3>
+<ul id="onlineUser"></ul>
 
   </form>
   <script>
@@ -46,8 +48,13 @@
       $('#messages').append('<div data-testid="message">', history, '</div>');
     };
 
+    const renderConectados = (connected) => {
+      $('#onlineUser').append('<li data-testid="online-user">', connected, '</li>');
+    }
+
     socket.on('message', renderMessage);
     socket.on('Historico', renderHistory);
+    socket.on('online', renderConectados);
 
     $('#send-button').click((e) => {
       e.preventDefault();
