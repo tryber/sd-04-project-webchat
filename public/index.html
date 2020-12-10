@@ -6,107 +6,108 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vem de Chat</title>
-    <!-- <link rel="stylesheet" href="style.css" /> -->
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap"
-      rel="stylesheet"
-    />
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script src="http://chancejs.com/chance.min.js"></script>
   </head>
+
   <body>
-    <section>
-      <!-- <div class="upper">
+    <form>
+      <input
+        data-testid="nickname-box"
+        type="text"
+        name="nickname"
+        id="nickname-input"
+      />
 
-      <h1 id="name"></h1>
-    </div> -->
-      <form>
-        <div class="upper">
-          <h1 id="name"></h1>
+      <button data-testid="nickname-save" type="submit" id="nickname-btn">
+        Save name
+      </button>
 
-          <div class="noHidden" id="top-div">
-            <input
-              data-testid="nickname-box"
-              type="text"
-              name="nickname"
-              id="nickname-input"
-            />
+      <div id="chat"></div>
 
-            <button data-testid="nickname-save" type="submit" id="nickname-btn">
-              Save name
-            </button>
-          </div>
-        </div>
-        <div class="chat" id="chat"></div>
-        <div class="botton">
-          <input
-            data-testid="message-box"
-            type="text"
-            name="message"
-            id="message-input"
-          />
+      <input
+        data-testid="message-box"
+        type="text"
+        name="message"
+        id="message-input"
+      />
 
-          <button data-testid="send-button" type="submit" id="message-btn">
-            ➤
-          </button>
-        </div>
-      </form>
-    </section>
+      <button data-testid="send-button" type="submit" id="message-btn">
+        ➤
+      </button>
+    </form>
+    <div>
+      <h4>Online users:</h4>
+      <ul id="usersList"></ul>
+    </div>
   </body>
   <script>
     const socket = io();
 
+    //  Input do nickName -----------------------------------------------------
+    const nicknameInput = document.getElementById('nickname-input');
+
+    //  Botão de salvar o nickname --------------------------------------------
+    const nicknameBtn = document.getElementById('nickname-btn');
+
+    //  Input da mensagem -----------------------------------------------------
+    const messageInput = document.getElementById('message-input');
+
+    //  Botão de enviar mensagem ----------------------------------------------
+    const messageBtn = document.getElementById('message-btn');
+
+    //  Div contendo o chat ---------------------------------------------------
+    const chat = document.getElementById('chat');
+
+    //  Lista de usuários online ----------------------------------------------
+    const onlineUsersList = document.getElementById('usersList');
+
     // Cria um nome aleatório ---------------------------------------------
     let randomName = chance.name();
 
-    // Input do nickName --------------------------------------------------
-    const nicknameInput = document.getElementById('nickname-input');
-    nicknameInput.value = randomName;
+    socket.emit('usersOnline', { nickname: randomName });
 
-    //  Botão para salvar o nickName --------------------------------------
-    const name = document.getElementById('name');
-    const topDiv = document.getElementById('top-div');
-    const nicknameBtn = document.getElementById('nickname-btn');
-    nicknameBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      randomName = nicknameInput.value;
-      name.innerHTML = nicknameInput.value;
-      topDiv.classList.add('hidden');
-    });
-
-    //  Input da mensagem -------------------------------------------------
-    const messageInput = document.getElementById('message-input');
-
-    //  Botão para enviar mensagem ----------------------------------------
-    const messageBtn = document.getElementById('message-btn');
     messageBtn.addEventListener('click', (e) => {
       e.preventDefault();
       socket.emit('message', {
         nickname: randomName,
         chatMessage: messageInput.value,
       });
-      messageInput.value = null;
+      messageInput.value = '';
     });
 
-    //  Div para todas as mensagens ---------------------------------------
-    const chat = document.getElementById('chat');
+    nicknameBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (nicknameInput.value !== '') {
+        socket.emit('updateNickname', { newName: nicknameInput.value });
+        randomName = nicknameInput.value;
+      }
+    });
 
-    //  Função para adicionar mensagens à div -----------------------------
     const addNewMessage = (message) => {
       const newMessage = document.createElement('p');
-
       newMessage.setAttribute('data-testid', 'message');
-      newMessage.classList.add('message');
       newMessage.innerText = message;
 
       chat.appendChild(newMessage);
     };
+
+    socket.on('history', (message) => {
+      addNewMessage(message);
+    });
+
     socket.on('message', (message) => {
       addNewMessage(message);
     });
-    socket.on('history', (message) => {
-      addNewMessage(message);
+
+    socket.on('usersOnlineUpdate', (arr) => {
+      onlineUsersList.innerHTML = '';
+      arr.forEach((user) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'online-user');
+        li.innerHTML = user.nickname;
+        onlineUsersList.appendChild(li);
+      });
     });
   </script>
 </html>
