@@ -15,6 +15,7 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 
 // sempre que o socketio receber uma conexão vai realizar o broadcast dela
 io.on('connection', async (socket) => {
+  const conectados = [];
   const historyMessage = await models.getAllMessages();
   historyMessage.forEach(({ chatMessage, nickname, timestamp }) => {
     const historyMsg = `${timestamp} - ${nickname}: ${chatMessage}`;
@@ -28,7 +29,9 @@ io.on('connection', async (socket) => {
     const renderMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
 
     io.emit('message', renderMessage);
-    io.emit('online', nickname);
+
+    conectados.push(nickname);
+    io.emit('online', conectados);
 
     await models.createMessage(chatMessage, nickname, timestamp);
   });

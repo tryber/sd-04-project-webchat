@@ -41,16 +41,16 @@
     $('#aleatorio').text(User);
 
     const renderMessage = (message) => {
-      $('#messages').append('<div data-testid="message">', message, '</div>');
+      $('#messages').append('<div data-testid="message">' + message + '</div>');
     };
 
     const renderHistory = (history) => {
-      $('#messages').append('<div data-testid="message">', history, '</div>');
+      $('#messages').append('<div data-testid="message">' + history + '</div>');
     };
 
     const renderConectados = (connected) => {
-      $('#onlineUser').append('<li data-testid="online-user">', connected, '</li>');
-    }
+      $('#onlineUser').append('<li data-testid="online-user">' + connected + '</li>');
+    };
 
     socket.on('message', renderMessage);
     socket.on('Historico', renderHistory);
