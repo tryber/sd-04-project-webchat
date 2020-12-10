@@ -41,7 +41,10 @@ io.on('connection', (socket) => {
 
   socket.emit('userConnect', usersOnline);
 
-  socket.on('disconect', () => socket.emit('offline', usersOnline[socket.id]));
+  socket.on('disconnect', () => {
+    console.log('Aqwui')
+    socket.emit('offline', usersOnline[socket.id])
+  });
 
   socket.on('message', async (data) => {
     const date = moment(new Date()).format('DD-MM-yyyy hh:mm:ss A');
