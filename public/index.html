@@ -1,0 +1,113 @@
+<!-- Gerador de nomes randômicos retirado do site https://chancejs.com/person/name.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vem de Chat</title>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="http://chancejs.com/chance.min.js"></script>
+  </head>
+
+  <body>
+    <form>
+      <input
+        data-testid="nickname-box"
+        type="text"
+        name="nickname"
+        id="nickname-input"
+      />
+
+      <button data-testid="nickname-save" type="submit" id="nickname-btn">
+        Save name
+      </button>
+
+      <div id="chat"></div>
+
+      <input
+        data-testid="message-box"
+        type="text"
+        name="message"
+        id="message-input"
+      />
+
+      <button data-testid="send-button" type="submit" id="message-btn">
+        ➤
+      </button>
+    </form>
+    <div>
+      <h4>Online users:</h4>
+      <ul id="usersList"></ul>
+    </div>
+  </body>
+  <script>
+    const socket = io();
+
+    //  Input do nickName -----------------------------------------------------
+    const nicknameInput = document.getElementById('nickname-input');
+
+    //  Botão de salvar o nickname --------------------------------------------
+    const nicknameBtn = document.getElementById('nickname-btn');
+
+    //  Input da mensagem -----------------------------------------------------
+    const messageInput = document.getElementById('message-input');
+
+    //  Botão de enviar mensagem ----------------------------------------------
+    const messageBtn = document.getElementById('message-btn');
+
+    //  Div contendo o chat ---------------------------------------------------
+    const chat = document.getElementById('chat');
+
+    //  Lista de usuários online ----------------------------------------------
+    const onlineUsersList = document.getElementById('usersList');
+
+    // Cria um nome aleatório ---------------------------------------------
+    let randomName = chance.name();
+
+    socket.emit('usersOnline', { nickname: randomName });
+
+    messageBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      socket.emit('message', {
+        nickname: randomName,
+        chatMessage: messageInput.value,
+      });
+      messageInput.value = '';
+    });
+
+    nicknameBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (nicknameInput.value !== '') {
+        socket.emit('updateNickname', { newName: nicknameInput.value });
+        randomName = nicknameInput.value;
+      }
+    });
+
+    const addNewMessage = (message) => {
+      const newMessage = document.createElement('p');
+      newMessage.setAttribute('data-testid', 'message');
+      newMessage.innerText = message;
+
+      chat.appendChild(newMessage);
+    };
+
+    socket.on('history', (message) => {
+      addNewMessage(message);
+    });
+
+    socket.on('message', (message) => {
+      addNewMessage(message);
+    });
+
+    socket.on('usersOnlineUpdate', (arr) => {
+      onlineUsersList.innerHTML = '';
+      arr.forEach((user) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'online-user');
+        li.innerHTML = user.nickname;
+        onlineUsersList.appendChild(li);
+      });
+    });
+  </script>
+</html>
