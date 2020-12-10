@@ -7,8 +7,7 @@ const getMessages = async () => {
 
 const writeNewMessage = async (chatMessage, nickname, timestamp) => {
   const message = await connection().then((db) =>
-    db.collection('messages').insertOne({ chatMessage, nickname, created_on: timestamp }),
-  );
+    db.collection('messages').insertOne({ chatMessage, nickname, created_on: timestamp }));
   return message.ops[0];
 };
 

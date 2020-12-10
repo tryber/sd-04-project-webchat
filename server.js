@@ -1,11 +1,11 @@
 const express = require('express');
 const path = require('path');
 const moment = require('moment');
-const chatModel = require('./models/chatModel');
 
 const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
+const chatModel = require('./models/chatModel');
 
 app.use('/', (_req, res) => {
   res.sendFile(path.join(__dirname, '/index.html'));
@@ -29,7 +29,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('Desconectado')
+    console.log('Desconectado');
     io.emit('disconnect', 'Tchau');
   });
 });
