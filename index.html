@@ -147,6 +147,13 @@
         socket.on('newNick', async (nickname) => {
           user.textContent = nickname;
         });
+
+        socket.on('oldMessages', async (messages) => {
+          const messageBox = document.getElementById('messages');
+          messageBox.innerHTML = messages.map((msg) => 
+            `<p data-testid="message"> ${msg.timestamp} ${msg.nickname} ${msg.message}</p>`
+          );
+        });
       }
       
     </script>
