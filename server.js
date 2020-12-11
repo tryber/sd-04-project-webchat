@@ -35,16 +35,17 @@ io.on('connect', async (socket) => {
    * Salva todas as mensagens do cliente no banco
    * variável data = {dateTime, nickname, chatMessage}
    */
+  
+  // Obten data e hora da mensagem
+  const dateTime = createOn();
   socket.on('message', (data) => {
     try {
-      // Obten data e hora da mensagem
-      const dateTime = createOn();
       messages.saveMessage(dateTime, data.nickname, data.chatMessage);
       // console.log(result);
     } catch (error) {
       console.log(error);
     }
-    const message = `${data.dateTime} - ${data.nickname}: ${data.chatMessage}`;
+    const message = `${dateTime} - ${data.nickname}: ${data.chatMessage}`;
     console.log('vamos ver', message);
     /**
      * Envia a mensagem digitada para todos clientes,
