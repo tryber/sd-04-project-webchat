@@ -1,10 +1,10 @@
-* {
+body {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-#chat {
+.chat {
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -22,7 +22,7 @@ input {
 
 button {
   background: #069;
-  color: #fff;
+  color: white;
   font-size: 14px;
   font-weight: 700;
   height: 50px;
