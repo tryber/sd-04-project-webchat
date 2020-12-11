@@ -40,7 +40,7 @@ io.on('connect', async (socket) => {
       // Obten data e hora da mensagem
       const dateMessage = createOn();
       messages.saveMessage(
-        (data.dateTime = dateMessage),
+        data.dateTime = dateMessage,
         data.nickname,
         data.chatMessage,
       );
