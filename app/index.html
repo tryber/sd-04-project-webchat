@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script defer src="./app.js"></script>
-  <title>Document</title>
+  <title>Webchat</title>
 </head>
 <body>
   <form>
     <input 
       data-testid="nickname-box"
+      placeholder="choose nickname"
       id="nick-input"
+      name="nickname"
     />
     <button
       data-testid="nickname-save"

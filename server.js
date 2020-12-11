@@ -9,6 +9,7 @@ const io = require('socket.io')(http);
 const chatModel = require('./models/webchatModel');
 
 app.use(cors());
+app.use(express.static(path.join(__dirname, '/app')));
 app.use('/', express.static(path.join(__dirname, '/app')));
 
 app.use(express.urlencoded({ extended: true }));

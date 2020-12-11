@@ -17,6 +17,7 @@ messageButton.addEventListener('click', (evt) => {
     nickname: defaultName,
     chatMessage: messageInput.value,
   });
+  console.log('msgbtn');
   messageInput.value = '';
 });
 
