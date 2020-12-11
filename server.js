@@ -38,12 +38,8 @@ io.on('connect', async (socket) => {
   socket.on('message', (data) => {
     try {
       // Obten data e hora da mensagem
-      const dateMessage = createOn();
-      messages.saveMessage(
-        data.dateTime = dateMessage,
-        data.nickname,
-        data.chatMessage,
-      );
+      const dateTime = createOn();
+      messages.saveMessage(dateTime, data.nickname, data.chatMessage);
       // console.log(result);
     } catch (error) {
       console.log(error);
