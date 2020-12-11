@@ -1,5 +1,11 @@
 const socket = window.io('ws://localhost:3000');
-console.log(socket);
+const nickInput = document.getElementById('nick-input');
+const nickButton = document.getElementById('nick-btn');
+const chatBox = document.getElementById('chatBox');
+const messageInput = document.getElementById('msg-input');
+const messageButton = document.getElementById('msg-btn');
+const onlineUsersList = document.getElementById('onlineUsersList');
+
 socket.on('message', (text) => {
   const el = document.createElement('li');
   el.innerHTML = text;

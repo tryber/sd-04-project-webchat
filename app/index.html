@@ -11,8 +11,15 @@
   <form>
     <input 
       data-testid="nickname-box"
+      id="nick-input"
     />
-    <button data-testid="nickname-save" type="submit">Save Nickname</button>
+    <button
+      data-testid="nickname-save"
+      type="submit"
+      id="nick-btn"
+    >
+      Save Nickname
+    </button>
 
     <div id="chatBox"></div>
 
@@ -21,8 +28,9 @@
       placeholder="message"
       type="text"
       name="message"
+      id="msg-input "
     >
-    <button data-testid="send-button" type="submit">Send</button>
+    <button data-testid="send-button" type="submit" id="msg-btn">Send</button>
   </form>
   
   <div>
