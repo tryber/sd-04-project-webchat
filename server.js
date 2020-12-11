@@ -19,8 +19,8 @@ io.on('connection', async (socket) => {
 
   const historyMessage = await models.getAllMessages();
   const msgHisto = [];
-  historyMessage.map((msg)=> {
-    const { chatMessage, nickname, timestamp } = msg
+  historyMessage.map((msg) => {
+    const { chatMessage, nickname, timestamp } = msg;
     return msgHisto.push(`${timestamp} - ${nickname}: ${chatMessage}`);
   });
   io.emit('Historico', msgHisto);
@@ -29,16 +29,7 @@ io.on('connection', async (socket) => {
     const time = new Date();
     const timestamp = moment(time).format('DD-MM-yyyy HH:mm:ss');
     const renderMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
-
     io.emit('message', renderMessage);
-
-    conectados.push(nickname);
-    io.emit('online', conectados);
-
-    socket.on('disconnect', () => {
-      delete conectados[socket.id];
-      io.emit('online', conectados);
-    });
 
     await models.createMessage(chatMessage, nickname, timestamp);
   });
@@ -47,6 +38,15 @@ io.on('connection', async (socket) => {
     io.emit('changeName', nickname);
   });
 
+  socket.on('changeName', async ({ nickname }) => {
+    conectados.push(nickname);
+    io.emit('online', conectados);
+  });
+
+  socket.on('disconnect', () => {
+    delete conectados[socket.id];
+    io.emit('online', conectados);
+  });
 });
 
 // qnd servidor recebe uma connection esse evento é executado

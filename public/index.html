@@ -61,6 +61,7 @@
       let chatMessage = $('#idMessageBox').val();
       let nickname = $('#aleatorio').text();
       socket.emit('message', { chatMessage, nickname })
+      // $('#idMessageBox').text('');
     });
 
 
