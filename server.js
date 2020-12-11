@@ -26,7 +26,9 @@ io.on('connection', async (socket) => {
 
   socket.on('changeNickname', ({ newNickname }) => {
     onlineUsers.map((user) => {
-      if (user.nickname === userNickname) user.nickname = newNickname;
+      const userOnline = user;
+      if (userOnline.nickname === userNickname) userOnline.nickname = newNickname;
+      return null;
     });
 
     io.emit('onlineUsers', onlineUsers);
