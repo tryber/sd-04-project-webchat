@@ -6,13 +6,55 @@ const messageInput = document.getElementById('msg-input');
 const messageButton = document.getElementById('msg-btn');
 const onlineUsersList = document.getElementById('onlineUsersList');
 
-socket.on('message', (text) => {
-  const el = document.createElement('li');
-  el.innerHTML = text;
-  document.querySelector('ul').appendChild(el);
+let defaultName = 'atvSigilo c/LOCAL';
+
+socket.emit('usersOnline,', { nickname: defaultName });
+
+// No click do msg-btn, Pega o valor do messageInput e defaultName emit para todos os usários.
+messageButton.addEventListener('click', (evt) => {
+  evt.preventDefault();
+  socket.emit('message', {
+    nickname: defaultName,
+    chatMessage: messageInput.value,
+  });
+  messageInput.value = '';
 });
 
-document.querySelector('button').onclick = () => {
-  const text = document.querySelector('input').value;
-  socket.emit('message', text);
+// Altera nick default, caso usuário preencha com outro valor e emite no evento UpdateNickname.
+nickButton.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (nickInput.value !== '') {
+    socket.emit('updateNickname', { newName: nickInput.value });
+    defaultName = nickInput.value;
+  }
+});
+
+// Cria elemento <p> e insere as mensagens dentro dele dinamicamente.
+const createMessage = (message) => {
+  const newMessage = document.createElement('p');
+  newMessage.setAttribute('data-testid', 'message');
+  newMessage.innerText = message;
+
+  chatBox.appendChild(newMessage);
 };
+
+// executa funcao createMessage no evento history, que será salvo no bd.
+socket.on('history', (message) => {
+  createMessage(message);
+});
+
+// Executa funcao createMessage no evento message
+socket.on('message', (message) => {
+  createMessage(message);
+});
+
+// Escuta evento UsersOnlineUpdte e coloca todos os usuarios online na lista.
+socket.on('usersOnlineUpdate', (vetor) => {
+  onlineUsersList.innerHTML = '';
+  vetor.forEach((user) => {
+    const li = document.createElement('li');
+    li.setAttribute('data-testid', 'online-user');
+    li.innerHTML = user.nickname;
+    onlineUsersList.appendChild(li);
+  });
+});
