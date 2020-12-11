@@ -1,0 +1,51 @@
+<div class="chat-container">
+  <header class="chat header">
+    <img src="<%- false || '/public/missingPhoto.png' %>" alt="user">
+    <div class="chat-info">
+      <span class="contact-name"><%- chat.name %></span>
+      <span class="contact-lastMessage">Clique aqui para ver dados da conversa</span>
+    </div>
+    <img src="/public/searchIcon.png" alt="search icon" class="chat-icon">
+    <img src="/public/optionsIcon.png" alt="options" class="chat-icon">
+  </header>
+  <div class="chat-messages" id="messages">
+    <% chat.messages.forEach( (msg) => { %>
+    <%- include('./components/message.ejs', {msg}) %>
+    <% }); %>
+  </div>
+  <form onsubmit="onSubmit(event)">
+    <img src="/public/emoteIcon.png" alt="send emote">
+    <img src="/public/clipIcon.png" alt="send attachment">
+    <input data-testid="message-box" type="text" name="chatMessage"
+      placeholder="Digite uma mensagem" onkeyup="onTypeMsg(event)" autocomplete="off">
+    <button data-testid="send-button" id="chat-btn" disabled></button>
+  </form>
+</div>
+<script>
+  const btn = document.getElementById('chat-btn');
+  const list = document.getElementById('messages');
+  
+  const onTypeMsg = (e) => btn.disabled = e.target.value.length < 1;
+
+  const onSubmit = (e) => {
+    const input = e.path[0][0];
+    e.preventDefault();
+    if (!input.value) return;
+    socket.emit('message', { chatMessage: input.value });
+    input.value = '';
+  }
+
+  const addMessage = ({ color, nickname, chatMessage, timeSent }) => {
+    const element = `<div class="message-container">
+    <div class="arrow-left"></div>
+      <div class="message" data-testid="message">
+        <span class="message-name" style="color: ${color}">${nickname}</span>
+        <span class="message-text">${chatMessage}</span>
+        <span class="message-time">${timeSent}</span>
+      </div>
+    </div>`
+    list.insertAdjacentHTML('beforeend', element);
+  }
+
+  socket.on('message', addMessage);
+</script>

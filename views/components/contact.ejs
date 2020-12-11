@@ -1,0 +1,14 @@
+<div class="contact-container <%- contact.selected ? 'selected' : '' %>">
+  <img src="<%- contact.img || '/public/missingPhoto.png' %>" alt="contact">
+  <div class="contact-info">
+    <div>
+      <span class="contact-name"><%- contact.name %></span>
+      <span class="contact-lastMessage">
+        <%- contact.messages && contact.messages[contact.messages.length - 1].msg %>
+      </span>
+    </div>
+    <% if(contact.messages) { %>
+    <span class="contact-lastSeenMsg"><%- contact.messages[contact.messages.length - 1].time %></span>
+    <% } %>
+  </div>
+</div>

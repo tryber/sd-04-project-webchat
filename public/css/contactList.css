@@ -1,0 +1,121 @@
+.conversations-container{
+  display: flex;
+  flex-direction: column;
+  background-color: #131c21;
+  flex: 0.55 0.55;
+  border-right: 1px solid #30373b;
+  align-items: stretch;
+  max-width: 400px;
+}
+
+.conversations.header > div {
+  width: 40%;
+  padding-right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid #30373b;
+}
+
+.search-container > label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  height: 36px;
+  width: 100%;
+  background-color: #323739;
+}
+
+.search-container > label > img {
+  margin-left: 20px;
+  margin-right: 25px;
+}
+
+.search-container > label > input {
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  color: #acacac;
+  height: 100%;
+}
+
+.search-container > label > input:focus {
+  outline: 0;
+}
+
+.contact-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.contact-container {
+  display: flex;
+  padding: 0 16px;
+  height: 70px;
+  justify-content: center;
+  align-items: center;
+}
+
+.contact-info {
+  display: flex;
+  flex: 1;
+  margin-left: 13px;
+  height: 100%;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #30373b;
+}
+
+.contact-info > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.contact-info > div > :first-child {
+  margin-top: 15px;
+}
+
+.contact-name {
+  color: #f1f1f2db;
+  font-weight: 600;
+  text-overflow: ellipsis;
+}
+
+.contact-lastMessage {
+  font-size: 0.9em;
+  text-overflow: ellipsis;
+  color: #acacac;
+}
+
+.contact-lastSeenMsg {
+  font-size: 0.7em;
+  margin-top: 18px;
+  align-self: flex-start;
+  color: #acacac;
+}
+
+.contact-container:hover {
+  background-color: #323739a8;
+  cursor: pointer;
+}
+
+.contact-container.selected {
+  background-color: #323739;
+}
+
+.contact-container > img {
+  width: 45px;
+  border-radius: 50px;
+}

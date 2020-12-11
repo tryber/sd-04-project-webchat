@@ -1,0 +1,67 @@
+<div class="info-container">
+  <header>
+    <button><img src="/public/closeIcon.png" alt="close info"></button>
+    <span>Dados da conversa</span>
+  </header>
+  <div class="info-conversation">
+    <div class="info chat">
+      <img src="<%- false || '/public/missingPhoto.png' %>" alt="user">
+      <span class="contact-name"><%- chat.name %></span>
+    </div>
+    <div class="info participants" id="participants">
+      <div class="participant-count">
+        <span id="participants-count">
+          0 participantes
+        </span>
+        <img src="/public/searchIcon.png" alt="search icon">
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const participants = document.getElementById('participants');
+  const count = document.getElementById('participants-count');
+  const myInfo = {};
+  let total = 0;
+
+  const updateCount = (numb) => {
+    total += numb;
+    count.innerText = `${total} participante${total < 2 ? '' : 's'}`;
+  };
+
+  const addNewParticipant = (participant) => {
+    const element = `<div class="participant ${participant.itsMe ? 'itsMe' : ''}" id="${participant.id}">
+      <img src="${participant.img || '/public/missingPhoto.png'}" alt="participant">
+      ${participant.itsMe
+        ? `<input type="text" id="edit" class="participant-name" value="${participant.nickname}" maxlength="25" />
+          <button class="edit" onClick="onEdit()">
+            <img src="/public/saveIcon.png" alt="save name">
+          </button>`
+        : `<span class="participant-name">${participant.nickname}</span>
+          <img src="/public/conversationIcon.png" alt="send message">`}
+    </div>`;
+    participants.insertAdjacentHTML('beforeend', element);
+    updateCount(1);
+  }
+
+  const removeParticipant = (id) => {
+    updateCount(-1);
+    document.getElementById(id).remove();
+  };
+
+  const editParticipant = ({name, id}) => {
+    const span = document.getElementById(id).getElementsByClassName('participant-name')[0];
+    span.innerText = name;
+  }
+
+  const onEdit = () => {
+    const name = document.getElementById('edit').value;
+    socket.emit('editName', name);
+  }
+
+  socket.on('connect', () => { myInfo.id = socket.id; });
+  socket.on('connecting', (arr) => arr.forEach(addNewParticipant));
+  socket.on('connected', addNewParticipant);
+  socket.on('editName', editParticipant);
+  socket.on('disconnect', removeParticipant);
+</script>

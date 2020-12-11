@@ -1,0 +1,122 @@
+.info-container {
+  background-color: #0d1418;
+  flex: 0.65 0.65;
+  border-left: 1px solid #30373b;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-container > header > button {
+  background-color: transparent;
+  border: none;
+  margin-right: 25px;
+  transform: translateY(3px);
+}
+
+.info-container > header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.info {
+  background-color: #131c21;
+  margin-bottom: 20px;
+  padding: 28px 30px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.info.chat {
+  font-size: 1.2em;
+}
+
+.info.chat > img {
+  width: 60%;
+  margin-bottom: 20px;
+  border-radius: 500px;
+  align-self: center;
+}
+
+.info.participants {
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+}
+
+.participant-count {
+  padding: 0 30px 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #009688;
+  order: -2;
+}
+
+.participant-count > img {
+  width: 12px;
+}
+
+.participant, .participant-count {
+  position: relative;
+  width: 100%;
+  border-bottom: 1px solid #30373b;
+}
+
+.participant:after, .participant-count:after {
+  content: "";
+  background: #131c21;
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 18%;
+  height: 1px;
+}
+
+.participant {
+  padding: 14px 30px 14px 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.participant > img:first-child {
+  width: 50px;
+  border-radius: 70px;
+  margin-right: 14px;
+}
+
+.participant-name {
+  /* flex: 1; */
+  color: #f1f1f2db;
+  font-size: 16px;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+input.participant-name {
+  background-color: rgba(0, 0, 0, 0.068);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  border-radius: 5px;
+}
+
+.participant > img:last-child, .edit > img {
+  align-self: center;
+  width: 16px;
+  margin-left: auto;
+}
+
+.participant.itsMe {
+  order: -1;
+}
+
+.info-conversation {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.edit {
+  background-color: transparent;
+  border: none;
+  margin-left: auto;
+}

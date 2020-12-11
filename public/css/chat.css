@@ -1,0 +1,115 @@
+.chat-container {
+  background-color: #0d1418;
+  background-image: url('/public/background.png');
+  background-size: 80% 130%;
+  flex: 1 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat.header {
+  cursor: pointer;
+}
+
+.chat-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-icon {
+  margin: 0 20px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat-container > form {
+  display: flex;
+  background-color: #1e2428;
+  padding: 10px 15px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-container > form img {
+  margin: 0 10px;
+}
+
+.chat-container > form > button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  width: 50px;
+  height: 29px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.chat-container > form > button:disabled {
+  background-image: url('/public/microphoneIcon.png');
+}
+
+.chat-container > form > button:enabled {
+  background-image: url('/public/sendMsgIcon.png');
+}
+
+.chat-container > form > button:focus {
+  outline: 0;
+}
+
+.chat-container > form > input {
+  flex: 1;
+  background-color: #33383b;
+  border: none;
+  padding: 0 12px;
+  border-radius: 60px;
+  height: 42px;
+  margin: 0 10px;
+  font-weight: 700;
+  color: #acacac;
+}
+
+.chat-container > form > input:focus {
+  outline: 0;
+}
+
+.message-container {
+  display: flex;
+  margin: 12px 0 12px 24px;
+}
+
+.message {
+  max-width: 70%;
+  padding: 6px 8px;
+  background-color: #262d31;
+  color: #f1f1f2db;
+  border-radius: 7px;
+  border-top-left-radius: 0;
+  word-break: break-all;
+}
+
+.message-name {
+  clear: both;
+  display: block;
+}
+
+.message-time {
+  float: right;
+  color: #acacac;
+  font-size: 0.7em;
+  vertical-align: bottom;
+  transform: translateY(7.4px);
+  margin-left: 10px;
+}
+
+.arrow-left {
+  width: 0; 
+  height: 0; 
+  /* border-top: 10px solid transparent; */
+  border-bottom: 10px solid transparent; 
+  border-right: 10px solid #262d31;
+  border-top-left-radius: 5px;
+}

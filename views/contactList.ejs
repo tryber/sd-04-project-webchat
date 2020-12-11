@@ -1,0 +1,20 @@
+<div class="conversations-container">
+  <header class="conversations header">
+    <img src="/public/missingPhoto.png" alt="user">
+    <div>
+      <img src="/public/statusIcon.png" alt="status icon">
+      <img src="/public/conversationIcon.png" alt="conversation icon">
+      <img src="/public/optionsIcon.png" alt="options">
+    </div>
+  </header>
+  <div class="search-container">
+    <label for="conversation-search">
+      <img src="/public/searchIcon.png" alt="search icon">
+      <input type="text" placeholder="Procurar ou começar uma nova conversa"
+        name="conversation-search">
+    </label>
+  </div>
+  <div class="contact-list">
+    <%- include('./components/contact.ejs', {contact: {name: 'Chat geral', selected: true }}) %>
+  </div>
+</div>
