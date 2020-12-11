@@ -35,7 +35,7 @@
     input.value = '';
   }
 
-  const addMessage = ({ color, nickname, chatMessage, timeSent }) => {
+  const addMessage = (message, { chatMessage, color, nickname, timeSent, timestamp }) => {
     const element = `<div class="message-container">
     <div class="arrow-left"></div>
       <div class="message" data-testid="message">

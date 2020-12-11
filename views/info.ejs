@@ -32,13 +32,15 @@
   const addNewParticipant = (participant) => {
     const element = `<div class="participant ${participant.itsMe ? 'itsMe' : ''}" id="${participant.id}">
       <img src="${participant.img || '/public/missingPhoto.png'}" alt="participant">
+      <div class="participant-name">
+        <span class="participant-name" data-testid="online-user">${participant.nickname}</span>
       ${participant.itsMe
-        ? `<input type="text" id="edit" class="participant-name" value="${participant.nickname}" maxlength="25" />
-          <button class="edit" onClick="onEdit()">
+        ? `<input type="text" id="edit" class="participant-name" maxlength="25" data-testid="nickname-box"/>
+            </div>
+          <button class="edit" onClick="onEdit()" data-testid="nickname-save">
             <img src="/public/saveIcon.png" alt="save name">
           </button>`
-        : `<span class="participant-name">${participant.nickname}</span>
-          <img src="/public/conversationIcon.png" alt="send message">`}
+        : `</div><img src="/public/conversationIcon.png" alt="send message">`}
     </div>`;
     participants.insertAdjacentHTML('beforeend', element);
     updateCount(1);
@@ -50,13 +52,14 @@
   };
 
   const editParticipant = ({name, id}) => {
-    const span = document.getElementById(id).getElementsByClassName('participant-name')[0];
+    const span = document.getElementById(id).getElementsByClassName('participant-name')[1];
     span.innerText = name;
   }
 
   const onEdit = () => {
-    const name = document.getElementById('edit').value;
-    socket.emit('editName', name);
+    const input = document.getElementById('edit');
+    socket.emit('editName', input.value);
+    input.value = '';
   }
 
   socket.on('connect', () => { myInfo.id = socket.id; });

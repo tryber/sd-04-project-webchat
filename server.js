@@ -3,6 +3,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const faker = require('faker');
+const moment = require('moment');
 const controllers = require('./controllers');
 const { addNew } = require('./models/genericModel');
 
@@ -31,24 +32,24 @@ io.on('connection', (socket) => {
   participants.push(user);
 
   socket.on('message', async ({ chatMessage, nickname = user.nickname }) => {
-    const message = {
+    const messageInfo = {
       chatMessage,
       ...user,
       nickname,
-      timestamp: new Date().getTime(),
+      timestamp: moment(new Date()).format('DD-MM-yyyy HH:mm:ss'),
       timeSent: new Date().toLocaleTimeString('pt-BR', {
         hour12: false,
         hour: 'numeric',
         minute: 'numeric',
       }),
     };
-    await addNew('messages', message);
-    io.emit('message', message);
+    await addNew('messages', messageInfo);
+    io.emit('message', `${messageInfo.timestamp} ${nickname} ${chatMessage}`, messageInfo);
   });
 
   socket.on('editName', (name) => {
     user.nickname = name;
-    socket.broadcast.emit('editName', { name, id: user.id });
+    io.emit('editName', { name, id: user.id });
   });
 
   socket.on('disconnect', () => {

@@ -94,6 +94,11 @@
   word-break: break-all;
 }
 
+div.participant-name {
+  display: flex;
+  flex-direction: column;
+}
+
 input.participant-name {
   background-color: rgba(0, 0, 0, 0.068);
   border: 1px solid rgba(0, 0, 0, 0.10);
