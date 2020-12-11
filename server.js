@@ -40,7 +40,7 @@ io.on('connection', async (socket) => {
 
   socket.on('changeName', async ({ nickname }) => {
     conectados.push(nickname);
-    io.emit('online', conectados);
+    io.emit('online', conectados); //
   });
 
   socket.on('disconnect', () => {
