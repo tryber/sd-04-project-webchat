@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const path = require('path');
 const moment = require('moment');
 
@@ -8,10 +7,8 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const chatModel = require('./models/webchatModel');
 
-app.use(cors());
-app.use(express.static(path.join(__dirname, '/app')));
-app.use('/', express.static(path.join(__dirname, '/app')));
-
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -62,10 +59,6 @@ io.on('connection', async (socket) => {
     onlineUsers = onlineUsers.filter(({ socketId }) => socketId !== socket.id);
     io.emit('usersOnlineUpdate', onlineUsers);
   });
-});
-
-app.get('/ping', (_, res) => {
-  res.status(200).json({ message: 'pong!' });
 });
 
 http.listen(3000);
