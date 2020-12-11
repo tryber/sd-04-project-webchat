@@ -35,7 +35,7 @@ io.on('connect', async (socket) => {
    * Salva todas as mensagens do cliente no banco
    * variável data = {dateTime, nickname, chatMessage}
    */
-  
+
   // Obten data e hora da mensagem
   const dateTime = createOn();
   socket.on('message', (data) => {
