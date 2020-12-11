@@ -1,106 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-  <title>Webchat</title>
-</head>
-<body>
-  <form>
-    <input 
-      data-testid="nickname-box"
-      placeholder="choose nickname"
-      id="nick-input"
-      name="nickname"
-    />
-    <button
-      data-testid="nickname-save"
-      type="submit"
-      id="nick-btn"
-    >
-      Save Nickname
-    </button>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script defer src="app.js"></script>
+    <title>Webchat</title>
+  </head>
+  <body>
+    <form>
+      <input 
+        data-testid="nickname-box"
+        placeholder="choose nickname"
+        id="nick-input"
+        name="nickname"
+      />
+      <button
+        data-testid="nickname-save"
+        type="submit"
+        id="nick-btn"
+      >
+        Save Nickname
+      </button>
 
-    <div id="chatBox"></div>
+      <div id="chatBox"></div>
 
-    <input
-      data-testid="message-box"
-      placeholder="message"
-      type="text"
-      name="message"
-      id="msg-input "
-    >
-    <button data-testid="send-button" type="submit" id="msg-btn">Send</button>
-  </form>
-  
-  <div>
-    <h3>Users Online:</h3>
-    <ul id="onlineUsersList"></ul>
-  </div>
-</body>
-<script>
-const socket = io();
-const nickInput = document.getElementById('nick-input');
-const nickButton = document.getElementById('nick-btn');
-const chatBox = document.getElementById('chatBox');
-const messageInput = document.getElementById('msg-input');
-const messageButton = document.getElementById('msg-btn');
-const onlineUsersList = document.getElementById('onlineUsersList');
-
-let defaultName = 'atvSigilo c/LOCAL';
-
-socket.emit('usersOnline,', { nickname: defaultName });
-
-// No click do msg-btn, Pega o valor do messageInput e defaultName emit para todos os usários.
-messageButton.addEventListener('click', (evt) => {
-  evt.preventDefault();
-  socket.emit('message', {
-    nickname: defaultName,
-    chatMessage: messageInput.value,
-  });
-  console.log('msgbtn');
-  messageInput.value = '';
-});
-
-// Altera nick default, caso usuário preencha com outro valor e emite no evento UpdateNickname.
-nickButton.addEventListener('click', (e) => {
-  e.preventDefault();
-  if (nickInput.value !== '') {
-    socket.emit('updateNickname', { newName: nickInput.value });
-    defaultName = nickInput.value;
-  }
-});
-
-// Cria elemento <p> e insere as mensagens dentro dele dinamicamente.
-const createMessage = (message) => {
-  const newMessage = document.createElement('p');
-  newMessage.setAttribute('data-testid', 'message');
-  newMessage.innerText = message;
-
-  chatBox.appendChild(newMessage);
-};
-
-// executa funcao createMessage no evento history, que será salvo no bd.
-socket.on('history', (message) => {
-  createMessage(message);
-});
-
-// Executa funcao createMessage no evento message
-socket.on('message', (message) => {
-  createMessage(message);
-});
-
-// Escuta evento UsersOnlineUpdte e coloca todos os usuarios online na lista.
-socket.on('usersOnlineUpdate', (vetor) => {
-  onlineUsersList.innerHTML = '';
-  vetor.forEach((user) => {
-    const li = document.createElement('li');
-    li.setAttribute('data-testid', 'online-user');
-    li.innerHTML = user.nickname;
-    onlineUsersList.appendChild(li);
-  });
-});
-
-</script>
+      <input
+        data-testid="message-box"
+        placeholder="message"
+        type="text"
+        name="message"
+        id="msg-input"
+      >
+      <button data-testid="send-button" type="submit" id="msg-btn">Send</button>
+    </form>
+    
+    <div>
+      <h3>Users Online:</h3>
+      <ul id="onlineUsersList"></ul>
+    </div>
+  </body>
 </html>

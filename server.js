@@ -36,7 +36,7 @@ io.on('connection', async (socket) => {
     const message = `(${convertedTimestamp}) - ${nickname} says: ${chatMessage}`;
 
     io.emit('message', message);
-    return chatModel.saveMessages(chatMessage, nickname, convertedTimestamp);
+    await chatModel.saveMessages(chatMessage, nickname, convertedTimestamp);
   });
 
   // Evento usersOnline: adiciona usuario conectado na lista de usuários online, e emite para todos.
