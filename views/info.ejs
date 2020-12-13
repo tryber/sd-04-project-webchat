@@ -1,0 +1,84 @@
+<div class="info-container main">
+  <header>
+    <button><img src="/public/closeIcon.png" alt="close info" onclick="toggleContainer('info', true)"></button>
+    <span>Dados da conversa</span>
+  </header>
+  <div class="info-conversation">
+    <div class="info chat">
+      <img src="<%- false || '/public/missingPhoto.png' %>" class="edit-img" alt="user">
+      <span class="contact-name chat-name"><%- chat.name %></span>
+    </div>
+    <div class="div info participants" id="participants">
+      <div class="participant-count">
+        <span id="participants-count">
+          0 participantes
+        </span>
+        <img src="/public/searchIcon.png" alt="search icon">
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const participants = document.getElementById('participants');
+  const count = document.getElementById('participants-count');
+  const myInfo = {};
+  let total = 0;
+
+  const updateCount = (numb) => {
+    total += numb;
+    count.innerText = `${total} participante${total < 2 ? '' : 's'}`;
+  };
+
+  const addNewParticipant = (participant) => {
+    if (participant.itsMe) document.getElementById('my-img').src = participant.img
+    const element = `<div class="participant ${participant.itsMe ? 'itsMe' : ''}" id="${participant.id}">
+      <img src="${participant.img || '/public/missingPhoto.png'}" alt="participant">
+      <div class="div participant-name">
+        <span class="span participant-name ${participant.id}-name" data-testid="online-user">${participant.nickname}</span>
+      ${participant.itsMe
+        ? `<input type="text" id="edit" class="input participant-name" maxlength="25" data-testid="nickname-box"/>
+            </div>
+          <button onClick="onEdit()" data-testid="nickname-save">
+            <img src="/public/saveIcon.png" alt="save name">
+          </button>`
+        : `</div>
+          <button class="private" data-testid="private">
+            <img src="/public/conversationIcon.png" alt="send message">
+          </button>`}
+    </div>`;
+    participants.insertAdjacentHTML('beforeend', element);
+    updateCount(1);
+    if (!participant.itsMe) {
+      const button = document.getElementById(participant.id).getElementsByClassName('private')[0];
+      button.addEventListener('click', () => selectContact(participant));
+    }
+  }
+
+  const removeParticipant = (id) => {
+    updateCount(-1);
+    document.getElementById(id).remove();
+    if (allChats[id]) {
+      selectContact({ id: 'general' });
+      document.getElementById(`${id}-contact`).remove();
+    }
+  };
+
+  const editParticipant = ({ name, id }) => {
+    const elements = document.getElementsByClassName(`${id}-name`);
+    Array.from(elements).forEach((el) => el.innerText = name);
+    if (activeChat === id) editChat(name);
+  }
+
+  const onEdit = () => {
+    const input = document.getElementById('edit');
+    if (input.value.length < 1) return;
+    socket.emit('editName', input.value);
+    input.value = '';
+  }
+
+  socket.on('connect', () => { myInfo.id = socket.id; });
+  socket.on('connecting', (arr) => arr.forEach(addNewParticipant));
+  socket.on('connected', addNewParticipant);
+  socket.on('editName', editParticipant);
+  socket.on('disconnect', removeParticipant);
+</script>

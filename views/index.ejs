@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" class="html">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsTryber</title>
+  <link rel="icon" type="image/png" sizes="220x220" href="/public/favicon.png">
+  <!-- <link rel="stylesheet" href="/public/css/index.css">
+  <link rel="stylesheet" href="/public/css/contactList.css">
+  <link rel="stylesheet" href="/public/css/chat.css">
+  <link rel="stylesheet" href="/public/css/info.css"> -->
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const toggleContainer = (name, bool) => {
+      document.getElementsByClassName(`${name}-container`)[0].classList.toggle('dnone', bool);
+    };
+  </script>
+</head>
+
+<body class="body">
+  <div class="app">
+    <%- include('./contactList.ejs', { chat }) %>
+    <%- include('./chat.ejs', { chat }) %>
+    <%- include('./info.ejs', { chat }) %>
+  </div>
+</body>
+
+</html>

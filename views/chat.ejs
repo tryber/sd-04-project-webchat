@@ -1,0 +1,91 @@
+<div class="chat-container main">
+  <header class="chat header" onclick="toggleContainer('info', false)">
+    <img src="<%- chat.img || '/public/missingPhoto.png' %>" class="edit-img" alt="user">
+    <div class="chat-info">
+      <span class="contact-name chat-name"><%- chat.name %></span>
+      <span class="span contact-lastMessage">Clique aqui para ver dados da conversa</span>
+    </div>
+    <img src="/public/searchIcon.png" alt="search icon" class="chat-icon">
+    <img src="/public/optionsIcon.png" alt="options" class="chat-icon">
+  </header>
+  <div class="chat-messages" id="messages">
+    <% chat.messages.forEach( (msg) => { %>
+    <%- include('./components/message.ejs', {msg}) %>
+    <% }); %>
+  </div>
+  <form onsubmit="onSubmit(event)">
+    <img src="/public/emoteIcon.png" alt="send emote">
+    <img src="/public/clipIcon.png" alt="send attachment">
+    <input data-testid="message-box" type="text" name="chatMessage" maxlength="256"
+      placeholder="Digite uma mensagem" onkeyup="onTypeMsg(event)" autocomplete="off">
+    <button data-testid="send-button" id="chat-btn" disabled></button>
+  </form>
+</div>
+<script>
+  const btn = document.getElementById('chat-btn');
+  const list = document.getElementById('messages');
+  let activeChat = 'general';
+  const allChats = {
+    general: <%- JSON.stringify(chat.messages) %> || [],
+  };
+
+  list.scrollTop = list.scrollHeight;
+
+  const onTypeMsg = (e) => btn.disabled = e.target.value.length < 1;
+
+  const onSubmit = (e) => {
+    const input = e.path[0][0];
+    e.preventDefault();
+    if (!input.value) return;
+    socket.emit('message', { chatMessage: input.value, activeChat });
+    input.value = '';
+    btn.disabled = true;
+  }
+
+  const changeLastMsg = (msg, chat) => {
+    const text = `${chat === 'general' ? `<span style="color: ${msg.color}" >${msg.nickname}</span>:` : ''} ${msg.chatMessage}`
+    const contact = document.getElementById(`${chat}-contact`);
+    contact.getElementsByClassName('contact-lastMessage')[0].innerHTML = text;
+    contact.getElementsByClassName('contact-lastSeenMsg')[0].innerText = msg.timeSent;
+  }
+
+  const addMessage = (push, msg, chat = 'general') => {
+    const { chatMessage, color, nickname, timeSent, id } = msg;
+    let scrollDown = list.scrollTop >= list.scrollHeight * 0.7;
+    if (!allChats[chat]) addContact(msg);
+    if (activeChat === chat) {
+      const element = `<div class="message-container ${id === socket.id ? 'itsMe' : ''}">
+        <div class="arrow"></div>
+        <div class="message" data-testid="message">
+          <span class="message-name" style="color: ${color}">${nickname}</span>
+          <span class="message-text">${chatMessage}</span>
+          <span class="message-time">${timeSent}</span>
+        </div>
+      </div>`
+      list.insertAdjacentHTML('beforeend', element);
+    }
+    if (push) allChats[chat].push(msg);
+    if (scrollDown) list.scrollTop = list.scrollHeight;
+    changeLastMsg(msg, chat);
+  }
+
+  const editChat = (name, img) => {
+    let elements = document.getElementsByClassName('chat-name');
+    Array.from(elements).forEach((el) => el.innerText = name);
+  }
+
+  const changeChat = (chat, name, img) => {
+    activeChat = chat;
+    editChat(name)
+    elements = document.getElementsByClassName('edit-img');
+    Array.from(elements).forEach((el) => el.src = img);
+    while (list.firstChild) {
+      list.lastChild.remove();
+    };
+    if (allChats[chat]) {
+      allChats[chat].forEach((msg) => addMessage(null, msg, chat));
+    }
+  };
+
+  socket.on('message', addMessage);
+</script>

@@ -1,0 +1,25 @@
+<%
+  const getLastMsg = (messages) => {
+    const msg = messages[messages.length - 1];
+    if (!msg) return;
+    return `<span style="color: ${msg.color}" >${msg.nickname}</span>: ${msg.chatMessage}`;
+  }
+%>
+<div class="contact-container <%- contact.selected ? 'selected' : '' %>"
+  id="general-contact"
+  data-testid="public"
+  onclick="selectContact({id: 'general'})">
+  <img src="<%- contact.img || '/public/missingPhoto.png' %>" alt="contact">
+  <div class="contact-info">
+    <div class="div">
+      <span class="contact-name"><%- contact.name %></span>
+      <div class="div contact-lastMessage">
+        <%- contact.messages && getLastMsg(contact.messages) %>
+      </div>
+    </div>
+    <% if(contact.messages) { %>
+    <span
+      class="contact-lastSeenMsg"><%- (contact.messages[contact.messages.length - 1] || {}).timeSent %></span>
+    <% } %>
+  </div>
+</div>
