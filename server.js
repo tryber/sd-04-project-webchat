@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
   socket.emit('connecting', [...participants, { ...user, itsMe: true }]);
   participants.push(user);
 
-  socket.on('message', async ({ chatMessage, nickname = user.nickname, activeChat }) => {
+  socket.on('message', async ({ chatMessage, nickname = user.nickname, activeChat = 'general' }) => {
     const messageInfo = {
       chatMessage,
       ...user,
