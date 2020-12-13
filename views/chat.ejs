@@ -3,7 +3,7 @@
     <img src="<%- chat.img || '/public/missingPhoto.png' %>" class="edit-img" alt="user">
     <div class="chat-info">
       <span class="contact-name chat-name"><%- chat.name %></span>
-      <span class="contact-lastMessage">Clique aqui para ver dados da conversa</span>
+      <span class="span contact-lastMessage">Clique aqui para ver dados da conversa</span>
     </div>
     <img src="/public/searchIcon.png" alt="search icon" class="chat-icon">
     <img src="/public/optionsIcon.png" alt="options" class="chat-icon">
@@ -16,7 +16,7 @@
   <form onsubmit="onSubmit(event)">
     <img src="/public/emoteIcon.png" alt="send emote">
     <img src="/public/clipIcon.png" alt="send attachment">
-    <input data-testid="message-box" type="text" name="chatMessage"
+    <input data-testid="message-box" type="text" name="chatMessage" maxlength="256"
       placeholder="Digite uma mensagem" onkeyup="onTypeMsg(event)" autocomplete="off">
     <button data-testid="send-button" id="chat-btn" disabled></button>
   </form>

@@ -41,11 +41,6 @@
   font-size: 1.2em;
 }
 
-.participant > button > img {
-  margin-left: auto;
-  width: 16px;
-}
-
 .participant-count > img {
   width: 12px;
 }
@@ -55,6 +50,11 @@
   border-radius: 500px;
   margin-bottom: 20px;
   width: 60%;
+}
+
+.participant > button > img {
+  margin-left: auto;
+  width: 16px;
 }
 
 .info.participants {

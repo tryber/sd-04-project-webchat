@@ -1,9 +1,9 @@
-body , html {
+.body , .html {
   height: 100%;
   width: 100%;
 }
 
-body {
+.body {
   align-items: center;
   background-color: #131c21;
   display: flex;
@@ -51,6 +51,6 @@ header img {
   width: 40px;
 }
 
-.main.dnone {
+.main.dnone, .div.dnone {
   display: none;
 }
