@@ -1,37 +1,37 @@
 .conversations-container{
+  align-items: stretch;
+  background-color: #131c21;
+  border-right: 1px solid #30373b;
   display: flex;
   flex-direction: column;
-  background-color: #131c21;
   flex: 0.55 0.55;
-  border-right: 1px solid #30373b;
-  align-items: stretch;
   max-width: 400px;
 }
 
 .conversations.header > div {
-  width: 40%;
-  padding-right: 16px;
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  padding-right: 16px;
+  width: 40%;
 }
 
 .search-container {
+  align-items: center;
+  border-bottom: 1px solid #30373b;
   display: flex;
   justify-content: center;
-  align-items: center;
   padding: 6px 10px;
-  border-bottom: 1px solid #30373b;
 }
 
 .search-container > label {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  border-radius: 20px;
-  height: 36px;
-  width: 100%;
   background-color: #323739;
+  border-radius: 20px;
+  display: flex;
+  height: 36px;
+  justify-content: center;
+  width: 100%;
 }
 
 .search-container > label > img {
@@ -40,13 +40,13 @@
 }
 
 .search-container > label > input {
-  flex: 1;
   background-color: transparent;
   border: none;
-  font-weight: 700;
-  text-overflow: ellipsis;
   color: #acacac;
+  flex: 1;
+  font-weight: 700;
   height: 100%;
+  text-overflow: ellipsis;
 }
 
 .search-container > label > input:focus {
@@ -54,33 +54,33 @@
 }
 
 .contact-list {
-  overflow-y: auto;
   flex: 1;
+  overflow-y: auto;
 }
 
 .contact-container {
+  align-items: center;
   display: flex;
-  padding: 0 16px;
   height: 70px;
   justify-content: center;
-  align-items: center;
+  padding: 0 16px;
 }
 
 .contact-info {
-  display: flex;
-  flex: 1;
-  margin-left: 13px;
-  height: 100%;
-  justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #30373b;
+  display: flex;
+  flex: 1;
+  height: 100%;
+  justify-content: space-between;
+  margin-left: 13px;
 }
 
 .contact-info > div {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   height: 100%;
+  justify-content: flex-start;
 }
 
 .contact-info > div > :first-child {
@@ -94,31 +94,31 @@
 }
 
 .contact-lastMessage {
-  font-size: 0.9em;
   color: #acacac;
+  font-size: 0.9em;
 }
 
 div.contact-lastMessage {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  width: 200px;
   display: block;
-  overflow: hidden
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 200px;
 }
 
 span.contact-lastMessage {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: 250px;
   display: block;
-  overflow: hidden
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .contact-lastSeenMsg {
-  font-size: 0.7em;
-  margin-top: 18px;
   align-self: flex-start;
   color: #acacac;
+  font-size: 0.7em;
+  margin-top: 18px;
 }
 
 .contact-container:hover {
@@ -131,8 +131,8 @@ span.contact-lastMessage {
 }
 
 .contact-container > img {
-  width: 45px;
   border-radius: 50px;
+  width: 45px;
 }
 
 .contact-container > img:before {

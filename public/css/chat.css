@@ -2,9 +2,9 @@
   background-color: #0d1418;
   background-image: url('/public/background.png');
   background-size: 80% 130%;
-  flex: 1 1;
   display: flex;
   flex-direction: column;
+  flex: 1 1;
 }
 
 .chat.header {
@@ -12,9 +12,10 @@
 }
 
 .chat-info {
-  flex: 1;
   display: flex;
   flex-direction: column;
+  margin-right: auto;
+  width: 60%;
 }
 
 .chat-icon {
@@ -27,11 +28,11 @@
 }
 
 .chat-container > form {
-  display: flex;
-  background-color: #1e2428;
-  padding: 10px 15px;
-  justify-content: space-between;
   align-items: center;
+  background-color: #1e2428;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
 }
 
 .chat-container > form img {
@@ -40,12 +41,12 @@
 
 .chat-container > form > button {
   background-color: transparent;
-  border: none;
-  cursor: pointer;
-  width: 50px;
-  height: 29px;
   background-position: center;
   background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  height: 29px;
+  width: 50px;
 }
 
 .chat-container > form > button:disabled {
@@ -61,15 +62,15 @@
 }
 
 .chat-container > form > input {
-  flex: 1;
   background-color: #33383b;
   border: none;
-  padding: 0 12px;
   border-radius: 60px;
+  color: #acacac;
+  flex: 1;
+  font-weight: 700;
   height: 42px;
   margin: 0 10px;
-  font-weight: 700;
-  color: #acacac;
+  padding: 0 12px;
 }
 
 .chat-container > form > input:focus {
@@ -82,12 +83,12 @@
 }
 
 .message {
-  max-width: 70%;
-  padding: 6px 8px;
   background-color: #262d31;
-  color: #f1f1f2db;
   border-radius: 7px;
   border-top-left-radius: 0;
+  color: #f1f1f2db;
+  max-width: 70%;
+  padding: 6px 8px;
   word-break: break-all;
 }
 
@@ -97,19 +98,18 @@
 }
 
 .message-time {
-  float: right;
   color: #acacac;
+  float: right;
   font-size: 0.7em;
-  vertical-align: bottom;
-  transform: translateY(7.4px);
   margin-left: 10px;
+  transform: translateY(7.4px);
+  vertical-align: bottom;
 }
 
 .arrow-left {
-  width: 0; 
-  height: 0; 
-  /* border-top: 10px solid transparent; */
   border-bottom: 10px solid transparent; 
   border-right: 10px solid #262d31;
   border-top-left-radius: 5px;
+  height: 0;
+  width: 0; 
 }

@@ -1,6 +1,6 @@
-<div class="info-container">
+<div class="info-container main">
   <header>
-    <button><img src="/public/closeIcon.png" alt="close info" onclick="toggleInfo()"></button>
+    <button><img src="/public/closeIcon.png" alt="close info" onclick="toggleContainer('info', true)"></button>
     <span>Dados da conversa</span>
   </header>
   <div class="info-conversation">
@@ -74,10 +74,6 @@
     if (input.value.length < 1) return;
     socket.emit('editName', input.value);
     input.value = '';
-  }
-
-  const toggleInfo = () => {
-    document.getElementsByClassName('info-container')[0].classList.toggle('dnone');
   }
 
   socket.on('connect', () => { myInfo.id = socket.id; });

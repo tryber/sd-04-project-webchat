@@ -4,12 +4,12 @@ body, html {
 }
 
 body {
-  font-family: Segoe UI,Helvetica Neue,Helvetica,Lucida Grande,Arial,Ubuntu,Cantarell,Fira Sans,sans-serif;
-  margin: 0;
+  align-items: center;
   background-color: #131c21;
   display: flex;
+  font-family: Segoe UI, Helvetica Neue, Helvetica, Lucida Grande, Arial, Ubuntu, Cantarell, Fira Sans, sans-serif;
   justify-content: center;
-  align-items: center;
+  margin: 0;
 }
 
 ::-webkit-scrollbar {
@@ -21,23 +21,23 @@ body {
 }
 
 .app {
-  width: 100%;
-  height: 100%;
-  max-width: 1396px;
-  max-height: 1024px;
-  display: flex;
-  justify-content: stretch;
   align-items: stretch;
+  display: flex;
+  height: 100%;
+  justify-content: stretch;
+  max-height: 1024px;
+  max-width: 1396px;
+  width: 100%;
 }
 
 header {
-  min-height: 59px;
+  align-items: center;
   background-color: #2a2f32;
-  padding: 0px 16px;
+  color: #f1f1f2db;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  color: #f1f1f2db;
+  min-height: 59px;
+  padding: 0px 16px;
 }
 
 header img {
@@ -45,11 +45,11 @@ header img {
 }
 
 .header > img:first-child {
-  width: 40px;
-  margin-right: 13px;
   border-radius: 50px;
+  margin-right: 13px;
+  width: 40px;
 }
 
-div.dnone{
+div.dnone {
   display: none;
 }

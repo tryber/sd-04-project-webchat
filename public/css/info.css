@@ -1,9 +1,9 @@
 .info-container {
   background-color: #0d1418;
-  flex: 0.65 0.65;
   border-left: 1px solid #30373b;
   display: flex;
   flex-direction: column;
+  flex: 0.65 0.65;
 }
 
 .info-container > header > button {
@@ -14,18 +14,18 @@
 }
 
 .info-container > header {
+  align-items: center;
   display: flex;
   justify-content: flex-start;
-  align-items: center;
 }
 
 .info {
+  align-items: flex-start;
   background-color: #131c21;
-  margin-bottom: 20px;
-  padding: 28px 30px 18px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 28px 30px 18px;
 }
 
 .info.chat {
@@ -33,10 +33,10 @@
 }
 
 .info.chat > img {
-  width: 60%;
-  margin-bottom: 20px;
-  border-radius: 500px;
   align-self: center;
+  border-radius: 500px;
+  margin-bottom: 20px;
+  width: 60%;
 }
 
 .info.participants {
@@ -45,12 +45,12 @@
 }
 
 .participant-count {
-  padding: 0 30px 14px 0;
-  display: flex;
   align-items: center;
-  justify-content: space-between;
   color: #009688;
+  display: flex;
+  justify-content: space-between;
   order: -2;
+  padding: 0 30px 14px 0;
 }
 
 .participant-count > img {
@@ -58,31 +58,31 @@
 }
 
 .participant, .participant-count {
+  border-bottom: 1px solid #30373b;
   position: relative;
   width: 100%;
-  border-bottom: 1px solid #30373b;
 }
 
 .participant:after, .participant-count:after {
-  content: "";
   background: #131c21;
-  position: absolute;
   bottom: -1px;
-  left: 0;
-  width: 18%;
+  content: "";
   height: 1px;
+  left: 0;
+  position: absolute;
+  width: 18%;
 }
 
 .participant {
-  padding: 14px 30px 14px 0;
-  display: flex;
   align-items: flex-start;
+  display: flex;
+  padding: 14px 30px 14px 0;
 }
 
 .participant > img:first-child {
-  width: 50px;
   border-radius: 70px;
   margin-right: 14px;
+  width: 50px;
 }
 
 .participant-name {
@@ -105,17 +105,17 @@ input.participant-name {
 }
 
 .participant > button {
+  align-self: center;
   background-color: transparent;
   border: none;
+  cursor: pointer;
   margin-left: auto;
   padding: 0;
-  align-self: center;
-  cursor: pointer;
 }
 
 .participant > button > img {
-  width: 16px;
   margin-left: auto;
+  width: 16px;
 }
 
 .participant.itsMe {
@@ -123,6 +123,6 @@ input.participant-name {
 }
 
 .info-conversation {
-  overflow-y: auto;
   flex: 1;
+  overflow-y: auto;
 }

@@ -13,6 +13,10 @@
   <script src="http://192.168.1.104:3000/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
+
+    const toggleContainer = (name, bool) => {
+      document.getElementsByClassName(`${name}-container`)[0].classList.toggle('dnone', bool);
+    };
   </script>
 </head>
 

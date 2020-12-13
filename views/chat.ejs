@@ -1,5 +1,5 @@
-<div class="chat-container">
-  <header class="chat header" onclick="toggleInfo()">
+<div class="chat-container main">
+  <header class="chat header" onclick="toggleContainer('info', false)">
     <img src="<%- chat.img || '/public/missingPhoto.png' %>" class="edit-img" alt="user">
     <div class="chat-info">
       <span class="contact-name chat-name"><%- chat.name %></span>
