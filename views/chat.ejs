@@ -39,6 +39,7 @@
     if (!input.value) return;
     socket.emit('message', { chatMessage: input.value, activeChat });
     input.value = '';
+    btn.disabled = true;
   }
 
   const changeLastMsg = (msg, chat) => {
@@ -49,12 +50,12 @@
   }
 
   const addMessage = (push, msg, chat = 'general') => {
-    const { chatMessage, color, nickname, timeSent } = msg;
+    const { chatMessage, color, nickname, timeSent, id } = msg;
     let scrollDown = list.scrollTop >= list.scrollHeight * 0.7;
     if (!allChats[chat]) addContact(msg);
     if (activeChat === chat) {
-      const element = `<div class="message-container">
-        <div class="arrow-left"></div>
+      const element = `<div class="message-container ${id === socket.id ? 'itsMe' : ''}">
+        <div class="arrow"></div>
         <div class="message" data-testid="message">
           <span class="message-name" style="color: ${color}">${nickname}</span>
           <span class="message-text">${chatMessage}</span>

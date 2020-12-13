@@ -33,10 +33,10 @@
     if (participant.itsMe) document.getElementById('my-img').src = participant.img
     const element = `<div class="participant ${participant.itsMe ? 'itsMe' : ''}" id="${participant.id}">
       <img src="${participant.img || '/public/missingPhoto.png'}" alt="participant">
-      <div class="participant-name">
-        <span class="participant-name ${participant.id}-name" data-testid="online-user">${participant.nickname}</span>
+      <div class="div participant-name">
+        <span class="span participant-name ${participant.id}-name" data-testid="online-user">${participant.nickname}</span>
       ${participant.itsMe
-        ? `<input type="text" id="edit" class="participant-name" maxlength="25" data-testid="nickname-box"/>
+        ? `<input type="text" id="edit" class="input participant-name" maxlength="25" data-testid="nickname-box"/>
             </div>
           <button onClick="onEdit()" data-testid="nickname-save">
             <img src="/public/saveIcon.png" alt="save name">

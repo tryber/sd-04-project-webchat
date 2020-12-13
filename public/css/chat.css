@@ -3,8 +3,8 @@
   background-image: url('/public/background.png');
   background-size: 80% 130%;
   display: flex;
-  flex-direction: column;
   flex: 1 1;
+  flex-direction: column;
 }
 
 .chat.header {
@@ -79,7 +79,7 @@
 
 .message-container {
   display: flex;
-  margin: 12px 0 12px 24px;
+  margin: 12px 24px;
 }
 
 .message {
@@ -106,10 +106,28 @@
   vertical-align: bottom;
 }
 
-.arrow-left {
-  border-bottom: 10px solid transparent; 
+.arrow {
+  border-bottom: 10px solid transparent;
   border-right: 10px solid #262d31;
   border-top-left-radius: 5px;
   height: 0;
-  width: 0; 
+  width: 0;
+}
+
+.message-container.itsMe {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.message-container.itsMe > .message {
+  background-color: #056162;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 0;
+}
+
+.message-container.itsMe > .arrow {
+  border-left: 10px solid #056162;
+  border-right: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 5px;
 }

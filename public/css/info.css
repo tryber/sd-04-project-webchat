@@ -2,8 +2,17 @@
   background-color: #0d1418;
   border-left: 1px solid #30373b;
   display: flex;
-  flex-direction: column;
   flex: 0.65 0.65;
+  flex-direction: column;
+}
+
+.participant > button {
+  align-self: center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 0;
 }
 
 .info-container > header > button {
@@ -32,6 +41,15 @@
   font-size: 1.2em;
 }
 
+.participant > button > img {
+  margin-left: auto;
+  width: 16px;
+}
+
+.participant-count > img {
+  width: 12px;
+}
+
 .info.chat > img {
   align-self: center;
   border-radius: 500px;
@@ -53,20 +71,16 @@
   padding: 0 30px 14px 0;
 }
 
-.participant-count > img {
-  width: 12px;
-}
-
-.participant, .participant-count {
+.participant , .participant-count {
   border-bottom: 1px solid #30373b;
   position: relative;
   width: 100%;
 }
 
-.participant:after, .participant-count:after {
+.participant:after , .participant-count:after {
   background: #131c21;
   bottom: -1px;
-  content: "";
+  content: '';
   height: 1px;
   left: 0;
   position: absolute;
@@ -86,36 +100,21 @@
 }
 
 .participant-name {
-  /* flex: 1; */
   color: #f1f1f2db;
   font-size: 16px;
   overflow: hidden;
   word-break: break-all;
 }
 
-div.participant-name {
+.div.participant-name {
   display: flex;
   flex-direction: column;
 }
 
-input.participant-name {
+.input.participant-name {
   background-color: rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.3);
   border-radius: 5px;
-}
-
-.participant > button {
-  align-self: center;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  margin-left: auto;
-  padding: 0;
-}
-
-.participant > button > img {
-  margin-left: auto;
-  width: 16px;
 }
 
 .participant.itsMe {

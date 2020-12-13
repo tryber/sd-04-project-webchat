@@ -1,4 +1,4 @@
-body, html {
+body , html {
   height: 100%;
   width: 100%;
 }
@@ -7,7 +7,8 @@ body {
   align-items: center;
   background-color: #131c21;
   display: flex;
-  font-family: Segoe UI, Helvetica Neue, Helvetica, Lucida Grande, Arial, Ubuntu, Cantarell, Fira Sans, sans-serif;
+  font-family: Segoe UI, Helvetica Neue, Helvetica,
+    Lucida Grande, Arial, Ubuntu, Cantarell, Fira Sans, sans-serif;
   justify-content: center;
   margin: 0;
 }
@@ -37,7 +38,7 @@ header {
   display: flex;
   justify-content: space-between;
   min-height: 59px;
-  padding: 0px 16px;
+  padding: 0 16px;
 }
 
 header img {
@@ -50,6 +51,6 @@ header img {
   width: 40px;
 }
 
-div.dnone {
+.main.dnone {
   display: none;
 }
