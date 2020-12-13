@@ -23,15 +23,16 @@ app.use('/public', express.static('public'));
 io.on('connection', (socket) => {
   const user = {
     color: `hsl(${Math.random() * 360}, 100%, ${Math.random() * 21 + 50}%)`,
-    img: faker.image.imageUrl(480, 480),
+    img: `https://picsum.photos/seed/${socket.id}/480`,
     nickname: faker.name.findName(),
     id: socket.id,
   };
+
   socket.broadcast.emit('connected', user);
   socket.emit('connecting', [...participants, { ...user, itsMe: true }]);
   participants.push(user);
 
-  socket.on('message', async ({ chatMessage, nickname = user.nickname }) => {
+  socket.on('message', async ({ chatMessage, nickname = user.nickname, activeChat }) => {
     const messageInfo = {
       chatMessage,
       ...user,
@@ -43,8 +44,13 @@ io.on('connection', (socket) => {
         minute: 'numeric',
       }),
     };
-    await addNew('messages', messageInfo);
-    io.emit('message', `${messageInfo.timestamp} ${nickname} ${chatMessage}`, messageInfo);
+    if (activeChat !== 'general') {
+      io.to(activeChat).emit('message', true, messageInfo, user.id);
+      socket.emit('message', true, messageInfo, activeChat);
+    } else {
+      await addNew('messages', messageInfo);
+      io.emit('message', `${messageInfo.timestamp} ${nickname} ${chatMessage}`, messageInfo);
+    }
   });
 
   socket.on('editName', (name) => {
@@ -59,5 +65,3 @@ io.on('connection', (socket) => {
 });
 
 httpServer.listen(3000, () => console.log('Navi: heey liisten'));
-
-module.exports = { participants };

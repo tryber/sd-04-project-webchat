@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/public/css/contactList.css">
   <link rel="stylesheet" href="/public/css/chat.css">
   <link rel="stylesheet" href="/public/css/info.css">
-  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="http://192.168.1.104:3000/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
   </script>
@@ -18,11 +18,10 @@
 
 <body>
   <div class="app">
-    <%- include('./contactList.ejs') %>
+    <%- include('./contactList.ejs', { chat }) %>
     <%- include('./chat.ejs', { chat }) %>
     <%- include('./info.ejs', { chat }) %>
   </div>
 </body>
 
 </html>
-<!-- [{name: 'user Name', itsMe: true, color: 'red'}, {name: 'second User', color: 'green'},{name: 'second User', color: 'green'},{name: 'second User', color: 'green'},{name: 'second User', color: 'green'},{name: 'second User', color: 'green'},{name: 'second User', color: 'green'}] -->

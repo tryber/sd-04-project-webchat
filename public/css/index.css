@@ -49,3 +49,7 @@ header img {
   margin-right: 13px;
   border-radius: 50px;
 }
+
+div.dnone{
+  display: none;
+}

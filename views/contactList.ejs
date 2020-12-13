@@ -1,6 +1,6 @@
 <div class="conversations-container">
   <header class="conversations header">
-    <img src="/public/missingPhoto.png" alt="user">
+    <img src="/public/missingPhoto.png" id="my-img" alt="user">
     <div>
       <img src="/public/statusIcon.png" alt="status icon">
       <img src="/public/conversationIcon.png" alt="conversation icon">
@@ -15,6 +15,40 @@
     </label>
   </div>
   <div class="contact-list">
-    <%- include('./components/contact.ejs', {contact: {name: 'Chat geral', selected: true }}) %>
+    <%- include('./components/contact.ejs', { contact: { name: 'Chat geral', selected: true, messages: chat.messages }}) %>
   </div>
 </div>
+<script>
+  const contactList = document.getElementsByClassName('contact-list')[0];
+
+  const selectContact = (contact) => {
+    const { id, nickname = 'Chat geral', img = '/public/missingPhoto.png' } = contact;
+    if (!allChats[id]) addContact(contact);
+    if (activeChat !== id) {
+      document.getElementById(`${activeChat}-contact`).classList.remove('selected');
+      document.getElementById(`${id}-contact`).classList.add('selected');
+      changeChat(id, nickname, img);
+      list.scrollTop = list.scrollHeight;
+    }
+    participants.classList.toggle('dnone', id !== 'general');
+  }
+
+  const addContact = (contact) => {
+    const element = `<div class="contact-container" id="${contact.id}-contact">
+      <img src="${contact.img || '/public/missingPhoto.png'}" alt="contact">
+      <div class="contact-info">
+        <div>
+          <span class="contact-name ${contact.id}-name">${contact.nickname}%></span>
+          <span class="contact-lastMessage">
+          </span>
+        </div>
+        <span class="contact-lastSeenMsg">
+        </span>
+      </div>
+    </div>`;
+    allChats[contact.id] = contact.messages || [];
+    contactList.insertAdjacentHTML('beforeend', element);
+    document.getElementById(`${contact.id}-contact`)
+      .addEventListener('click', () => selectContact(contact));
+  }
+</script>

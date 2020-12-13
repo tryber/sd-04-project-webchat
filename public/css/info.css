@@ -40,7 +40,6 @@
 }
 
 .info.participants {
-  display: flex;
   flex-direction: column;
   padding-top: 20px;
 }
@@ -100,13 +99,21 @@ div.participant-name {
 }
 
 input.participant-name {
-  background-color: rgba(0, 0, 0, 0.068);
-  border: 1px solid rgba(0, 0, 0, 0.10);
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.3);
   border-radius: 5px;
 }
 
-.participant > img:last-child, .edit > img {
+.participant > button {
+  background-color: transparent;
+  border: none;
+  margin-left: auto;
+  padding: 0;
   align-self: center;
+  cursor: pointer;
+}
+
+.participant > button > img {
   width: 16px;
   margin-left: auto;
 }
@@ -118,10 +125,4 @@ input.participant-name {
 .info-conversation {
   overflow-y: auto;
   flex: 1;
-}
-
-.edit {
-  background-color: transparent;
-  border: none;
-  margin-left: auto;
 }

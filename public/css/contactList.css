@@ -95,8 +95,23 @@
 
 .contact-lastMessage {
   font-size: 0.9em;
-  text-overflow: ellipsis;
   color: #acacac;
+}
+
+div.contact-lastMessage {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 200px;
+  display: block;
+  overflow: hidden
+}
+
+span.contact-lastMessage {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 250px;
+  display: block;
+  overflow: hidden
 }
 
 .contact-lastSeenMsg {
@@ -118,4 +133,8 @@
 .contact-container > img {
   width: 45px;
   border-radius: 50px;
+}
+
+.contact-container > img:before {
+  background-image: url('/public/missingPhoto.png');
 }
