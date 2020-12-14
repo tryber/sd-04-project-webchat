@@ -56,5 +56,6 @@ io.on('connect', async (socket) => {
   });
 });
 
+// Ouvindo a porta 3000
 socketIoServer.listen(3000);
 console.log('Express na porta 3000');
