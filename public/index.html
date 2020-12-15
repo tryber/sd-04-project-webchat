@@ -24,7 +24,8 @@
   </head>
   <body>
     <header>
-      <h2 id="div-nickname" class="title">Trybe WebChat</h2>
+      <h2 class="title">Trybe WebChat</h2>
+      <h4 id="title-nickname" class="title"></h4>
 
       <div class="field is-flex">
         <div class="is-flex is-align-items-center">
@@ -46,6 +47,11 @@
         </div>
       </div>
     </header>
+
+    <div>
+      <h4>Visitantes online:</h4>
+      <ul id="online-users"></ul>
+    </div>
 
     <div id="main-messages" class="box has-background-primary">
       <h3>Mensagens:</h3>
@@ -75,19 +81,11 @@
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
     <script src="http://chancejs.com/chance.min.js"></script>
-    <!-- <script src="./script.js"></script> -->
     <script>
       const socket = io('http://127.0.0.1:3000');
 
-      const name = chance.name({ nationality: 'it' });
-
+      let name = chance.name({ nationality: 'it' });
       console.log(name);
-
-      console.log('socket conectado: ', socket);
-
-      socket.on('connect', () => {
-        console.log('User connected');
-      });
 
       const inputNick = document.getElementById('nick-name');
 
@@ -101,71 +99,74 @@
 
       const ulMessages = document.getElementById('ul-messages');
 
-      const divNickName = document.getElementById('div-nickname');
+      const ulOnlineUsers = document.getElementById('online-users');
+
+      const titleNickName = document.getElementById('title-nickname');
+
+      titleNickName.innerText = name;
+
+      socket.emit('newUser', name);
 
       // FUNÇÃO QUE RECEBE UM OBJETO COMO MENSAGEM E RENDERIZA NA TELA
       const renderMessage = (message) => {
         const li = document.createElement('li');
         li.innerText = message;
-        // li.innerText = `${message.nickname || name}: ${message.chatMessage}`;
         li.setAttribute('data-testid', 'message');
-
-        // const spanTime = document.createElement('span');
-        // spanTime.innerText = message.timeStamp;
-        // spanTime.classList.add('is-italic');
-        // spanTime.classList.add('is-size-7');
-
         const msgDiv = document.createElement('div');
-        msgDiv.classList.add('box');
-        // msgDiv.appendChild(spanTime);
-        msgDiv.appendChild(li);
-
-        ulMessages.appendChild(msgDiv);
+        li.classList.add('box');
+        ulMessages.appendChild(li);
         inputMessage.value = '';
       };
 
       // PEGA O HISTÓRICO DE MSGS DO BANCO DE DADOS E RENDERIZA NA TELA USANDO A FUNÇÃO renderMessage
       socket.on('history', (msgHistoric) => {
-        console.log('history', msgHistoric);
         msgHistoric.forEach((msg) => {
-          renderMessage(`${msg.timeStamp} ${msg.nickname} ${msg.chatMessage}`);
+          renderMessage(`${msg.timeStamp} | ${msg.nickname}: ${msg.chatMessage}`);
         });
-        // window.scrollTo(0, document.body.scrollHeight);
       });
 
+      // RECEBE A MENSAGEM DIGITADA NO INPUT, EM FORMATO DE STRING E COM DATA FORMATADA DO BACKEND
       socket.on('message', (message) => {
-        console.log('socket.on', message);
         renderMessage(message);
         window.scrollTo(0, document.body.scrollHeight);
       });
 
-      socket.on('disconnect', (msg) => {
-        const disc = document.createElement('li');
-        disc.innerText = `user ${inputNick.value || name} disconnected`;
-        ulMessages.appendChild(disc);
-        console.log('msg do disconnect', msg);
-        console.log(`user ${inputNick.value} disconnected`);
-        socket.emit('userDisconnected', inputNick.value || name);
-        // socket.broadcast.emit('disconnect', msg);
+      let userFromBack = [];
+
+      socket.on('onlineUsers', (onlineUsers) => {
+        console.log('onlineUsers ativado', onlineUsers);
+        ulOnlineUsers.innerHTML = '';
+
+        onlineUsers.forEach((user) => {
+          const li = document.createElement('li');
+          li.setAttribute('data-testid', 'online-user');
+          li.innerText = user.nick;
+          ulOnlineUsers.appendChild(li);
+        });
       });
 
-      socket.on('newUser', (msg) => {
-        console.log('new user connected on server', msg);
-        // socket.emit('newUser', inputNick.value);
+      // QUANDO UM USUÁRIO SE DESCONECTA EU RECEBO DO BACK ESSA MSG
+      socket.on('disconnect', (users) => {
+        console.log('MSG EMITIDA PELO BACK', users);
+
+        ulOnlineUsers.innerHTML = '';
+
+        renderMessage(`usuário saiu do chat...`);
       });
 
       nickNameButton.addEventListener('click', () => {
-        const titleH2 = document.createElement('div');
-        titleH2.innerText = `${inputNick.value || name}`;
-        divNickName.appendChild(titleH2);
-        inputNick.disabled = true;
-        nickNameButton.innerText = 'Alterar nickName';
+        const newNickName = inputNick.value;
+        titleNickName.innerText = newNickName;
+        name = newNickName;
+        console.log('cliquei em salvar nickname', newNickName);
+        socket.emit('newNickName', newNickName);
+        inputNick.value = '';
       });
 
       formSendMessage.addEventListener('submit', (e) => {
         e.preventDefault();
         socket.emit('message', {
-          nickname: inputNick.value || name,
+          nickname: titleNickName.textContent,
           chatMessage: inputMessage.value,
         });
       });

@@ -19,51 +19,53 @@ app.get('/', (_req, res) => {
   res.sendFile('index.html');
 });
 
-let newUsers = [];
+let onlineUsers = [];
+
 // SOCKET.IO
 io.on('connection', async (socket) => {
   const allMessages = await getAllMessages();
 
-  newUsers.push(socket.id);
+  io.emit('onlineUsers', onlineUsers);
+  let userActual;
 
-  socket.emit('newUser', socket.id);
+  socket.on('newUser', (nick) => {
+    console.log('esse é o nome atual', nick);
+    userActual = nick;
+    onlineUsers.push({ id: socket.id, nick });
+    console.log('array de users Online', onlineUsers);
+    io.emit('onlineUsers', onlineUsers);
+  });
 
-  socket.broadcast.emit('newUser', `User joined with ID: ${socket.id}`);
+  // const userEffective = {
+  //   id: socket.id,
+  //   nick: userActual,
+  // };
 
   socket.emit('history', allMessages);
 
-  console.log('socket conectado com ID:', socket.id);
-  console.log('array de novos usuários', newUsers);
-
-  socket.on('disconnect', (msg) => {
-    console.log(`user ${socket.id} disconnected from server`);
-    newUsers = newUsers.filter((user) => user !== socket.id);
-    console.log(newUsers);
-    console.log('msg do front:', msg);
+  socket.on('newNickName', (user) => {
+    console.log('o novo NICK vindo do front', user);
+    onlineUsers.map((nick) => {
+      const onlineUser = nick;
+      if (onlineUser.nick === userActual) onlineUser.nick = user;
+      console.log('novo nickname inserido', onlineUsers);
+      return null;
+    });
+    io.emit('onlineUsers', onlineUsers);
   });
 
-  socket.on('userDisconnected', (msg) => {
-    console.log('essa msg sim está vindo front-end, espero q seja o nome do usuario', msg);
+  socket.on('disconnect', () => {
+    console.log('usuario se desconectou');
+    onlineUsers = onlineUsers.filter((user) => user.id !== socket.id);
+    console.log('array atualizado depois de sair um user', onlineUsers);
+    io.emit('onlineUsers', onlineUsers);
   });
 
   socket.on('message', async (message) => {
-    console.log('autor da msg:', message.nickname);
-    console.log('msg vinda do client', message.chatMessage);
-
     const timeformated = moment(new Date()).format('DD-MM-YYYY h:mm:ss a');
-
-    // const fullMessage = {
-    //   nickname: message.nickname,
-    //   chatMessage: message.chatMessage,
-    //   timeStamp: timeformated,
-    // };
-    const fullMsgString = `${timeformated} ${message.nickname}: ${message.chatMessage}`;
-
+    const fullMsgString = `${timeformated} | ${message.nickname}: ${message.chatMessage}`;
     await insertMessage(message.nickname, message.chatMessage, timeformated);
-
     io.emit('message', fullMsgString);
-    // io.emit('message', fullMessage);
-    // socket.broadcast.emit('message', message.chatMessage);
   });
 });
 
