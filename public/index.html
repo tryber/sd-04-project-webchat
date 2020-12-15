@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css" />
+    <title>Trybe WebChat</title>
+    <!-- <style>
+      body: {
+        position: relative;
+      }
+      form {
+        position: fixed;
+        bottom: 0;
+      }
+      header {
+        position: fixed;
+      }
+      #main-messages {
+        position: absolute;
+        height: 50vh;
+      }
+    </style> -->
+  </head>
+  <body>
+    <header>
+      <h2 class="title">Trybe WebChat</h2>
+      <h4 id="title-nickname" class="title"></h4>
+
+      <div class="field is-flex">
+        <div class="is-flex is-align-items-center">
+          <input
+            class="input is-success is-rounded m-2"
+            id="nick-name"
+            type="text"
+            data-testid="nickname-box"
+            placeholder="your nickName here"
+          />
+          <button
+            type="button"
+            id="nickname-button"
+            class="button is-success is-rounded"
+            data-testid="nickname-save"
+          >
+            salvar nick name
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div>
+      <h4>Visitantes online:</h4>
+      <ul id="online-users"></ul>
+    </div>
+
+    <div id="main-messages" class="box has-background-primary">
+      <h3>Mensagens:</h3>
+      <ul id="ul-messages"></ul>
+    </div>
+
+    <form autocomplete="off" id="message-form" class="box">
+      <div class="field is-flex">
+        <input
+          id="message-box"
+          data-testid="message-box"
+          type="text"
+          placeholder="type your message"
+          class="input is-success is-rounded m-2"
+        />
+        <button
+          id="send-button"
+          class="button is-success is-rounded m-2"
+          type="submit"
+          data-testid="send-button"
+        >
+          Send
+        </button>
+      </div>
+    </form>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <script src="http://chancejs.com/chance.min.js"></script>
+    <script>
+      const socket = io('http://127.0.0.1:3000');
+
+      let name = chance.name({ nationality: 'it' });
+      console.log(name);
+
+      const inputNick = document.getElementById('nick-name');
+
+      const inputMessage = document.getElementById('message-box');
+
+      const formSendMessage = document.getElementById('message-form');
+
+      const sendButton = document.getElementById('send-button');
+
+      const nickNameButton = document.getElementById('nickname-button');
+
+      const ulMessages = document.getElementById('ul-messages');
+
+      const ulOnlineUsers = document.getElementById('online-users');
+
+      const titleNickName = document.getElementById('title-nickname');
+
+      titleNickName.innerText = name;
+
+      socket.emit('newUser', name);
+
+      // FUNÇÃO QUE RECEBE UM OBJETO COMO MENSAGEM E RENDERIZA NA TELA
+      const renderMessage = (message) => {
+        const li = document.createElement('li');
+        li.innerText = message;
+        li.setAttribute('data-testid', 'message');
+        const msgDiv = document.createElement('div');
+        li.classList.add('box');
+        ulMessages.appendChild(li);
+        inputMessage.value = '';
+      };
+
+      // PEGA O HISTÓRICO DE MSGS DO BANCO DE DADOS E RENDERIZA NA TELA USANDO A FUNÇÃO renderMessage
+      socket.on('history', (msgHistoric) => {
+        msgHistoric.forEach((msg) => {
+          renderMessage(`${msg.timeStamp} | ${msg.nickname}: ${msg.chatMessage}`);
+        });
+      });
+
+      // RECEBE A MENSAGEM DIGITADA NO INPUT, EM FORMATO DE STRING E COM DATA FORMATADA DO BACKEND
+      socket.on('message', (message) => {
+        renderMessage(message);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      let userFromBack = [];
+
+      socket.on('onlineUsers', (onlineUsers) => {
+        console.log('onlineUsers ativado', onlineUsers);
+        ulOnlineUsers.innerHTML = '';
+
+        onlineUsers.forEach((user) => {
+          const li = document.createElement('li');
+          li.setAttribute('data-testid', 'online-user');
+          li.innerText = user.nick;
+          ulOnlineUsers.appendChild(li);
+        });
+      });
+
+      // QUANDO UM USUÁRIO SE DESCONECTA EU RECEBO DO BACK ESSA MSG
+      socket.on('disconnect', (users) => {
+        console.log('MSG EMITIDA PELO BACK', users);
+
+        ulOnlineUsers.innerHTML = '';
+
+        renderMessage(`usuário saiu do chat...`);
+      });
+
+      nickNameButton.addEventListener('click', () => {
+        const newNickName = inputNick.value;
+        titleNickName.innerText = newNickName;
+        name = newNickName;
+        console.log('cliquei em salvar nickname', newNickName);
+        socket.emit('newNickName', newNickName);
+        inputNick.value = '';
+      });
+
+      formSendMessage.addEventListener('submit', (e) => {
+        e.preventDefault();
+        socket.emit('message', {
+          nickname: titleNickName.textContent,
+          chatMessage: inputMessage.value,
+        });
+      });
+    </script>
+  </body>
+</html>
