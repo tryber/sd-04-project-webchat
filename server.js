@@ -53,8 +53,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('disconnect', () => {
-    const message = `${obj.user} > left chat`;
-    console.log(message);
+    console.log(`${obj.user} - left chat`);
 
     usersList.splice(obj.user);
     io.emit('userList', usersList);
