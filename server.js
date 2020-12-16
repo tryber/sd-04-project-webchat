@@ -3,9 +3,9 @@ const socketio = require('socket.io');
 const http = require('http');
 const cors = require('cors');
 const path = require('path');
+const faker = require('faker'); // Gera dados fakes no browser, Ex.: nome, cidade
 const messages = require('./model/modelMessages');
 const createOn = require('./service/timeNow');
-const faker = require('faker'); // Gera dados fakes no browser, Ex.: nome, cidade
 
 const app = express();
 
@@ -21,9 +21,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connect', async (socket) => {
   faker.locale = 'pt_BR'; // define o idioma dos dados
-  console.log(
-    `Socket conectado: ${socket.id} - Nome: ${faker.name.findName()}`
-  );
+  // console.log(
+  //   `Socket conectado: ${socket.id} - Nome: ${faker.name.findName()}`,
+  // );
   // console.log(`Usuários conectados ${socket.rooms}`);
 
   /**
