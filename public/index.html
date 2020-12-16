@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/style.css" />
+  <script src="http://localhost:4555/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+</head>
+
+<body>
+  <div id="main-container">
+    <div class="name-container">
+      <input type="text" id="name-input" placeholder="Digite seu nome de usuário" autocomplete="off">
+    </div>
+    <ul id="messages"></ul>
+    <form id="chat-form" action="">
+      <div>
+        <input id="message-input" autocomplete="off" /><button>Send</button>
+      </div>
+  </div>  
+  <script src="/app.js"></script>
+</body>
+
+</html>
