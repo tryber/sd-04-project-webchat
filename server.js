@@ -9,6 +9,8 @@ const server = http.createServer(app);
 const io = require('socket.io')(server);
 
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
@@ -17,17 +19,17 @@ const { insertMessage, getAllMessages } = require('./model/messagesModel');
 let usersList = [];
 const obj = {};
 
-const dispatcher = (nickname) => {
+const dispatcher = nickname => {
   if (!obj.user || !obj.user.includes(nickname)) {
     obj.user = nickname;
     usersList.unshift(obj.user);
     usersList = usersList.filter((user, i) => usersList.indexOf(user) === i);
 
-    io.emit('userList', usersList);
+    io.emit('usersList', usersList);
   }
 };
 
-io.on('connection', async (socket) => {
+io.on('connection', async socket => {
   console.log('Connected');
   io.emit('usersList', usersList);
 
@@ -36,6 +38,7 @@ io.on('connection', async (socket) => {
 
   socket.on('newNickName', async ({ nickname }) => {
     await dispatcher(nickname);
+    console.log('usersList', usersList);
   });
 
   socket.on('chatMessage', async ({ nickname, chatMessage }) => {
@@ -56,7 +59,7 @@ io.on('connection', async (socket) => {
     console.log(`${obj.user} - left chat`);
 
     usersList.splice(obj.user);
-    io.emit('userList', usersList);
+    io.emit('usersList', usersList);
   });
 });
 
