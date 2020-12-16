@@ -41,7 +41,7 @@ io.on('connection', async (socket) => {
     console.log('usersList', usersList);
   });
 
-  socket.on('chatMessage', async ({ nickname, chatMessage }) => {
+  socket.on('message', async ({ nickname, chatMessage }) => {
     await dispatcher(nickname);
 
     const time = new Date();
@@ -52,7 +52,7 @@ io.on('connection', async (socket) => {
     const fullMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
     console.log(fullMessage);
 
-    io.emit('chatMessage', fullMessage);
+    io.emit('message', fullMessage);
   });
 
   socket.on('disconnect', () => {

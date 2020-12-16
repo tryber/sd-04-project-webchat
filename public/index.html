@@ -38,7 +38,7 @@
       const onlineUsers = document.querySelector('#usersConnected');
       const messages = document.querySelector('#listMessage');
 
-      user.innerText = chance.first();
+      user.innerText = chance.name();
       let nickname = user.innerText;
 
       socket.emit('newNickName', { nickname });
@@ -55,7 +55,7 @@
         event.preventDefault();
         const chatMessage = chatMessageInput.value;
 
-        socket.emit('chatMessage', { nickname, chatMessage });
+        socket.emit('message', { nickname, chatMessage });
       });
 
       socket.on('usersList', async data => {
@@ -73,10 +73,10 @@
           .join(' ');
       });
 
-      socket.on('chatMessage', data => {
+      socket.on('message', data => {
         const li = document.createElement('li');
         li.setAttribute('data-testid', 'message');
-        li.innerText = data;
+        li.textContent = data;
 
         messages.appendChild(li);
       });
