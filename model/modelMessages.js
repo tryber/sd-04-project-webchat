@@ -1,4 +1,5 @@
 const connection = require('./connection');
+require('dotenv').config();
 
 const saveMessage = async (dateTime, nickname, chatMessage) => {
   const db = await connection();

@@ -6,49 +6,69 @@
   </head>
   <body>
     <div>
+      <h1>Chat Tryber</h1>
       <form id="chat">
-        <input type="text" id="nickname" placeholder="Digite seu nome" />
-        <div>
-          <div class="messages"></div>
-        </div>
+        <input
+          type="text"
+          id="nickname"
+          placeholder="Digite seu nome"
+          data-testid="nickname-box"
+        /><button data-testid="nickname-save">Salvar usuário</button>
+        <div class="message-box"></div>
         <input
           type="text"
           id="chatMessage"
+          data-testid="message-box"
           placeholder="Digite sua mensagem"
-        /><button type="submit">Enviar</button>
+        /><button type="submit" data-testid="send-button">Enviar</button>
       </form>
-      <script type="text/javascript">
-        const socket = io('http://localhost:3000');
-
-        function renderMessage(message) {
-          $('.messages').append('<div class="message">' + message + '</div>');
-        }
-
-        socket.on('previousMessage', function (allMessages) {
-          for (const iterator of allMessages) {
-            renderMessage(
-              `${iterator.dateTime} - ${iterator.nickname}: ${iterator.chatMessage}!`
-            );
-          }
-        });
-
-        socket.on('message', function (message) {
-          renderMessage(message);
-        });
-
-        $('#chat').submit(function (event) {
-          event.preventDefault();
-
-          let nickname = $('input[id=nickname]').val();
-          let chatMessage = $('input[id=chatMessage]').val();
-
-          if (nickname.length && chatMessage.length) {
-            //const messageObject = { nickname, chatMessage };
-            // renderMessage(messageObject);
-            socket.emit('message', { nickname, chatMessage });
-          }
-        });
-      </script>
+      <div>
+        <h2 class="users">Usuários conectados:</h2>
+      </div>
     </div>
+    <script type="text/javascript">
+      const socket = io('http://localhost:3000');
+
+      function renderMessage(message) {
+        $('.message-box').append(
+          '<div data-testid="message">' + message + '</div>'
+        );
+      }
+
+      function renderUser(message) {
+        $('.users').append('<h5><li>' + message + '</li></h5>');
+      }
+
+      socket.on('userConected', function (users) {
+        for (const name of users) {
+          renderUser(name);
+        }
+      });
+
+      socket.on('previousMessage', function (allMessages) {
+        for (const iterator of allMessages) {
+          renderMessage(
+            `${iterator.dateTime} - ${iterator.nickname}: ${iterator.chatMessage}!`
+          );
+        }
+      });
+
+      socket.on('message', function (message) {
+        renderMessage(message);
+      });
+
+      $('#chat').submit(function (event) {
+        event.preventDefault();
+
+        let nickname = $('input[id=nickname]').val();
+        let chatMessage = $('input[id=chatMessage]').val();
+
+        if (nickname.length && chatMessage.length) {
+          //const messageObject = { nickname, chatMessage };
+          // renderMessage(messageObject);
+          socket.emit('message', { nickname, chatMessage });
+        }
+      });
+    </script>
   </body>
 </html>

@@ -5,6 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const messages = require('./model/modelMessages');
 const createOn = require('./service/timeNow');
+const faker = require('faker'); // Gera dados fakes no browser, Ex.: nome, cidade
 
 const app = express();
 
@@ -16,10 +17,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
-app.use('/client', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connect', async (socket) => {
-  console.log(`Socket conectado: ${socket.id}`);
+  faker.locale = 'pt_BR'; // define o idioma dos dados
+  console.log(
+    `Socket conectado: ${socket.id} - Nome: ${faker.name.findName()}`
+  );
   // console.log(`Usuários conectados ${socket.rooms}`);
 
   /**
@@ -27,9 +31,12 @@ io.on('connect', async (socket) => {
    *  carrega todas as mensagens que estão salvas no banco.
    */
   const Messages = await messages.getAllMessages();
-  // const msn = await formatMessage(Messages, true);
-  // console.log('todos', msn);
   socket.emit('previousMessage', Messages);
+
+  // Gerando nome dos usuários conectados
+  const users = [];
+  await users.push(faker.name.findName());
+  socket.emit('userConected', users);
 
   /**
    * Salva todas as mensagens do cliente no banco
