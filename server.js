@@ -19,7 +19,7 @@ const { insertMessage, getAllMessages } = require('./model/messagesModel');
 let usersList = [];
 const obj = {};
 
-const dispatcher = nickname => {
+const dispatcher = (nickname) => {
   if (!obj.user || !obj.user.includes(nickname)) {
     obj.user = nickname;
     usersList.unshift(obj.user);
@@ -29,7 +29,7 @@ const dispatcher = nickname => {
   }
 };
 
-io.on('connection', async socket => {
+io.on('connection', async (socket) => {
   console.log('Connected');
   io.emit('usersList', usersList);
 
