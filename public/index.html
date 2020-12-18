@@ -5,31 +5,66 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/style.css" />
-  <script src="http://localhost:4555/socket.io/socket.io.js"></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 </head>
 
 <body>
   <div id="main-container">
     <div class="name-container">
-      <input type="text" id="name-input" placeholder="Digite seu nome de usuário" autocomplete="off">
+      <input
+        data-testid="nickname-box"
+        type="text"
+        id="name-input"
+        placeholder="Digite seu nome de usuário"
+        autocomplete="off"
+      />
+      <button data-testid="nickname-save" id="name-btn">
+        Save
+      </button>
     </div>
     <ul id="messages"></ul>
     <form id="chat-form" action="">
       <div>
-        <input id="message-input" autocomplete="off" /><button>Send</button>
+        <input
+          data-testid="message-box"
+          type="text"
+          id="message-input"
+          autocomplete="off"
+        />
+        <button data-testid="send-button">Send</button>
       </div>
   </div>
   <script>
-    const socket = io('http://localhost:4555');
+    const socket = io('http://localhost:3000');
 
-    const form = document.querySelector('#chat-form');
+    // Function to select a random nickname
+    const getRandomNickName = () => {
+      let names = ['Javascripto', 'AntiCC', 'CSSMonster', 'Reducer', 'TestBreaker', 'InfintyLoopCreator', 'HamburgãoDoCacique', 'ReactState', 'Redux', 'Sequelizer'];
+
+      const randomNameNumber = Math.floor(Math.random() * names.length);
+
+      return names[randomNameNumber];
+    };
+    
+    // Create a variable with the random nickname
+    let nickname = getRandomNickName();
+
+    // Set the nickname input value with the random nickname
+    // document.querySelector('#name-input').value = nickname;
+
+    // Function to save nickname
+    const saveName = (e) => {
+      e.preventDefault();
+      nickname = document.querySelector('#name-input').value;
+      return true;
+    };
 
     const sendMessage = (e) => {
       console.log(e.target);
       e.preventDefault();
       const chatMessage = document.querySelector('#message-input').value;
-      const nickname = document.querySelector('#name-input').value;
+      console.log(nickname);
       socket.emit('message', { chatMessage, nickname });
       document.querySelector('#message-input').value = '';
     };
@@ -37,11 +72,16 @@
     socket.on('message', (msg) => {
       const li = document.createElement('li');
       const message = document.createTextNode(msg);
+      li.setAttribute('data-testid', 'message');
       li.appendChild(message);
       document.querySelector('#messages').appendChild(li);
     });
 
+    const form = document.querySelector('#chat-form');
     form.addEventListener('submit', sendMessage);
+
+    const saveNameBtn = document.querySelector('#name-btn');
+    saveNameBtn.addEventListener('click', saveName);
 
   </script>
 </body>

@@ -10,6 +10,8 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+const PORT = process.env.PORT || 3000;
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
@@ -30,6 +32,4 @@ io.on('connection', async (socket) => {
   });
 });
 
-app.listen(3001, () => console.log('Ouvindo a porta 3001!'));
-
-server.listen(3000, () => console.log('Ouvindo a porta 3000!'));
+server.listen(PORT, () => console.log(`Ouvindo a porta ${PORT}!`));
