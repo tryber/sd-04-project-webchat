@@ -5,6 +5,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
 const moment = require('moment');
+const { insertMessages, getAllMessages } = require('./models/messageModel');
 
 const app = express();
 const server = http.createServer(app);
@@ -29,7 +30,19 @@ io.on('connection', async (socket) => {
     const formatedMessage = `${timeSend} ${nickname}: ${chatMessage}`;
     socket.emit('message', formatedMessage);
     socket.broadcast.emit('message', formatedMessage);
+    await insertMessages(chatMessage, nickname, timeSend);
   });
+
+  const chatHistory = await getAllMessages();
+
+  console.log('history:', chatHistory);
+
+  chatHistory.map(({ chatMessage, nickname, timestamp }) => {
+    const formatedMessage = `${timestamp} ${nickname}: ${chatMessage}`;
+    console.log(formatedMessage);
+    socket.emit('history', formatedMessage);
+  });
+
 });
 
 server.listen(PORT, () => console.log(`Ouvindo a porta ${PORT}!`));

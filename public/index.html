@@ -53,29 +53,32 @@
     // Set the nickname input value with the random nickname
     // document.querySelector('#name-input').value = nickname;
 
-    // Function to save nickname
+    // Function for save nickname
     const saveName = (e) => {
       e.preventDefault();
       nickname = document.querySelector('#name-input').value;
       return true;
     };
 
+    // Function for send message to server
     const sendMessage = (e) => {
-      console.log(e.target);
       e.preventDefault();
       const chatMessage = document.querySelector('#message-input').value;
-      console.log(nickname);
       socket.emit('message', { chatMessage, nickname });
       document.querySelector('#message-input').value = '';
     };
 
-    socket.on('message', (msg) => {
+    // Function to format message to the client
+    const formatMessage = (msg) => {
       const li = document.createElement('li');
       const message = document.createTextNode(msg);
       li.setAttribute('data-testid', 'message');
       li.appendChild(message);
       document.querySelector('#messages').appendChild(li);
-    });
+    };
+
+    socket.on('message', formatMessage);
+    socket.on('history', formatMessage);
 
     const form = document.querySelector('#chat-form');
     form.addEventListener('submit', sendMessage);
