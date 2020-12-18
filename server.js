@@ -39,10 +39,9 @@ io.on('connection', async (socket) => {
 
   chatHistory.map(({ chatMessage, nickname, timestamp }) => {
     const formatedMessage = `${timestamp} ${nickname}: ${chatMessage}`;
-    console.log(formatedMessage);
     socket.emit('history', formatedMessage);
+    return true;
   });
-
 });
 
 server.listen(PORT, () => console.log(`Ouvindo a porta ${PORT}!`));
