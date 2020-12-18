@@ -1,51 +1,46 @@
-body {
-  height: 100%;
-  background-color: black;
-}
-
 .base {
   margin: 15px;
 }
 
 h1 {
-  text-align: center;
   color: rgb(20, 233, 169);
+  text-align: center;
 }
 
 .container {
-  height: 100%;
-  display: flex;
-  justify-content: center;
   align-items: center;
+  display: flex;
   flex-direction: column;
+  height: 100%;
+  justify-content: center;
 }
 
 .sendMessage {
-  position: absolute;
   bottom: 0;
   display: flex;
   flex-direction: row;
   margin: 20px;
+  position: absolute;
 }
 
 .boxMessage {
-  width: 500px;
+  border-bottom: black;
+  border: 2px solid rgb(20, 233, 169);
   height: 300px;
   margin: 20px 0;
-  border: 2px solid rgb(20, 233, 169);
-  border-bottom: black;
-  padding: 20px;
   overflow: auto;
+  padding: 20px;
+  width: 500px;
 }
 
 .message {
-  color: black;
-  padding: 25px;
-  border: 1px solid gray;
-  border-radius: 3px;
-  margin: 10px;
-  font-size: 18px;
-  border-color: #f4a911;
 	background-color: #f6bb42;
+  border-color: #f4a911;
+  border-radius: 3px;
+  border: 1px solid gray;
+  color: black;
+  font-size: 18px;
+  margin: 10px;
   overflow: auto;
+  padding: 25px;
 }
