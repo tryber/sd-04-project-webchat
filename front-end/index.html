@@ -9,18 +9,67 @@
   <body>
     <div class="base">
       <h1>Bem Vindo ao chat do vitao</h1>
-      <form class="container">
+      <form class="container" action="/" onsubmit="myFunction(event)">
         <div>
-          <input type="text" name="username" placeholder="Name" />
-          <input type="text" name="usermessage" placeholder="Message" /><br />
-          <button type="submit">Send</button>
+          <input
+            type="text"
+            name="username"
+            placeholder="Name"
+            id="username"
+            data-testid="nickname-box"
+          />
+          <button type="button" data-testid="nickname-save">Save</button>
         </div>
-        <div class="messages"></div>
+        <div>
+          <div class="boxMessage"></div>
+        </div>
+        <div class="sendMessage">
+          <input
+            type="text"
+            name="usermessage"
+            placeholder="Message"
+            id="usermessage"
+            data-testid="message-box"
+          /><br />
+          <button type="submit" data-testid="send-button">Send</button>
+        </div>
       </form>
     </div>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script type="text/javascript">
-       let socket = io();
+      let socket = io();
+      const formulario = document.getElementsByClassName('container');
+      const name = document.getElementById('username');
+      const message = document.getElementById('usermessage');
+      const box = document.getElementsByClassName('boxMessage');
+      socket.on('recivedMessage', (message) => {
+        renderMessage(message);
+      });
+      socket.on('allMessage', (messages) => {
+        messages.map((element) => renderMessage(element));
+      });
+      socket.on('message', (message) => {
+        renderMessage(message);
+      });
+      function renderMessage(message) {
+        const node = document.createElement('p');
+        node.className = 'message';
+        node.setAttribute('data-testid', 'message');
+        node.innerHTML = message;
+        box[0].appendChild(node);
+      }
+
+      function myFunction(event) {
+        event.preventDefault();
+        if (name.value && message.value) {
+          const conteudo = {
+            nickname: name.value,
+            chatMessage: message.value,
+          };
+          socket.emit('message', conteudo);
+        }
+        message.value = '';
+      }
     </script>
   </body>
 </html>
