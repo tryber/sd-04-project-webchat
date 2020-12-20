@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webchat</title>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="http://chancejs.com/chance.min.js"></script>
+</head>
+
+<body>
+  <header>
+    <div>
+      <h1>Webchat</h1>
+      <h2 id="nickname"></h2>
+  </header>
+
+  <form>
+    <input data-testid="nickname-box" type="text" name="nickname" id="nickname-input" />
+  </form>
+
+  <button data-testid="nickname-save" type="submit" id="nickname-btn">
+    Salvar
+  </button>
+  
+  <h2>Chat:</h2>
+  <div id="chat"></div>
+
+  <input 
+  data-testid="message-box" 
+  type="text" 
+  name="message" 
+  id="message-input" 
+  placeholder="Digite sua mensagem" 
+  />
+
+  <button data-testid="send-button" type="submit" id="message-btn">
+    Enviar
+  </button>
+  <div>
+    <h4>Usuários Online:</h4>
+    <ul id="usersList"></ul>
+  </div>
+</body>
+<script>
+  const socket = io();
+
+  const nicknameInput = document.getElementById('nickname-input');
+  const nicknameBtn = document.getElementById('nickname-btn');
+  const messageInput = document.getElementById('message-input');
+  const messageBtn = document.getElementById('message-btn');
+  const chat = document.getElementById('chat');
+  const onlineUsersList = document.getElementById('usersList');
+
+  let randomName = chance.name();
+
+  socket.emit('usersOnline', { nickname: randomName });
+
+  messageBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    socket.emit('message', {
+      nickname: randomName,
+      chatMessage: messageInput.value,
+    });
+    messageInput.value = '';
+  });
+
+  nicknameBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (nicknameInput.value !== '') {
+      socket.emit('updateNickname', { newName: nicknameInput.value });
+      randomName = nicknameInput.value;
+    }
+  });
+
+  const addNewMessage = (message) => {
+    const newMessage = document.createElement('p');
+    newMessage.setAttribute('data-testid', 'message');
+    newMessage.innerText = message;
+
+    chat.appendChild(newMessage);
+  };
+
+  socket.on('history', (message) => {
+    addNewMessage(message);
+  });
+
+  socket.on('message', (message) => {
+    addNewMessage(message);
+  });
+
+  socket.on('usersOnlineUpdate', (arr) => {
+    onlineUsersList.innerHTML = '';
+    arr.forEach((user) => {
+      const li = document.createElement('li');
+      li.setAttribute('data-testid', 'online-user');
+      li.innerHTML = user.nickname;
+      onlineUsersList.appendChild(li);
+    });
+  });
+</script>
+
+</html>
