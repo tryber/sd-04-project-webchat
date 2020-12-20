@@ -18,21 +18,28 @@
 
   <form>
     <input data-testid="nickname-box" type="text" name="nickname" id="nickname-input" />
-
-    <button data-testid="nickname-save" type="submit" id="nickname-btn">
-      Save name
-    </button>
-
-    <div id="chat"></div>
-
-    <input data-testid="message-box" type="text" name="message" id="message-input" />
-
-    <button data-testid="send-button" type="submit" id="message-btn">
-      ➤
-    </button>
   </form>
+
+  <button data-testid="nickname-save" type="submit" id="nickname-btn">
+    Salvar
+  </button>
+  
+  <h2>Chat:</h2>
+  <div id="chat"></div>
+
+  <input 
+  data-testid="message-box" 
+  type="text" 
+  name="message" 
+  id="message-input" 
+  placeholder="Digite sua mensagem" 
+  />
+
+  <button data-testid="send-button" type="submit" id="message-btn">
+    Enviar
+  </button>
   <div>
-    <h4>Online users:</h4>
+    <h4>Usuários Online:</h4>
     <ul id="usersList"></ul>
   </div>
 </body>

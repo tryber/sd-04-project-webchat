@@ -49,6 +49,6 @@ io.on('connection', async (socket) => {
   });
 });
 
-socketIoServer.listen(3000, () => {
-  console.log('Servidor ouvindo na porta 3000');
-});
+const PORT = process.env.PORT || 3000;
+
+socketIoServer.listen(PORT, () => console.log(`Listening on port ${PORT}`));
