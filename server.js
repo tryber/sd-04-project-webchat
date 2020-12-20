@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', express.static(path.join(__dirname, '/public')));
 
 io.on('connection', async (socket) => {
-  const conectados = [];
+  const onlineUsers = [];
 
   const historyMessage = await models.getAllMessages();
   const msgHisto = [];
@@ -39,13 +39,13 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('changeName', async ({ nickname }) => {
-    conectados.push(nickname);
-    io.emit('online', conectados); //
+    onlineUsers.push(nickname);
+    io.emit('online', onlineUsers);
   });
 
   socket.on('disconnect', () => {
-    delete conectados[socket.id];
-    io.emit('online', conectados);
+    delete onlineUsers[socket.id];
+    io.emit('online', onlineUsers);
   });
 });
 
