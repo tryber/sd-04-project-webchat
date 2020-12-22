@@ -49,9 +49,7 @@ io.on('connection', async (socket) => {
     return io.emit('loggedUsers', loggedUser);
   });
   socket.on('disconnect', () => {
-    loggedUser = loggedUser.filter(
-      (element) => element.userNumber !== socket.id
-    );
+    loggedUser = loggedUser.filter((element) => element.userNumber !== socket.id);
   });
 });
 
