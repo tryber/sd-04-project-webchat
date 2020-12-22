@@ -44,9 +44,9 @@ h1 {
 }
 
 .onlineList {
-  overflow: auto;
   height: 300px;
-  position: absolute;
-  margin-top: -300px;
   margin-left: 20px;
+  margin-top: -300px;
+  overflow: auto;
+  position: absolute;
 }

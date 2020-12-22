@@ -39,17 +39,17 @@ io.on('connection', async (socket) => {
     // socket.broadcast.emit('recivedMessage', menssagem);
   });
   socket.on('changeName', (name) => {
-    socket.user = name;
+    const socket2 = socket;
+    socket2.user = name;
     loggedUser.map((element) => {
-      if (element.userNumber === socket.id) {
-        return (element.userName = name);
-      }
+      const element2 = element;
+      if (element2.userNumber === socket.id) element2.userName = name;
+      return element2;
     });
-    io.emit('loggedUsers', loggedUser);
-    console.log(loggedUser);
+    return io.emit('loggedUsers', loggedUser);
   });
   socket.on('disconnect', () => {
-    loggedUser = loggedUser.filter(element => element.userNumber !== socket.id);
+    loggedUser = loggedUser.filter((element) => element.userNumber !== socket.id);
   });
 });
 
