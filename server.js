@@ -22,20 +22,20 @@ io.on('connection', async (socket) => {
   console.log(`O socket: ${socket.id} foi conectado!`);
   sockets.push(socket);
 
-  let history = await chatModel.registeredHistoric();
+  const history = await chatModel.registeredHistoric();
   socket.emit('renderInit', history);
   // io.emit('usersList', sockets);
 
-  socket.on('disconnect', (socket) => {
-    console.log(`O socket ${socket.id} desconectou :(`);
+  socket.on('disconnect', (socketOn) => {
+    console.log(`O socket ${socketOn.id} desconectou :(`);
   });
 
-  socket.on('message', async (data, socket) => {
+  socket.on('message', async (data) => {
     chatModel.registerData(data);
 
-    let history = await chatModel.registeredHistoric();
+    const historyOn = await chatModel.registeredHistoric();
 
-    io.emit('renderInit', history);
+    io.emit('renderInit', historyOn);
 
     /* io.emit(
       'historic',

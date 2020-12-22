@@ -26,9 +26,7 @@ const registerData = (data) => {
   });
 };
 
-const registeredHistoric = async () =>
-  await connection().then((db) => {
-    return db.collection('messages').find().toArray();
-  });
+const registeredHistoric = async () => connection().then((db) =>
+  db.collection('messages').find().toArray());
 
 module.exports = { registerData, registeredHistoric, getHours };
