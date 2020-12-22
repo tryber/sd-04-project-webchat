@@ -18,9 +18,11 @@ app.use('/', express.static(path.join(__dirname, 'front-end')));
 function createMessage({ nickname, chatMessage, timestamp }) {
   return `${timestamp} - ${nickname}: ${chatMessage}`;
 }
+let loggedUser = [];
+const allMsg = [];
 io.on('connection', async (socket) => {
+  loggedUser.push({ userNumber: socket.id, userName: socket.user });
   console.log(`socket conectato: ${socket.id}`);
-  const allMsg = [];
   const allMessages = await messageAll();
   allMessages.map((element) => {
     const { chatMessage, nickname, timestamp } = element;
@@ -35,6 +37,19 @@ io.on('connection', async (socket) => {
     io.emit('message', menssagem);
     await messageSave({ nickname, chatMessage, timestamp });
     // socket.broadcast.emit('recivedMessage', menssagem);
+  });
+  socket.on('changeName', (name) => {
+    socket.user = name;
+    loggedUser.map((element) => {
+      if (element.userNumber === socket.id) {
+        return (element.userName = name);
+      }
+    });
+    io.emit('loggedUsers', loggedUser);
+    console.log(loggedUser);
+  });
+  socket.on('disconnect', () => {
+    loggedUser = loggedUser.filter(element => element.userNumber !== socket.id);
   });
 });
 

@@ -18,7 +18,13 @@
             id="username"
             data-testid="nickname-box"
           />
-          <button type="button" data-testid="nickname-save">Save</button>
+          <button
+            type="button"
+            data-testid="nickname-save"
+            onclick="changeName()"
+          >
+            Save
+          </button>
         </div>
         <div>
           <div class="boxMessage"></div>
@@ -34,6 +40,10 @@
           <button type="submit" data-testid="send-button">Send</button>
         </div>
       </form>
+      <div class="onlineList">
+        <p>Onlines</p>
+        <ul class="listOnline" id="loggedUserList" data-testid="online-user"></ul>
+      </div>
     </div>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script type="text/javascript">
@@ -42,6 +52,7 @@
       const name = document.getElementById('username');
       const message = document.getElementById('usermessage');
       const box = document.getElementsByClassName('boxMessage');
+      const boxUser = document.getElementById('loggedUserList');
       socket.on('recivedMessage', (message) => {
         renderMessage(message);
       });
@@ -51,12 +62,29 @@
       socket.on('message', (message) => {
         renderMessage(message);
       });
+      socket.on('loggedUsers', (users) => {
+        boxUser.innerHTML = '';
+        users.map((user) => renderUser(user));
+      });
+      function limpa() {
+        window.location.reload();
+      }
+      function renderUser({ userNumber, userName }) {
+        const node = document.createElement('li');
+        // node.className = 'message';
+        node.setAttribute('data-testid', 'online-user');
+        node.innerHTML = userName;
+        boxUser.appendChild(node);
+      }
       function renderMessage(message) {
         const node = document.createElement('p');
         node.className = 'message';
         node.setAttribute('data-testid', 'message');
         node.innerHTML = message;
         box[0].appendChild(node);
+      }
+      function changeName() {
+        socket.emit('changeName', name.value);
       }
 
       function myFunction(event) {

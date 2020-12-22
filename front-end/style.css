@@ -42,3 +42,11 @@ h1 {
   overflow: auto;
   padding: 25px;
 }
+
+.onlineList {
+  overflow: auto;
+  height: 300px;
+  position: absolute;
+  margin-top: -300px;
+  margin-left: 20px;
+}
