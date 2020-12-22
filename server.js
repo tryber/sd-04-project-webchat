@@ -18,8 +18,8 @@ app.use('/', express.static(path.join(__dirname, 'front-end')));
 function createMessage({ nickname, chatMessage, timestamp }) {
   return `${timestamp} - ${nickname}: ${chatMessage}`;
 }
+let loggedUser = [];
 io.on('connection', async (socket) => {
-  let loggedUser = [];
   const allMsg = [];
   loggedUser.push({ userNumber: socket.id, userName: socket.user });
   console.log(`socket conectato: ${socket.id}`);
