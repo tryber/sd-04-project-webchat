@@ -1,21 +1,20 @@
 const app = require('express')();
-const express = require('express');
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const cors = require('cors');
-const path = require('path');
+// const path = require('path');
 
 const chatModel = require('./model/chatModel');
-const { connect } = require('socket.io-client');
+// const { connect } = require('socket.io-client');
 
 app.use(cors());
 
-//app.use('/', express.static(path.join(__dirname, 'public')));
+// app.use('/', express.static(path.join(__dirname, 'public')));
 
-//const socketIoServer = http.createServer(app);
+// const socketIoServer = http.createServer(app);
 
-var sockets = [];
-const obj = {};
+const sockets = [];
+// const obj = {};
 
 app.set('view engine', 'ejs');
 
@@ -38,7 +37,7 @@ io.on('connection', async (socket) => {
 
     io.emit('renderInit', history);
 
-    /*     io.emit(
+    /* io.emit(
       'historic',
       `${new Date().toLocaleString()} - ${data.nickname} : ${data.chatMessage}`
     ); */

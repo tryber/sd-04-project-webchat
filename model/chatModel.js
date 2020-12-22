@@ -1,15 +1,15 @@
 // const { db } = require('mongodb');
-const connection = require('../model/connection');
+const connection = require('./connection');
 
 const getHours = () => {
   const dat = new Date();
 
-  let dateDay = `${dat.getDay()}-${dat.getMonth()}-${dat.getFullYear()}`;
-  let datHours = `${dat.getHours()}:${dat.getMinutes()}:${dat.getSeconds()}`;
+  const dateDay = `${dat.getDay()}-${dat.getMonth()}-${dat.getFullYear()}`;
+  const datHours = `${dat.getHours()}:${dat.getMinutes()}:${dat.getSeconds()}`;
 
-  let ampm = dat.getHours() < 13 ? 'AM' : 'PM';
+  const ampm = dat.getHours() < 13 ? 'AM' : 'PM';
 
-  let dateHoursFull = `${dateDay} ${datHours} ${ampm}`;
+  const dateHoursFull = `${dateDay} ${datHours} ${ampm}`;
 
   return dateHoursFull;
 };
@@ -26,11 +26,9 @@ const registerData = (data) => {
   });
 };
 
-const registeredHistoric = async () => {
-  const lastAdded = await connection().then((db) => {
+const registeredHistoric = async () =>
+  await connection().then((db) => {
     return db.collection('messages').find().toArray();
   });
-  return lastAdded;
-};
 
 module.exports = { registerData, registeredHistoric, getHours };
