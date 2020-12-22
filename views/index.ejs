@@ -30,13 +30,7 @@
           id="userName"
         />
         <br />
-        <button
-          class="btn btn-primary"
-          data-testid="nickname-save"
-          onclick="saveName()"
-        >
-          Save
-        </button>
+        <button class="btn btn-primary" onclick="saveName()">Save</button>
         <br />
         <br />
 
@@ -62,16 +56,37 @@
   </body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"></script>
   <script>
-    var socket = io('http://localhost:4555');
+    var socket = io('http://localhost:3000');
     var namesList = [];
     const nameUser = document.getElementById('userName');
+    const chat = document.getElementById('chat');
 
-    socket.on('disconnect', () => {
-      console.log('Desconectado :(');
+    const renderInit = (data) => {
+      data.forEach((item) => {
+        let formItem = `${item.date} - ${item.nickname} : ${item.chatMessage}`;
+
+        let msgLine = document.createElement('p');
+        msgLine.setAttribute('data-testid', 'message');
+        msgLine.setAttribute(
+          'class',
+          'border border-info border-5 border-end-0 rounded-start'
+        );
+        msgLine.innerHTML = formItem;
+
+        chat.append(msgLine);
+      });
+    };
+
+    socket.on('renderInit', (data) => {
+      console.log(data);
+      renderInit(data);
+    });
+
+    socket.on('goAway', (data) => {
+      console.log(data);
     });
 
     socket.on('historic', (data) => {
-      let chat = document.getElementById('chat');
       let msgLine = document.createElement('p');
       msgLine.setAttribute('data-testid', 'message');
       msgLine.setAttribute(
@@ -94,31 +109,40 @@
       alert('Este nome já existe');
     };
 
-    const verifyName = (name) => {
-      let testResult = namesList.filter((item) => {
-        if (item === name) {
-          alert('esse nome já existe');
-          return true;
-        }
-        return false;
-      });
-      return testResult;
-    };
-
-    const saveName = () => {
-      let realName = nameUser.value;
-      const nameOnce = verifyName(realName);
-      console.log(nameOnce);
-
-      if (nameOnce.length < 1) {
-        namesList.push(realName);
-
-        makeListOfName(realName);
+    const verifyNameLenght = (name) => {
+      if (name.length < 1) {
+        return alert('Digite um nome válido');
       }
-      return null;
+      {
+        verifyNameExists(name);
+      }
     };
 
-    const sendMessage = () => {
+    const insertNameOnList = (name) => {
+      namesList.push(name);
+
+      makeListOfName(name);
+    };
+
+    const verifyNameExists = (name) => {
+      let testResult = namesList.filter((item) => {
+        if (item === name) return item;
+      });
+
+      if (testResult.length > 0) {
+        return alert('Este nome já existe');
+      }
+      {
+        insertNameOnList(name);
+      }
+    };
+
+    const saveName = async () => {
+      let realName = nameUser.value;
+      await verifyNameLenght(realName);
+    };
+
+    const sendMessage = async () => {
       //console.log('entrou aqui no sendMessage');
       let inputMsg = document.getElementById('messageInput');
 
