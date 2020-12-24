@@ -31,8 +31,6 @@
   <script>
     const socket = io('http://localhost:3000');
 
-    let nickname;
-
     // Function to select a random nickname
     const getRandomName = () => {
       const names = ['Javascripto', 'AntiCC', 'CSSMonster', 'Reducer', 'TestBreaker', 'InfintyLoopCreator', 'HamburgãoDoCacique', 'ReactState', 'Redux', 'Sequelizer'];
@@ -44,6 +42,8 @@
 
       return name;
     };
+
+    let nickname;
 
     // Create a variable with the random nickname
     nickname = getRandomName();
@@ -57,6 +57,7 @@
     const saveName = (e) => {
       e.preventDefault();
       let name = document.querySelector('#name-input').value;
+      console.log('name');
       nickname = name;
       socket.emit('saveName', { id: socket.id, name});
     };

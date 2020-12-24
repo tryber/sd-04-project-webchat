@@ -36,9 +36,10 @@ io.on('connection', async (socket) => {
 
   socket.on('saveName', ({ id, name }) => {
     console.log('save:', { id, name });
-    const users = usersOnline.filter((user) => user.id !== id);
-    users.unshift({ id, name });
-    io.emit('online', users);
+    usersOnline = usersOnline.filter((user) => user.id !== id);
+    usersOnline.push({ id, name });
+    console.log(usersOnline);
+    io.emit('online', usersOnline);
   });
 
   socket.on('message', async ({ chatMessage, nickname }) => {
