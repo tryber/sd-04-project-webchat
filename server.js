@@ -23,24 +23,46 @@ app.get('/ping', (_, res) => {
   res.status(200).json({ message: 'pong!' });
 });
 
+let usersOnline = [];
+let counter = 0;
+
 io.on('connection', async (socket) => {
+  socket.on('online', (name) => {
+    counter += 1;
+    usersOnline.push({ id: socket.id, name: `${name}${counter}` });
+    console.log('?', usersOnline);
+    io.emit('online', usersOnline);
+  });
+
+  socket.on('saveName', ({ id, name }) => {
+    console.log('save:', { id, name });
+    const users = usersOnline.filter((user) => user.id !== id);
+    users.unshift({ id, name });
+    io.emit('online', users);
+  });
+
   socket.on('message', async ({ chatMessage, nickname }) => {
     const date = new Date();
     const timeSend = moment(date).format('DD-MM-yyyy h:mm:ss');
     const formatedMessage = `${timeSend} ${nickname}: ${chatMessage}`;
-    socket.emit('message', formatedMessage);
-    socket.broadcast.emit('message', formatedMessage);
+
+    io.emit('message', formatedMessage);
+
     await insertMessages(chatMessage, nickname, timeSend);
   });
 
   const chatHistory = await getAllMessages();
 
-  console.log('history:', chatHistory);
-
   chatHistory.map(({ chatMessage, nickname, timestamp }) => {
     const formatedMessage = `${timestamp} ${nickname}: ${chatMessage}`;
     socket.emit('history', formatedMessage);
     return true;
+  });
+
+  socket.on('disconnect', () => {
+    usersOnline = usersOnline.filter(({ id }) => id !== socket.id);
+    console.log('Disconnect:', usersOnline);
+    io.emit('online', usersOnline);
   });
 });
 
