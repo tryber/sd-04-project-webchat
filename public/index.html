@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/style.css" />
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+</head>
+
+<body>
+  <div id="main-container">
+    <div>
+      <ul id="users"></ul>
+    </div>
+    <div class="name-container">
+      <input data-testid="nickname-box" type="text" id="name-input" placeholder="Digite seu nome de usuário"
+        autocomplete="off" />
+      <button data-testid="nickname-save" id="name-btn">
+        Save
+      </button>
+    </div>
+    <ul id="messages"></ul>
+    <form id="chat-form" action="">
+      <div>
+        <input data-testid="message-box" type="text" id="message-input" autocomplete="off" />
+        <button data-testid="send-button">Send</button>
+      </div>
+  </div>
+  <script>
+    const socket = io('http://localhost:3000');
+
+    // Function to select a random nickname
+    const getRandomName = () => {
+      const names = ['Javascripto', 'AntiCC', 'CSSMonster', 'Reducer', 'TestBreaker', 'InfintyLoopCreator', 'HamburgãoDoCacique', 'ReactState', 'Redux', 'Sequelizer'];
+
+      const randomNameNumber = Math.floor(Math.random() * names.length);
+      name = names[randomNameNumber];
+
+      console.log('Teste:', name);
+
+      return name;
+    };
+
+    let nickname;
+
+    // Create a variable with the random nickname
+    nickname = getRandomName();
+
+    socket.emit('online', nickname);
+
+    // Set the nickname input value with the random nickname
+    // document.querySelector('#name-input').value = nickname;
+
+    // Function for save nickname
+    const saveName = (e) => {
+      e.preventDefault();
+      let name = document.querySelector('#name-input').value;
+      console.log('name');
+      nickname = name;
+      socket.emit('saveName', { id: socket.id, name});
+    };
+
+    // Function for send message to server
+    const sendMessage = (e) => {
+      e.preventDefault();
+      const chatMessage = document.querySelector('#message-input').value;
+      socket.emit('message', { chatMessage, nickname });
+      document.querySelector('#message-input').value = '';
+    };
+
+    // Function to format message to the client
+    const formatMessage = (msg) => {
+      const li = document.createElement('li');
+      const message = document.createTextNode(msg);
+      li.setAttribute('data-testid', 'message');
+      li.appendChild(message);
+      document.querySelector('#messages').appendChild(li);
+    };
+
+    // Function to list users
+    const listUsers = (usersOnline) => {
+      // console.log('a', usersOnline);
+      document.querySelector('#users').innerHTML = '';
+
+      console.log(socket.id);
+
+      const filteredList = usersOnline.filter(({ id }) => id !== socket.id);
+      filteredList.unshift(usersOnline.find(({ id }) => id === socket.id));
+      console.log('b,', filteredList);
+
+      filteredList.map((user) => {
+        const li = document.createElement('li');
+        const userName = document.createTextNode(user.name);
+        li.setAttribute('data-testid', 'online-user');
+        li.setAttribute('class', 'online-user');
+        li.appendChild(userName);
+        document.querySelector('#users').appendChild(li);
+      });
+    };
+
+    // socket.on('connect', getRandomName)
+    socket.on('message', formatMessage);
+    socket.on('history', formatMessage);
+    socket.on('online', listUsers);
+
+    const form = document.querySelector('#chat-form');
+    form.addEventListener('submit', sendMessage);
+
+    const saveNameBtn = document.querySelector('#name-btn');
+    saveNameBtn.addEventListener('click', saveName);
+
+  </script>
+</body>
+
+</html>
