@@ -18,9 +18,7 @@ const changeValues = async (nickname, message) => {
 
   const data = await connection().then((db) =>
     db.collection('messages').insertOne({ nickname, message, date }),
-  );
-
-  return data.ops[0];
+  ).ops[0];
 };
 
 const allMessages = async () => {
