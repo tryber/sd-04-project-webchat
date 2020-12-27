@@ -46,7 +46,6 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('disconnect', () => {
-    const message = `${obj.user} > deixou o chat`;
     sockets.splice(obj.user);
     io.emit('userList', sockets);
   });
