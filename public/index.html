@@ -1,86 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="http://chancejs.com/chance.min.js"></script>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Webchat</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="http://chancejs.com/chance.min.js"></script>
+    <title>Web Chat Project</title>
   </head>
   <body>
     <h1 id="userName"></h1>
 
     <input data-testid="nickname-box" type="text" id="nickInput" />
-    <button id="changeNick" data-testid="nickname-save">Save nickname</button>
+    <button id="changeNick" data-testid="nickname-save">Nick</button>
 
-    <ul id="listMessage"></ul>
+    <ul id="listMessages"></ul>
 
     <input data-testid="message-box" id="textInput" autocomplete="off" />
     <button id="sendMessage" data-testid="send-button">Send</button>
 
-    <ul id="usersConnected"></ul>
+    <ul id="conectedUsers"></ul>
 
     <button data-testid="public">Public</button>
+
+    <script>
+      const socket = io();
+
+      const user = document.querySelector('#userName');
+
+      const chatMessageInput = document.querySelector('#textInput');
+      const nicknameInput = document.querySelector('#nickInput');
+
+      const nickBtn = document.querySelector('#changeNick');
+      const msgBtn = document.querySelector('#sendMessage');
+
+      const onlineUsers = document.querySelector('#conectedUsers');
+      const messages = document.querySelector('#listMessages');
+
+      window.onload = () => {
+        user.innerText = chance.first();
+        let nickname = user.innerText;
+
+        socket.emit('newNick', { nickname });
+
+        nickBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          nickname = nicknameInput.value;
+          user.innerText = nickname;
+
+          socket.emit('newNick', { nickname });
+        });
+
+        msgBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          let chatMessage = chatMessageInput.value;
+
+          socket.emit('message', { nickname, chatMessage });
+        });
+
+        socket.on('userList', async (data) => {
+          onlineUsers.innerHTML = await data
+            .map(
+              (users) => `<li data-testid="online-user">${users}</li>
+            ${
+              users === nickname ? '' : `<button id=${users} data-testid="private">Private</button>`
+            }`,
+            )
+            .join(' ');
+        });
+
+        socket.on('history', (data) => {
+          messages.innerHTML = data
+            .map((mes) => `<li data-testid="message">${mes.message}</li>`)
+            .join('');
+        });
+
+        socket.on('message', (data) => {
+          const li = document.createElement('li');
+          li.setAttribute('data-testid', 'message');
+          li.textContent = data;
+
+          messages.appendChild(li);
+        });
+      };
+    </script>
   </body>
-  <script>
-    const socket = io();
-
-    const user = document.querySelector('#userName');
-
-    const chatMessageInput = document.querySelector('#textInput');
-    const nicknameInput = document.querySelector('#nickInput');
-
-    const nickBtn = document.querySelector('#changeNick');
-    const messageBtn = document.querySelector('#sendMessage');
-
-    const onlineUsers = document.querySelector('#usersConnected');
-    const messages = document.querySelector('#listMessage');
-
-    window.onload = () => {
-      user.innerText = chance.first();
-      let nickname = user.innerText;
-
-      socket.emit('newNickName', { nickname });
-
-      nickBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        nickname = nicknameInput.value;
-        user.innerText = nickname;
-
-        socket.emit('newNickName', { nickname });
-      });
-
-      messageBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        const chatMessage = chatMessageInput.value;
-
-        socket.emit('message', { nickname, chatMessage });
-      });
-
-      socket.on('userList', async (data) => {
-        onlineUsers.innerHTML = await data
-          .map(
-            (users) => `<li data-testid="online-user">${users}</li>
-          ${
-            users === nickname ? '' : `<button id=${users} data-testid="private">Private</button>`
-          }`,
-          )
-          .join(' ');
-      });
-
-      socket.on('history', (data) => {
-        messages.innerHTML = data
-          .map((msg) => `<li data-testid="message">${msg.message}</li>`)
-          .join('');
-      });
-
-      socket.on('message', (data) => {
-        const li = document.createElement('li');
-        li.setAttribute('data-testid', 'message');
-        li.textContent = data;
-
-        messages.appendChild(li);
-      });
-    };
-  </script>
 </html>

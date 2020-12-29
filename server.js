@@ -1,66 +1,55 @@
+const app = require('express')();
+const express = require('express');
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
 const cors = require('cors');
 const path = require('path');
-const http = require('http');
-const express = require('express');
-const moment = require('moment');
 
-const app = express();
-const server = http.createServer(app);
-const io = require('socket.io')(server);
+const PORT = 3000;
+
+const messageModel = require('./model/Messages');
 
 app.use(cors());
-
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-const { insertMessage, getAllMessages } = require('./model/messagesModel');
-
-let usersList = [];
+let sockets = [];
 const obj = {};
 
-const dispatcher = (nickname) => {
-  if (!obj.user || !obj.user.includes(nickname)) {
-    obj.user = nickname;
-    usersList.unshift(obj.user);
-    usersList = usersList.filter((user, i) => usersList.indexOf(user) === i);
-
-    io.emit('userList', usersList);
-  }
-};
-
 io.on('connection', async (socket) => {
-  console.log('Connected');
-  io.emit('usersList', usersList);
+  console.log('Conectado');
+  io.emit('userList', sockets);
 
-  const allMessages = await getAllMessages();
+  const allMessages = await messageModel.allMessages();
   io.emit('history', allMessages);
 
-  socket.on('newNickName', async ({ nickname }) => {
-    await dispatcher(nickname);
+  const dispatch = (nickname) => {
+    if (!obj.user || !obj.user.includes(nickname)) {
+      obj.user = nickname;
+      sockets.unshift(obj.user);
+      sockets = sockets.filter((este, i) => sockets.indexOf(este) === i);
+      console.log(sockets);
+
+      io.emit('userList', sockets);
+    }
+  };
+
+  socket.on('newNick', async ({ nickname }) => {
+    await dispatch(nickname);
   });
 
-  socket.on('chatMessage', async ({ nickname, chatMessage }) => {
-    await dispatcher(nickname);
+  socket.on('message', async ({ nickname, chatMessage }) => {
+    await dispatch(nickname);
 
-    const time = new Date();
-    const timestamp = moment(time).format('DD-MM-yyyy HH:mm:ss');
+    const message = await messageModel.changeValues(nickname, chatMessage);
 
-    await insertMessage(chatMessage, nickname, timestamp);
-
-    const fullMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
-    console.log(fullMessage);
-
-    io.emit('chatMessage', fullMessage);
+    io.emit('message', `${message.date} ${message.nickname}: ${message.message}`);
   });
 
   socket.on('disconnect', () => {
-    const message = `${obj.user} > left chat`;
-    console.log(message);
-
-    usersList.splice(obj.user);
-    io.emit('userList', usersList);
+    sockets.splice(obj.user);
+    io.emit('userList', sockets);
   });
 });
-
-const PORT = process.env.PORT || 3000;
-
-server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+http.listen(PORT, () => {
+  console.log(`Escutando a porta ${PORT}`);
+});
