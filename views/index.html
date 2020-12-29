@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Webchat</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <!-- <script src="/socket.io/socket.io.js"></script> -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script>
+    // talvez colocar esse código no assets/js/script.js
+    $(function () {
+      const socket = io('http://localhost:3000');
+      $('form').submit(function(e) {
+        e.preventDefault();
+        socket.emit('message', $('#mensagemInput').val());
+        $('#mensagemInput').val('');
+        return false;
+      });
+
+      socket.on('messageServer', function(message) {
+        const { nickname, chatMessage } = message;
+        $('#messages').append($('<li>').text(message));
+        $('#messages').append($('<li>')
+          .text(`${nickname}: ${chatMessage}`));
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Projeto Webchat</h1>
+  <ul id="messages"></ul>
+  <form action="">
+    <input id="mensagemInput" autocomplete="off" /><button>Send</button>
+  </form>
+</body>
+</html>

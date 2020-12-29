@@ -1,30 +1,51 @@
-// 1 - Crie um back-end para conexão simultaneamente de clientes e troca de mensagens em chat público
-const app = require(`express`)();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+// Server.js será como o index.js dos projetos anteriores
+/*
+  1 - Crie um back-end para conexão simultaneamente de clientes
+e troca de mensagens em chat público
+*/
+const express = require('express');
+const http = require('http');
+const cors = require('cors');
+const path = require('path');
+const socket_io = require('socket.io');
+
+const app = express();
+const socketIoServer = http.createServer(app);
+const io = socket_io(socketIoServer, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+  },
+});
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cors());
+
+app.use(express.static(`${__dirname}/assets/`));
 
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, '/views/index.html'));
 });
 
 io.on('connect', (socket) => {
   console.log('Conectado');
-  
+
   socket.on('disconnect', () => {
     console.log('Desconectado');
     io.emit('adeus', { mensagem: 'Poxa, fica mais, vai ter bolo :)' });
   });
 
-  socket.on('mensagem', (msg) => {
-    console.log(`Mensagem ${msg}`);
-    io.emit('mensagemServer', msg);
+  socket.on('message', (message) => {
+    const { chatMessage, nickname } = message;
+    console.log(`Mensagem ${message}`);
+    console.log('MESSAGE: ', nickname, chatMessage);
+    io.emit('messageServer', message);
   });
 
-  socket.broadcast.emit('mensagemServer');
+  socket.broadcast.emit('messageServer');
 });
 
-http.listen(3000, () => {
-  console.log('Servidor ouvindo na porta 3000');
+socketIoServer.listen(3000, () => {
+  console.log('socketIoServer - Servidor ouvindo na porta 3000');
 });
-
-
