@@ -119,15 +119,14 @@
 
         socket.emit('logged', { nickname: guest});
 
-        sendBtn.addEventListener('click', async () => {
+        sendBtn.addEventListener('click', () => {
           chatMessage.value &&
           socket.emit('message', 
           { chatMessage: chatMessage.value, nickname: guest });
           chatMessage.value = '';
-          return false;
         });
 
-        changeNickBtn.addEventListener('click', async () => {
+        changeNickBtn.addEventListener('click', () => {
           nick.value &&
           socket.emit('changeNick', { newNick: nick.value });
           guest = nick.value;
@@ -135,14 +134,14 @@
           return false;
         })
 
-        socket.on('showMsg', async (message) => {
+        socket.on('showMsg', (message) => {
           const p = document.createElement('p');
           p.setAttribute('data-testid', 'message')
           p.textContent = message;
           document.getElementById('messages').appendChild(p);
         });
 
-        socket.on('setUsersList', async (list) => {
+        socket.on('setUsersList', (list) => {
           users.innerHTML = '';
           list.forEach((user) => {
             const p = document.createElement('p');
@@ -152,14 +151,12 @@
           });
         });
 
-        socket.on('oldMessages', async (messages) => {
+        socket.on('oldMessages', (messages) => {
           const messageBox = document.getElementById('messages');
           messageBox.innerHTML = messages.map((msg) => 
-            `<p data-testid="message"> ${msg.timestamp} ${msg.nickname} ${msg.message}</p>`
-          );
+            `<p data-testid="message"> ${msg.timestamp} - ${msg.nickname}: ${msg.message}</p>`
+          ).join('');
         });
-
-        
       }
       
     </script>

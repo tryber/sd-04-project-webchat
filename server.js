@@ -23,19 +23,18 @@ io.on('connection', async (socket) => {
     const date = `${data} ${time}`;
     await saveMessage(date, chatMessage, nickname);
     const composeMessage = await `${date} - ${nickname}: ${chatMessage}`;
+    console.log(composeMessage);
     io.emit('showMsg', composeMessage);
   });
 
-  socket.on('logged', async ({ nickname }) => {
+  socket.on('logged', ({ nickname }) => {
     onlineUsers.push({ userId: socket.id, nickname });
     io.emit('setUsersList', onlineUsers);
   });
 
-  socket.on('changeNick', async ({ newNick }) => {
+  socket.on('changeNick', ({ newNick }) => {
     onlineUsers = onlineUsers.filter(({ userId }) => userId !== socket.id);
-    console.log(onlineUsers);
     onlineUsers.push({ userId: socket.id, nickname: newNick });
-    console.log(onlineUsers);
     io.emit('setUsersList', onlineUsers);
   });
 
