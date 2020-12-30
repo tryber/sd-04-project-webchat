@@ -12,7 +12,6 @@ app.get('/', (_req, res) => {
 });
 
 io.on('connection', async (socket) => {
-
   const oldMessages = await getMessages();
   io.emit('oldMessages', oldMessages);
 
@@ -27,10 +26,10 @@ io.on('connection', async (socket) => {
     io.emit('showMsg', composeMessage);
   });
 
-  socket.on('logged', async ({nickname})=> {
+  socket.on('logged', async ({ nickname }) => {
     onlineUsers.push({ userId: socket.id, nickname });
     io.emit('setUsersList', onlineUsers);
-  })
+  });
 
   socket.on('changeNick', async ({ newNick }) => {
     onlineUsers = onlineUsers.filter(({ userId }) => userId !== socket.id);
