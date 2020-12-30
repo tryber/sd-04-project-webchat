@@ -4,6 +4,7 @@ const io = require('socket.io')(http);
 const path = require('path');
 const { saveMessage, getMessages } = require('./model/message');
 
+let onlineUsers = [];
 // https://pt.stackoverflow.com/questions/6526/como-formatar-data-no-javascript
 // https://stackoverflow.com/questions/8888491/how-do-you-display-javascript-datetime-in-12-hour-am-pm-format
 app.get('/', (_req, res) => {
@@ -11,7 +12,6 @@ app.get('/', (_req, res) => {
 });
 
 io.on('connection', async (socket) => {
-  io.emit('sendNick', socket.user);
 
   const oldMessages = await getMessages();
   io.emit('oldMessages', oldMessages);
@@ -27,12 +27,22 @@ io.on('connection', async (socket) => {
     io.emit('showMsg', composeMessage);
   });
 
-  socket.on('changeNick', async (nickname) => {
-    io.emit('newNick', nickname);
+  socket.on('logged', async ({nickname})=> {
+    onlineUsers.push({ userId: socket.id, nickname });
+    io.emit('setUsersList', onlineUsers);
+  })
+
+  socket.on('changeNick', async ({ newNick }) => {
+    onlineUsers = onlineUsers.filter(({ userId }) => userId !== socket.id);
+    console.log(onlineUsers);
+    onlineUsers.push({ userId: socket.id, nickname: newNick });
+    console.log(onlineUsers);
+    io.emit('setUsersList', onlineUsers);
   });
 
   socket.on('disconnect', () => {
-    io.emit('adeus');
+    onlineUsers = onlineUsers.filter(({ userId }) => userId !== socket.id);
+    io.emit('setUsersList', onlineUsers);
   });
 });
 

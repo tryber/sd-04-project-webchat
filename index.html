@@ -3,6 +3,7 @@
   <head>
     <title>Webchat</title>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="http://chancejs.com/chance.min.js"></script>
     <style>
       * {
         margin: 0;
@@ -81,7 +82,6 @@
     <header>
       <div class="info">
         <h1>Webchat</h1>
-        <h2 id="apelido"></h2>
       </div>
       <div class="options">
         <input id="nicknameInput" autocomplete="off" value="" data-testid="nickname-box"/>
@@ -113,19 +113,24 @@
         const sendBtn = document.getElementById('sendBtn');
         const nick = document.getElementById('nicknameInput');
         const changeNickBtn = document.getElementById('changeNickBtn');
-        const user = document.getElementById('apelido');
+        const users= document.getElementById('contacts');
+
+        let guest = chance.name();
+
+        socket.emit('logged', { nickname: guest});
 
         sendBtn.addEventListener('click', async () => {
           chatMessage.value &&
           socket.emit('message', 
-          { chatMessage: chatMessage.value, nickname: user.textContent });
+          { chatMessage: chatMessage.value, nickname: guest });
           chatMessage.value = '';
           return false;
         });
 
         changeNickBtn.addEventListener('click', async () => {
           nick.value &&
-          socket.emit('changeNick', nick.value);
+          socket.emit('changeNick', { newNick: nick.value });
+          guest = nick.value;
           nick.value = '';
           return false;
         })
@@ -137,15 +142,14 @@
           document.getElementById('messages').appendChild(p);
         });
 
-        socket.on('sendNick', async (nickname) => {
-          const nick = document.createElement('p');
-          const user = document.getElementById('apelido');
-          nick.textContent = nickname;
-          document.getElementById('contacts').appendChild(nick);
-        });
-
-        socket.on('newNick', async (nickname) => {
-          user.textContent = nickname;
+        socket.on('setUsersList', async (list) => {
+          users.innerHTML = '';
+          list.forEach((user) => {
+            const p = document.createElement('p');
+            p.setAttribute('data-testid', 'online-user');
+            p.innerHTML = user.nickname;
+            users.appendChild(p);
+          });
         });
 
         socket.on('oldMessages', async (messages) => {
@@ -154,6 +158,8 @@
             `<p data-testid="message"> ${msg.timestamp} ${msg.nickname} ${msg.message}</p>`
           );
         });
+
+        
       }
       
     </script>
