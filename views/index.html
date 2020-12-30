@@ -12,8 +12,16 @@
     body {
       font: 13px Helvetica, Arial;
     }
+    #box-online-users {
+      background: rgb(164, 230, 252);
+      border: 2px solid black;
+      bottom: 80px;
+      padding: 3px;
+      position: fixed;
+      width: 100%;
+    }
     form {
-      background: black;
+      background: rgb(0, 0, 0);
       bottom: 0;
       padding: 3px;
       position: fixed;
@@ -55,9 +63,16 @@
     $(function () {
       const socket = io('http://localhost:3000');
 
+      // Envia nickname para o servidor
+      $('#nickname-save').click((function() {
+        const nickname = $('#nickname-box').val();
+        socket.emit('nicknameSave', nickname);
+      }));
+
+      // Envia a mensagem para o servidor
       $('form').submit(function(e) {
         e.preventDefault();
-        const message = { 
+        const message = {
           nickname: $('#nickname-box').val(),
           chatMessage: $('#mensagemInput').val(),
         };
@@ -66,10 +81,16 @@
         return false;
       });
 
+      // Recebe as mensagens do servidor e coloca na tela 
       socket.on('messageServer', function(message) {
         const { nickname, chatMessage } = message;
         $('#messages').append($('<li>')
           .text(`${nickname}: ${chatMessage}`));
+      });
+      // Recebe o nickname do servidor
+      // e coloca na lista #online-user
+      socket.on('nicknameSaveServer', function(nickname) {
+        $('#online-user').append($('<li data-testid="online-user">').text(nickname));
       });
     });
   </script>
@@ -77,9 +98,13 @@
 <body>
   <h1>Projeto Webchat</h1>
   <ul id="messages" data-testid="message"></ul>
+  <div id="box-online-users">
+    Onlines Users:
+    <ul id="online-user"></ul>
+  </div>
   <div>
     <form action="">
-      <input type="text" id="nickname-box" data-testid="nickname-box"/><button type="button" data-testid="nickname-save">Save</button>
+      <input type="text" id="nickname-box" data-testid="nickname-box"/><button type="button" id="nickname-save" data-testid="nickname-save">Save</button>
       <input
         id="mensagemInput"
         autocomplete="off"

@@ -43,6 +43,10 @@ io.on('connect', (socket) => {
     io.emit('messageServer', message);
   });
 
+  socket.on('nicknameSave', (nickname) => {
+    io.emit('nicknameSaveServer', nickname);
+  });
+  socket.broadcast.emit('nicknameSaveServer');
   socket.broadcast.emit('messageServer');
 });
 
