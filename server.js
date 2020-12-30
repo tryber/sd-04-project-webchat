@@ -7,11 +7,11 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const path = require('path');
-const socket_io = require('socket.io');
+const socketIo = require('socket.io');
 
 const app = express();
 const socketIoServer = http.createServer(app);
-const io = socket_io(socketIoServer, {
+const io = socketIo(socketIoServer, {
   cors: {
     origin: 'http://localhost:3000',
     methods: ['GET', 'POST'],
@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
-app.use(express.static(`${__dirname}/assets/`));
+app.use('/assets', express.static(`${__dirname}/assets/`));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/views/index.html'));
