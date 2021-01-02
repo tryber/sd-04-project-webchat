@@ -19,7 +19,7 @@ io.on('connection', async (socket) => {
   console.log('Conectado');
   io.emit('userList', sockets);
 
-  const allMessages = await messageModel.allMessages();
+  const allMessages = await messageModel.getAll();
   io.emit('history', allMessages);
 
   const dispatch = (nickname) => {
