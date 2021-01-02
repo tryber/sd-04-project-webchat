@@ -14,6 +14,7 @@
   <body>
     <div class="container">
       <div class="container">
+        <h3>Usuários conectados</h3>
         <ul style="list-style-type: none" id="listOfNames"></ul>
       </div>
 
@@ -30,7 +31,13 @@
           id="userName"
         />
         <br />
-        <button class="btn btn-primary" onclick="saveName()">Save</button>
+        <button
+          class="btn btn-primary"
+          data-testid="nickname-save"
+          onclick="saveName()"
+        >
+          Save
+        </button>
         <br />
         <br />
 
@@ -56,10 +63,12 @@
   </body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"></script>
   <script>
-    var socket = io('http://localhost:3000');
-    var namesList = [];
+    const socket = io('http://localhost:3000');
     const nameUser = document.getElementById('userName');
     const chat = document.getElementById('chat');
+    const listOfNames = document.getElementById('listOfNames');
+
+    const namesList = [];
 
     const renderInit = (data) => {
       data.forEach((item) => {
@@ -82,6 +91,17 @@
       renderInit(data);
     });
 
+    socket.on('renderNames', (name) => {
+      console.log(name);
+      makeListOfName(name);
+    });
+
+    /*     socket.on('showUsers', (name) => {
+      console.log(name);
+
+      makeListOfName(name);
+    }); */
+
     socket.on('goAway', (data) => {
       console.log(data);
     });
@@ -98,16 +118,28 @@
       chat.append(msgLine);
     });
 
-    const makeListOfName = (name) => {
-      const itemName = document.createElement('li');
-      itemName.innerHTML = name;
-      const listOfNames = document.getElementById('listOfNames');
-      listOfNames.appendChild(itemName);
+    //AGORA TENHO QUE CRIAR A LÓGICA PARA APENAS COLOCAR NOVOS NOMES NO BD E TBM NA LISTA ATUAL
+
+    const makeListOfName = (names) => {
+      names.forEach((item) => {
+        const itemName = document.createElement('li');
+        itemName.setAttribute('data-testid', 'online-user');
+        itemName.innerHTML = item.name;
+        listOfNames.appendChild(itemName);
+      });
     };
 
     const showAlert = () => {
       alert('Este nome já existe');
     };
+
+    socket.on('insertTheName', (name) => {
+      console.log();
+      const itemName = document.createElement('li');
+      itemName.setAttribute('data-testid', 'online-user');
+      itemName.innerHTML = name;
+      listOfNames.appendChild(itemName);
+    });
 
     const verifyNameLenght = (name) => {
       if (name.length < 1) {
@@ -119,9 +151,10 @@
     };
 
     const insertNameOnList = (name) => {
+      // Inserindo o nome no array
       namesList.push(name);
-
-      makeListOfName(name);
+      socket.emit('listUsers', name);
+      socket.emit('makeNameTrip', name);
     };
 
     const verifyNameExists = (name) => {
@@ -133,17 +166,18 @@
         return alert('Este nome já existe');
       }
       {
-        insertNameOnList(name);
+        insertNameOnList(name); // Inserindo nome na lista
       }
     };
 
     const saveName = async () => {
+      // Função do botão
       let realName = nameUser.value;
       await verifyNameLenght(realName);
     };
 
     const sendMessage = async () => {
-      //console.log('entrou aqui no sendMessage');
+      // console.log('entrou aqui no sendMessage');
       let inputMsg = document.getElementById('messageInput');
 
       const chatMessage = inputMsg.value;

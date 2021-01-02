@@ -26,7 +26,29 @@ const registerData = (data) => {
   });
 };
 
-const registeredHistoric = async () => connection().then((db) =>
-  db.collection('messages').find().toArray());
+const registerNames = (name, idSocket) => {
+  connection().then((db) => {
+    db.collection('names').insertOne({ name, idSocket });
+  });
+};
 
-module.exports = { registerData, registeredHistoric, getHours };
+const eraseNames = (idSocket) => {
+  connection().then((db) => {
+    db.collection('names').remove({ idSocket });
+  });
+};
+
+const registeredNames = () =>
+  connection().then((db) => db.collection('names').find().toArray());
+
+const registeredHistoric = async () =>
+  connection().then((db) => db.collection('messages').find().toArray());
+
+module.exports = {
+  registerData,
+  registeredHistoric,
+  getHours,
+  registerNames,
+  registeredNames,
+  eraseNames,
+};
