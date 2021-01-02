@@ -1,10 +1,12 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+// const moment = require('moment');
 
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
+const { getAll, add } = require('./models/messagesModel');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -20,15 +22,17 @@ app.use('/', (req, res) => {
   res.render('index.html');
 });
 
-const messages = [];
-
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   console.log(`Socket conectado: ${socket.id}`);
 
-  socket.emit('previewsMessages', messages);
+  // const messages = await getAll();
 
-  socket.on('message', (data) => {
-    messages.push(data);
+  // socket.emit('previewsMessages', messages);
+
+  socket.on('message', async (data) => {
+    // const dataTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss');
+    const dataTime = new Date().toLocaleString('pt-BR', { hour12: true });
+    // await add(data);
     socket.broadcast.emit('receivedMessage', data);
   });
 });
