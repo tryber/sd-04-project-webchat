@@ -16,12 +16,12 @@ const getHours = () => {
 
 // 09-10-2020 2:35:09 PM - Joel: Olá meu caros amigos!
 
-const registerData = (data) => {
+const registerData = (data, date) => {
   connection().then((db) => {
     db.collection('messages').insertOne({
       nickname: data.nickname,
       chatMessage: data.chatMessage,
-      date: `${getHours()}`,
+      date,
     });
   });
 };

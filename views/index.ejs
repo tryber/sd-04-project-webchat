@@ -70,7 +70,7 @@
 
     const namesList = [];
 
-    const renderInit = (data) => {
+    const renderInit = async (data) => {
       data.forEach((item) => {
         let formItem = `${item.date} - ${item.nickname} : ${item.chatMessage}`;
 
@@ -106,7 +106,7 @@
       console.log(data);
     });
 
-    socket.on('historic', (data) => {
+    socket.on('message', (data) => {
       let msgLine = document.createElement('p');
       msgLine.setAttribute('data-testid', 'message');
       msgLine.setAttribute(

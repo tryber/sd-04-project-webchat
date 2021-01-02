@@ -2,6 +2,7 @@ const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const cors = require('cors');
+const moment = require('moment');
 
 const chatModel = require('./model/chatModel');
 
@@ -45,14 +46,14 @@ io.on('connection', async (socket) => {
   socket.emit('renderNames', listOfUsers);
 
   socket.on('message', async (data) => {
-    chatModel.registerData(data);
+    const time = new Date();
+    const timestamp = moment(time).format('DD-MM-yyyy HH:mm:ss');
+
+    chatModel.registerData(data, timestamp);
 
     // let history = await chatModel.registeredHistoric();
 
-    io.emit(
-      'historic',
-      `${new Date().toLocaleString()} - ${data.nickname} : ${data.chatMessage}`,
-    );
+    io.emit('message', `${timestamp} - ${data.nickname} : ${data.chatMessage}`);
   });
 });
 
