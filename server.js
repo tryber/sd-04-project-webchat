@@ -28,7 +28,6 @@ io.on('connection', (socket) => {
   socket.emit('previewsMessages', messages);
 
   socket.on('message', (data) => {
-    console.log(data)
     messages.push(data);
     socket.broadcast.emit('receivedMessage', data);
   });
