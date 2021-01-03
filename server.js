@@ -11,9 +11,9 @@ const { getAllMessage, saveMessage } = require('./models/messageModel');
 const PORT = 3000;
 let usersOnline = [];
 
-app.use(express.static(path.join(__dirname, 'client')));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', (_req, res) => {
-  res.sendFile(`${__dirname}/client/index.html`);
+  res.sendFile(`${__dirname}/public/index.html`);
 });
 
 io.on('connection', async (socket) => {
