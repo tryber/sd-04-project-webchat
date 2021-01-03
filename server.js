@@ -23,8 +23,7 @@ io.on('connection', async (socket) => {
     const date = `${data} ${time}`;
     await saveMessage(date, chatMessage, nickname);
     const composeMessage = await `${date} - ${nickname}: ${chatMessage}`;
-    console.log(composeMessage);
-    io.emit('showMsg', composeMessage);
+    io.emit('message', composeMessage);
   });
 
   socket.on('logged', ({ nickname }) => {

@@ -90,7 +90,7 @@
     </header>
     <div class="container">
       <div class="messages-container">
-        <div id="messages" class="messages"></div>
+        <ul id="messages" class="messages"></ul>
       </div>
       
       <div class="contacts-container">
@@ -134,7 +134,7 @@
           return false;
         })
 
-        socket.on('showMsg', (message) => {
+        socket.on('message', (message) => {
           const p = document.createElement('p');
           p.setAttribute('data-testid', 'message')
           p.textContent = message;
@@ -154,7 +154,7 @@
         socket.on('oldMessages', (messages) => {
           const messageBox = document.getElementById('messages');
           messageBox.innerHTML = messages.map((msg) => 
-            `<p data-testid="message"> ${msg.timestamp} - ${msg.nickname}: ${msg.message}</p>`
+            `<p data-testid="message">${msg.timestamp} - ${msg.nickname}: ${msg.message}</p>`
           ).join('');
         });
       }
