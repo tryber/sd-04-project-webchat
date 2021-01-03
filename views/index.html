@@ -12,11 +12,20 @@
     body {
       font: 13px Helvetica, Arial;
     }
+    .box-messages {
+      top: 31px;
+      overflow: auto;
+      position: fixed;
+      height: 60%;
+      width: 100%;
+    }
     #box-online-users {
       background: rgb(164, 230, 252);
       border: 2px solid black;
       bottom: 80px;
+      height: 15%;
       padding: 3px;
+      overflow: auto;
       position: fixed;
       width: 100%;
     }
@@ -66,7 +75,7 @@
       // Envia nickname para o servidor
       $('#nickname-save').click((function() {
         const nickname = $('#nickname-box').val();
-        socket.emit('nicknameSave', nickname);
+        socket.emit('changeNickname', nickname);
       }));
 
       // Envia a mensagem para o servidor
@@ -81,23 +90,51 @@
         return false;
       });
 
-      // Recebe as mensagens do servidor e coloca na tela 
-      socket.on('messageServer', function(message) {
-        const { nickname, chatMessage } = message;
-        $('#messages').append($('<li>')
-          .text(`${nickname}: ${chatMessage}`));
+      // Eventos relacionados ao socket.
+      // Random Nickname quando entra no chat
+      socket.on('join', function(randomNick, userId) {
+        $('#nickname-box').val(randomNick);
+        const li = `<li id=${userId} data-testid="online-user">'`;
+        $('#online-user').append($(li).text(randomNick));
       });
+
+      // Recebe as mensagens que estão no bando de dados.
+      socket.on('previousMessage', (previousMessage) => {
+        if (previousMessage) {
+          previousMessage.forEach(message => {
+            $('#messages').append($('<li>').text(message.chatMessage));
+          });
+        }
+       });
+      // Recebe as mensagens do servidor e coloca na tela
+      socket.on('messageServer', function(message) {
+        // const { nickname, chatMessage } = message;
+        // $('#messages').append($('<li>')
+        //   .text(`${nickname}: ${chatMessage}`));
+        $('#messages').append($('<li>').text(message));
+      });
+
       // Recebe o nickname do servidor
       // e coloca na lista #online-user
-      socket.on('nicknameSaveServer', function(nickname) {
-        $('#online-user').append($('<li data-testid="online-user">').text(nickname));
+      socket.on('listNicknameServer', function(nickname, userId) {
+        $(`#${userId}`).text(nickname);
+      });
+
+      // Cliente saiu do chat
+      socket.on('exit', function (userId) {
+        const client = $(`#${userId}`).text();
+        // const exitMsg = `${client} saiu do chat.`;
+        // $('#messages').append($('<li>').text(exitMsg));
+        $(`#${userId}`).remove();
       });
     });
   </script>
 </head>
 <body>
   <h1>Projeto Webchat</h1>
-  <ul id="messages" data-testid="message"></ul>
+  <div class="box-messages">
+    <ul id="messages" data-testid="message"></ul>
+  </div>
   <div id="box-online-users">
     Onlines Users:
     <ul id="online-user"></ul>
