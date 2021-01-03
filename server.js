@@ -6,7 +6,7 @@ const app = express();
 const httpServer = require('http').createServer(app);
 const io = require('socket.io')(httpServer);
 
-const { getAllMessage, saveMessage } = require('./models/messageModel');
+const { getAllMessages, saveMessage } = require('./models/messageModel');
 
 const PORT = 3000;
 let usersOnline = [];
@@ -17,7 +17,7 @@ app.use('/', (_req, res) => {
 });
 
 io.on('connection', async (socket) => {
-  const previousMessage = await getAllMessage();
+  const previousMessage = await getAllMessages();
 
   previousMessage.forEach(({ chatMessage, timestamp, nickname }) => {
     const messageToSend = `${nickname} ${timestamp} ${chatMessage}`;

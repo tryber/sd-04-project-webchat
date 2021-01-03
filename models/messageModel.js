@@ -12,8 +12,8 @@ const saveMessage = async (chatMessage, nickname, timestamp) =>
     }))
     .catch((error) => error);
 
-const getAllMessage = async () =>
+const getAllMessages = async () =>
   connect()
     .then((db) => db.collection('messages').find({}).toArray());
 
-module.exports = { saveMessage, getAllMessage };
+module.exports = { saveMessages, getAllMessage };
