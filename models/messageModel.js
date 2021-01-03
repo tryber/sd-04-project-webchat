@@ -16,4 +16,4 @@ const getAllMessages = async () =>
   connect()
     .then((db) => db.collection('messages').find({}).toArray());
 
-module.exports = { saveMessages, getAllMessage };
+module.exports = { saveMessage, getAllMessages };
