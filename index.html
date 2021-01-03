@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Webchat</title>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="http://chancejs.com/chance.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font: 13px Helvetica, Arial;
+      }
+      header {
+        padding: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .options input {
+        border: 1px solid #000;
+        padding: 2px;
+      }
+      .options button {
+        background: rgb(130, 224, 255);
+        border: 1px solid #000;
+        cursor: pointer;
+        padding: 3px;
+      }
+      .container {
+        display: flex;
+      }
+      .form {
+        background: #000;
+        padding: 3px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
+      .form input {
+        border: 0;
+        padding: 10px;
+        width: 90%;
+        margin-right: 0.5%;
+      }
+      .form button {
+        width: 9%;
+        background: rgb(130, 224, 255);
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+      }
+      .messages-container {
+        border: 1px solid #000;
+        width: 75%;
+        height: 700px;
+        padding: 10px;
+      }
+      .messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      .messages p {
+        padding: 5px 10px;
+      }
+      .messages p:nth-child(odd) {
+        background: #eee;
+      }
+      .contacts-container {
+        border: 1px solid #000;
+        width: 25%;
+        height: 700px;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <header>
+      <div class="info">
+        <h1>Webchat</h1>
+      </div>
+      <div class="options">
+        <input id="nicknameInput" autocomplete="off" value="" data-testid="nickname-box"/>
+        <button type="button" id="changeNickBtn" data-testid="nickname-save">Change</button>
+      </div>
+    </header>
+    <div class="container">
+      <div class="messages-container">
+        <ul id="messages" class="messages"></ul>
+      </div>
+      
+      <div class="contacts-container">
+        <ul id="contacts" class="contacts"></ul>
+      </div>
+    </div>
+
+    <div class="form">
+      <input id="mensagemInput" autocomplete="off" value="" data-testid="message-box"/>
+      <button type="button" id="sendBtn" data-testid="send-button">Send</button>
+    </div>
+    
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      window.onload = () => {
+        const chatMessage = document.getElementById('mensagemInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const nick = document.getElementById('nicknameInput');
+        const changeNickBtn = document.getElementById('changeNickBtn');
+        const users= document.getElementById('contacts');
+
+        let guest = chance.name();
+
+        socket.emit('logged', { nickname: guest});
+
+        sendBtn.addEventListener('click', () => {
+          chatMessage.value &&
+          socket.emit('message', 
+          { chatMessage: chatMessage.value, nickname: guest });
+          chatMessage.value = '';
+        });
+
+        changeNickBtn.addEventListener('click', () => {
+          nick.value &&
+          socket.emit('changeNick', { newNick: nick.value });
+          guest = nick.value;
+          nick.value = '';
+          return false;
+        })
+
+        socket.on('message', (message) => {
+          const p = document.createElement('p');
+          p.setAttribute('data-testid', 'message')
+          p.textContent = message;
+          document.getElementById('messages').appendChild(p);
+        });
+
+        socket.on('setUsersList', (list) => {
+          users.innerHTML = '';
+          list.forEach((user) => {
+            const p = document.createElement('p');
+            p.setAttribute('data-testid', 'online-user');
+            p.innerHTML = user.nickname;
+            users.appendChild(p);
+          });
+        });
+
+        socket.on('oldMessages', (messages) => {
+          const messageBox = document.getElementById('messages');
+          messageBox.innerHTML = messages.map((msg) => 
+            `<p data-testid="message">${msg.timestamp} - ${msg.nickname}: ${msg.message}</p>`
+          ).join('');
+        });
+      }
+      
+    </script>
+</html>
