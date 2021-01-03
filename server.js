@@ -42,8 +42,8 @@ io.on('connect', async (socket) => {
 
   // Random nickname
   // const randomNick = `Guest_${socket.id}`;
-  const randomNick = ''; 
-  console.log('RandomNick: ',randomNick);
+  const randomNick = '';
+  console.log('RandomNick: ', randomNick);
   io.emit('join', randomNick, socket.id);
   io.emit('listNicknameServer', randomNick, socket.id);
 
