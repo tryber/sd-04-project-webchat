@@ -12,9 +12,7 @@ const PORT = 3000;
 let usersOnline = [];
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/', (_req, res) => {
-  res.sendFile(`${__dirname}/public/index.html`);
-});
+app.use('/', (_req, res) => res.sendFile(`${__dirname}/public/index.html`));
 
 io.on('connection', async (socket) => {
   const previousMessage = await getAllMessages();
@@ -51,6 +49,4 @@ io.on('connection', async (socket) => {
   });
 });
 
-httpServer.listen(PORT, () => {
-  console.log(`Running on port ${PORT}...`);
-});
+httpServer.listen(PORT, () => console.log(`Running on port ${PORT}...`));

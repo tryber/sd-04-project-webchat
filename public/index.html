@@ -51,6 +51,7 @@
       <p>Usuários:</p>
       <ul id="online-list"></ul>
     </div>
+
     <script>
       window.onload = () => {
         const socket = io();
@@ -89,13 +90,9 @@
           messages.appendChild(p);
         };
 
-        socket.on('history', (message) => {
-          addMessageToChat(message);
-        });
+        socket.on('history', (message) => addMessageToChat(message));
 
-        socket.on('message', (message) => {
-          addMessageToChat(message);
-        });
+        socket.on('message', (message) => addMessageToChat(message));
 
         socket.on('update-users', (usersArray) => {
           usersList.innerHTML = '';
