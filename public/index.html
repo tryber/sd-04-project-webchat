@@ -7,23 +7,50 @@
 
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <form method="POST" id="chat" class="chat">
-      <input type="text" name="username" placeholder="Digite o seu usuário" />
+      <input
+        data-testid="nickname-box"
+        type="text"
+        name="username"
+        placeholder="Digite o seu usuário"
+      />
+      <button data-testid="nickname-save" type="button" id="nickname-save">
+        Escolher
+      </button>
+      <span id="nickname"></span>
       <div class="messages"></div>
-      <input type="text" name="message" placeholder="Digite a sua mensagem" />
-      <button type="submit">Enviar</button>
+      <input
+        data-testid="message-box"
+        type="text"
+        name="message"
+        placeholder="Digite a sua mensagem"
+      />
+      <button data-testid="send-button" type="submit">Enviar</button>
     </form>
     <script type="text/javascript">
       const socket = io('http://localhost:3000');
 
+      if ($('input[name=username]').val().length === 0) {
+        document.querySelector('#nickname').innerText = Math.random();
+      }
+
+      $('#nickname-save').click(function () {
+        document.querySelector('#nickname').innerText = $(
+          'input[name=username]'
+        ).val();
+      });
+
       function renderMessage(message) {
         $('.messages').append(
-          '<div class="message">' +
+          '<div class="message" data-testid="message">' +
             message.dateTime +
+            ' ' +
+            '-' +
             ' ' +
             '<strong>' +
             message.nickname +
@@ -46,7 +73,7 @@
       $('#chat').submit(function () {
         event.preventDefault();
 
-        const dateTime = new Date().toLocaleString('pt-BR', { hour12: true });
+        const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
         const nickname = $('input[name=username]').val();
         const chatMessage = $('input[name=message]').val();
 

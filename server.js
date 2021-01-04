@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-// const moment = require('moment');
+const moment = require('moment');
 
 const app = express();
 const server = require('http').createServer(app);
@@ -30,8 +30,8 @@ io.on('connection', async (socket) => {
   socket.emit('previewsMessages', messages);
 
   socket.on('message', async (data) => {
-    // const dataTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss');
-    const dateTime = new Date().toLocaleString('pt-BR', { hour12: true });
+    const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
+    // const dateTime = new Date().toLocaleString('pt-BR', { hour12: true });
     await add(dateTime, data);
     socket.broadcast.emit('receivedMessage', data);
     // socket.emit('receivedMessage', data);
