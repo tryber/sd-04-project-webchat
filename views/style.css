@@ -1,0 +1,46 @@
+body{
+    background-color: rgb(214, 228, 208);
+}
+
+h1{
+    text-align: center;
+}
+.main-msg{
+    display: flex;
+    border: 1px solid rgb(250, 250, 250);
+    border-radius: 4px;
+    justify-content:center;
+    height: 500px;
+    width: 1000px;
+}
+
+.user{
+    background-color: rgb(233, 233, 233);
+    height: 500px;
+    width: 300px;
+}
+
+.message{
+    background-color: rgb(75, 42, 165);
+    height: 500px;
+    width: 700px;
+}
+.main-center{
+    display: flex;
+    justify-content: center;
+}
+
+.user-online{
+    font-size: 50px;
+}
+
+#message-box{
+    background-color: rgb(184, 184, 184);
+    border-radius: 8px;
+    color: rgb(0, 24, 104);
+    height: 20px;
+    list-style-type: none;
+    margin-top: 5px;
+    padding: 5px 5px;
+    width: 350px;
+}

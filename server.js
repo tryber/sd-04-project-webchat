@@ -5,52 +5,66 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const socketIoServer = http.createServer();
 const io = require('socket.io')(server);
-
-// importar o model abaixo, o model traz as funçoes para salvar e mostrar as msgs
-// const { newMessage, saveAllMessages } = require('./model/modelMsg');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
 app.use('/', express.static(path.join(__dirname, 'public')));
-
-// formatar a data, pegando a dica no site da Trybe
-const data = new Date();
-const timestamp =
-  data.getDate() +
-  '-' +
-  (data.getMonth() + 1) +
-  '-' +
-  data.getFullYear() +
-  ' ' +
-  data.getHours() +
-  ':' +
-  data.getMinutes() +
-  ':' +
-  data.getSeconds();
+// importar o model abaixo, o model traz as funçoes para salvar e mostrar as msgs
+const { newMessage, findMsg } = require('./model/modelMsg');
 
 // criar uma rota de notificação
-app.post('/notify', (req, res) => {
-  const { title, msg } = req.body;
+let users = [];
+const obj = {};
 
-  if (!title || !msg) {
-    return res.status(422).json({ message: 'Missing not title || msg !' });
+const dispatcher = (nickname) => {
+  if (!obj.user || !obj.user.includes(nickname)) {
+    obj.user = nickname;
+    users.push(obj.user);
+    users = users.filter((user, i) => users.indexOf(user) === i);
+
+    io.emit('users', users);
   }
+};
 
-  io.emit('notification', { title, msg });
-  return res.status(200).json({ message: 'Notification emitted!' });
+io.on('connection', async (socket) => {
+  console.log('Connected');
+  io.emit('users', users);
+
+  const allMessages = await findMsg();
+  io.emit('history', allMessages);
+
+  socket.on('nickName', async ({ nickname }) => {
+    await dispatcher(nickname);
+    console.log('users', users);
+  });
+
+  socket.on('message', async ({ nickname, chatMessage }) => {
+    await dispatcher(nickname);
+    const data = new Date();
+    const hours = data.getHours() < 13 ? 'AM' : 'PM';
+    const timestamp = `${data.getDate()}-${(data.getMonth() + 1)}-${data.getFullYear()} ${data.getHours()}:${data.getMinutes()}:${data.getSeconds()} ${hours}`;
+
+    await newMessage(chatMessage, nickname, timestamp);
+
+    const fullMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
+    console.log(chatMessage);
+    console.log(obj.user);
+    console.log(fullMessage);
+
+    io.emit('message', fullMessage);
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`${obj.user} - saiu`);
+
+    users.splice(obj.user);
+    io.emit('users', users);
+  });
 });
 
-app.get('/ping', (_, res) => {
-  res.status(200).json({ message: 'pong' });
-});
+const PORT = process.env.PORT || 3000;
 
-app.listen(3000);
-console.log('Express rodando na porta 3000');
-
-socketIoServer.listen(4555);
-console.log('Socket.io rondando na porta 4555');
-console.log(timestamp);
+server.listen(PORT, () => console.log(`Listening on port ${PORT}`));

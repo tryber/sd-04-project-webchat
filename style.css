@@ -1,0 +1,10 @@
+body{
+    background-color: aquamarine;
+}
+.userName{
+    display: flex;
+    border: 1px solid blue;
+}
+h2{
+    color: blueviolet;
+}

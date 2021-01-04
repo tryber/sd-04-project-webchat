@@ -1,17 +1,18 @@
-const connection = require('./db');
-
-const db = connection();
+const connection = require('./connection');
 
 const newMessage = async (chatMessage, nickname, timestamp) => {
-  const msg = await db
-    .connection('message')
-    .insertOne({ chatMessage, nickname, timestamp });
-  return msg.ops[0];
+  const insertMsg = await connection().then((db) =>
+    db.collection('messages').insertOne({ chatMessage, nickname, timestamp }));
+  return { message: insertMsg.ops[0] };
 };
 
-const saveAllMessages = async () => {
-  const msg = await db.connection('message').find({}).toArray();
-  return msg;
+const findMsg = async () => {
+  const allMessages = await connection().then((db) =>
+    db.collection('messages').find({}).toArray());
+  return allMessages;
 };
 
-module.exports = { newMessage, saveAllMessages };
+module.exports = {
+  newMessage,
+  findMsg,
+};
