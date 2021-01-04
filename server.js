@@ -20,9 +20,9 @@ io.on('connection', async (socket) => {
 
   callHistory.map((msg) => {
     const { chatMessage, nickname, timestamp } = msg;
-    return msgHistory.push(`${timestamp} - ${nickname}: ${chatMessage}`);
+    const msgHistory = `${timestamp} - ${nickname}: ${chatMessage}`;
+    socket.emit('history', msgHistory);
   });
-  io.emit('Historico', msgHistory);
 
   socket.on('message', async ({ chatMessage, nickname }) => {
     const newDate = new Date();
@@ -38,9 +38,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('usersOnline', async ({ nickname }) => {
-    console.log('aha', users);
     users.push({ socketID: socket.id, nickname });
-    console.log('depois');
     io.emit('onlineUsers', users);
   });
 
