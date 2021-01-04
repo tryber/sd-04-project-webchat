@@ -1,4 +1,6 @@
-html , body { height: 100vh; }
+html { height: 100vh; }
+
+body { height: 100vh; }
 
 .chat {
   align-items: center;
