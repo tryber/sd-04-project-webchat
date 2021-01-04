@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
-app.use('/', express.static(path.join(__dirname, 'public')));
+app.use('/', express.static(path.join(__dirname, 'views')));
 // importar o model abaixo, o model traz as funçoes para salvar e mostrar as msgs
 const { newMessage, findMsg } = require('./model/modelMsg');
 
@@ -65,6 +65,6 @@ io.on('connection', async (socket) => {
   });
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
