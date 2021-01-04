@@ -11,21 +11,21 @@ const http = require('http');
 const socketIo = require('socket.io');
 
 const socketIoServer = http.createServer(app);
-const io = socketIo(socketIoServer);
+
 const cors = require('cors');
 const path = require('path');
 
 const messagesModel = require('./models/messagesModel');
 
-// const io = socketIo(socketIoServer, {
-//   cors: {
-//     origin: 'http://localhost:3000',
-//     methods: ['GET', 'POST'],
-//   },
-// });
+const io = socketIo(socketIoServer, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+  },
+});
 
-// app.use(express.urlencoded({ extended: true }));
-// app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cors());
 
 app.use('/assets', express.static(`${__dirname}/assets/`));
