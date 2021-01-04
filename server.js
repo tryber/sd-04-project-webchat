@@ -38,8 +38,10 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('usersOnline', async ({ nickname }) => {
-    users.push(nickname);
-    io.emit('online', nickname);
+    console.log('aha', users);
+    users.push({ socketID: socket.id, nickname });
+    console.log('depois');
+    io.emit('onlineUsers', users);
   });
 
   socket.on('disconnect', () => {
