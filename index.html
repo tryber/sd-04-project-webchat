@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebChat</title>
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script src="http://chancejs.com/chance.min.js"></script>
 </head>
@@ -60,6 +60,7 @@
     newMessage.setAttribute('data-testid', 'message');
     newMessage.innerText = message;
     chat.appendChild(newMessage);
+    console.log('enviou msg')
   }
 
   saveNickBtn.addEventListener('click', (event) => {
