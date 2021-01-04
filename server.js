@@ -15,13 +15,12 @@ app.use(express.json());
 app.use('/', express.static(path.join(__dirname, '/public')));
 
 io.on('connection', async (socket) => {
-  const msgHistory = [];
   const callHistory = await models.getAllMessages();
 
   callHistory.map((msg) => {
     const { chatMessage, nickname, timestamp } = msg;
     const msgHistory = `${timestamp} - ${nickname}: ${chatMessage}`;
-    socket.emit('history', msgHistory);
+    return socket.emit('history', msgHistory);
   });
 
   socket.on('message', async ({ chatMessage, nickname }) => {
