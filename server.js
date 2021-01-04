@@ -25,9 +25,9 @@ io.on('connection', async (socket) => {
   socket.on('message', async ({ nickname, chatMessage }) => {
     const time = new Date();
     const timestamp = moment(time).format('DD-MM-yyyy HH:mm:ss');
-    const message = `${nickname} ${timestamp} ${chatMessage}`;
+    const messages = `${nickname} ${timestamp} ${chatMessage}`;
 
-    io.emit('message', message);
+    io.emit('message', messages);
 
     return createMessage(chatMessage, nickname, timestamp);
   });
