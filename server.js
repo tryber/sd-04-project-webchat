@@ -25,15 +25,16 @@ app.use('/', (req, res) => {
 io.on('connection', async (socket) => {
   console.log(`Socket conectado: ${socket.id}`);
 
-  // const messages = await getAll();
+  const messages = await getAll();
 
-  // socket.emit('previewsMessages', messages);
+  socket.emit('previewsMessages', messages);
 
   socket.on('message', async (data) => {
     // const dataTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss');
-    const dataTime = new Date().toLocaleString('pt-BR', { hour12: true });
-    // await add(data);
+    const dateTime = new Date().toLocaleString('pt-BR', { hour12: true });
+    await add(dateTime, data);
     socket.broadcast.emit('receivedMessage', data);
+    // socket.emit('receivedMessage', data);
   });
 });
 

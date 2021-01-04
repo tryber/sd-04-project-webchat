@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <form method="POST" id="chat">
+    <form method="POST" id="chat" class="chat">
       <input type="text" name="username" placeholder="Digite o seu usuário" />
       <div class="messages"></div>
       <input type="text" name="message" placeholder="Digite a sua mensagem" />
@@ -22,7 +22,10 @@
 
       function renderMessage(message) {
         $('.messages').append(
-          '<div class="message"><strong>' +
+          '<div class="message">' +
+            message.dateTime +
+            ' ' +
+            '<strong>' +
             message.nickname +
             '</strong>: ' +
             message.chatMessage +
@@ -43,19 +46,19 @@
       $('#chat').submit(function () {
         event.preventDefault();
 
-        // const dateTime = new Date().toLocaleString('pt-BR', { hour12: true });
+        const dateTime = new Date().toLocaleString('pt-BR', { hour12: true });
         const nickname = $('input[name=username]').val();
         const chatMessage = $('input[name=message]').val();
 
         if (nickname.length && chatMessage.length) {
           var messageObject = {
-            // dateTime,
+            dateTime,
             nickname,
             chatMessage,
           };
 
           renderMessage(messageObject);
-          socket.emit('message', { chatMessage, nickname });
+          socket.emit('message', messageObject);
         }
       });
     </script>
