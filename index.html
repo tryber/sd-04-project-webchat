@@ -34,60 +34,62 @@
   </form>
 </body>
 <script>
-  const socket = io('http://localhost:3000');
-  const nickInput = document.querySelector('#nickname-box');
-  const saveNickBtn = document.querySelector('#nickname-save');
-  const msgInput = document.querySelector('#message-box');
-  const sendMsgBtn = document.querySelector('#send-button');
-  const chat = document.querySelector('#conversation');
-  const onlineUsers = document.querySelector('#onlineUsers');
+  window.onload = () => {
 
-  let randomNickName = chance.name();
-  socket.emit('usersOnline', { nickname: randomNickName });
+    const socket = io('http://localhost:3000');
+    const nickInput = document.querySelector('#nickname-box');
+    const saveNickBtn = document.querySelector('#nickname-save');
+    const msgInput = document.querySelector('#message-box');
+    const sendMsgBtn = document.querySelector('#send-button');
+    const chat = document.querySelector('#conversation');
+    const onlineUsers = document.querySelector('#onlineUsers');
 
-  sendMsgBtn.addEventListener('click', (event) => {
-    (event).preventDefault();
-    socket.emit(
-      'message', {
+    let randomNickName = chance.name();
+    socket.emit('usersOnline', { nickname: randomNickName });
+
+    sendMsgBtn.addEventListener('click', (event) => {
+      (event).preventDefault();
+      socket.emit(
+        'message', {
         nickname: randomNickName,
         chatMessage: msgInput.value,
       });
       msgInput.value = '';
-  });
-
-  const sendMessage = (message) => {
-    const newMessage = document.createElement('p');
-    newMessage.setAttribute('data-testid', 'message');
-    newMessage.innerText = message;
-    chat.appendChild(newMessage);
-  }
-
-  saveNickBtn.addEventListener('click', (event) => {
-    (event).preventDefault();
-    if (nickInput.value !== '') {
-      socket.emit('updateNickName', { newNickName: nickInput.value });
-      randomNickName = nickInput.value;
-    }
-  });
-
-  socket.on('message', (message) => {
-  sendMessage(message);
-  });
-
-  socket.on('history', (message) => {
-    sendMessage(message);
-  });
-
-  socket.on('onlineUsersListUpdate', (arr) => {
-    onlineUsers.innerHTML = '';
-    arr.forEach((onlineUser) => {
-      const item = document.createElement('li');
-      item.setAttribute('data-testid', 'online-user');
-      onlineUsers.appendChild(item);
     });
-  });
 
+    const sendMessage = (message) => {
+      const newMessage = document.createElement('p');
+      newMessage.setAttribute('data-testid', 'message');
+      newMessage.innerText = message;
+      chat.appendChild(newMessage);
+    }
 
+    saveNickBtn.addEventListener('click', (event) => {
+      (event).preventDefault();
+      if (nickInput.value !== '') {
+        socket.emit('updateNickName', { newNickName: nickInput.value });
+        randomNickName = nickInput.value;
+      }
+    });
+
+    socket.on('message', (message) => {
+      sendMessage(message);
+    });
+
+    socket.on('history', (message) => {
+      sendMessage(message);
+    });
+
+    socket.on('onlineUsersListUpdate', (arr) => {
+      onlineUsers.innerHTML = '';
+      arr.forEach((onlineUser) => {
+        const item = document.createElement('li');
+        item.setAttribute('data-testid', 'online-user');
+        onlineUsers.appendChild(item);
+      });
+    });
+
+  };
 </script>
 
 </html>
