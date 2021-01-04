@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <!--Import Google Icon Font-->
+         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+         <!--Import materialize.css-->
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <title>Chat</title>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div id="nickname" class="col s12">
+            <div class="row">
+                <div class="input-field col s9">
+                    <input data-testid="nickname-box" id="input-nickname" type="text" placeholder="Como quer ser chamado?" />
+                </div>
+                <div class="input-field col s3">
+                    <button data-testid="nickname-save" id="btn-nickname" class="waves-effect waves-light btn-small">Salvar <i class="material-icons">create</i></button>
+                </div>                 
+            </div>                           
+        </div>
+    </div>
+    <div id="users">
+        <ul id="users-list" class="collection with-header">
+            <li id="myself" class="collection-header"></li>
+        </ul>
+    </div>
+    <div id="chat"></div>
+    <div id="textarea" class="col s12">
+        <div class="row">
+            <div class="input-field col s9">
+                <input data-testid="message-box" id="input-message" type="text" placeholder="Digite sua mensagem" />
+            </div>
+            <div class="input-field col s3">
+                <button data-testid="send-button" id="btn-message" class="waves-effect waves-light btn-small"><i class="material-icons">send</i></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    let nickname = 'Anonymous';
+
+    const inputNickname = document.querySelector('#input-nickname');
+    const btnNickname = document.querySelector('#btn-nickname');
+
+    const inputMsg = document.querySelector('#input-message');
+    const btnMsg = document.querySelector('#btn-message');
+    const chatBoard = document.querySelector('#chat');
+
+    const userList = document.querySelector('#users-list');
+
+    btnNickname.addEventListener('click', (e) => {
+        e.preventDefault();
+        if(inputNickname !== ''){
+            nickname = inputNickname.value;
+        }
+    })
+
+    btnMsg.addEventListener('click', (e) => {
+        e.preventDefault();
+        const chatMessage = inputMsg.value;
+        socket.emit('message', {chatMessage, nickname});
+        inputMsg.value = '';
+    })
+
+    socket.on('message', (message) => {
+        const paragraph = document.createElement('p');
+        paragraph.setAttribute('data-testid', 'messages');
+        paragraph.innerText = message;
+        chatBoard.appendChild(paragraph);
+    });
+
+    socket.on('usersOnline', (users) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'online-user');
+        li.innerText = users;
+        userList.appendChild(li);
+    });
+
+    socket.on('history', (message) => {
+        const paragraph = document.createElement('p');
+        paragraph.setAttribute('data-testid', 'messages');
+        paragraph.innerText = message;
+        // console.log(message)
+        chatBoard.appendChild(paragraph);
+    });
+
+</script>
+</body>
+</html>
