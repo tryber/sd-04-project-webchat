@@ -11,12 +11,12 @@
     <h1 id="userName"></h1>
 
     <input data-testid="nickname-box" type="text" id="nickInput" />
-    <button id="changeNick" data-testid="nickname-save">Save nickname</button>
+    <button data-testid="nickname-save" id="changeNick">Save nickname</button>
 
     <ul id="listMessage"></ul>
 
     <input data-testid="message-box" id="textInput" autocomplete="off" />
-    <button id="sendMessage" data-testid="send-button">Send</button>
+    <button data-testid="send-button" id="sendMessage">Send</button>
 
     <ul id="usersConnected"></ul>
 
@@ -24,20 +24,20 @@
 
   </body>
   <script>
-    const socket = io();
-
-    const user = document.querySelector('#userName');
-
-    const chatMessageInput = document.querySelector('#textInput');
-    const nicknameInput = document.querySelector('#nickInput');
-
-    const nickBtn = document.querySelector('#changeNick');
-    const messageBtn = document.querySelector('#sendMessage');
-
-    const onlineUsers = document.querySelector('#usersConnected');
-    const messages = document.querySelector('#listMessage');
-
     window.onload = () => {
+      const socket = io();
+
+      const user = document.querySelector('#userName');
+
+      const chatMessageInput = document.querySelector('#textInput');
+      const nicknameInput = document.querySelector('#nickInput');
+
+      const nickBtn = document.querySelector('#changeNick');
+      const messageBtn = document.querySelector('#sendMessage');
+
+      const onlineUsers = document.querySelector('#usersConnected');
+      const messages = document.querySelector('#listMessage');
+
       user.innerText = chance.first();
       let nickname = user.innerText;
 
