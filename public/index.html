@@ -1,11 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trybe chat</title>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
 </head>
+
 <body>
   <h2>Hello world</h2>
+  <form>
+    <input type="text" id="nickname-box" data-testid="nickname-box" />
+    <button type="button" data-testid="nickname-save" onclick="goOnline()">Salvar Nickname</button>
+  </form>
+  <form>
+    <input type="text" id="message-box" data-testid="message-box" />
+    <button type="button" data-testid="send-button" onclick="sendMessage()">Enviar</button>
+  </form>
+  <div id="msgs"></div>
+  <ul id="connected-user"></ul>
+
+  <script>
+    const messageSocket = io('http://localhost:3000');
+
+    const receiveMessage = (message) => {
+      const messageElement = document.createElement('div');
+      messageElement.setAttribute('data-testid', 'message')
+      messageElement.textContent = message;
+
+      document.querySelector('#msgs').appendChild(messageElement);
+    }
+
+    const sendMessage = () => {
+      const chatMessage = document.querySelector('#message-box').value;
+      const nickname = document.querySelector('#nickname-box').value;
+
+      messageSocket.emit('message', { chatMessage, nickname });
+    }
+
+    const clearMessages = () => {
+      while (document.querySelector('#msgs').firstChild) {
+        document.querySelector('#msgs')
+          .removeChild(document.querySelector('#msgs').lastChild);
+      }
+    }
+
+    const goOnline = () => {
+      const nickname = document.querySelector('#nickname-box').value;
+
+      messageSocket.emit('online', { nickname });
+    }
+
+    const loadOnlineUsers = (user) => {
+      const nickname = document.createElement('li');
+      nickname.textContent = user;
+      nickname.setAttribute('data-testid', 'online-user');
+      document.querySelector('#connected-user').appendChild(nickname)
+    }
+
+    const loadHistory = (messages) => {
+      clearMessages();
+      messages.forEach(({ chatMessage, nickname, timestamp }) => {
+        receiveMessage(`${timestamp} - ${nickname}: ${chatMessage}`);
+      });
+    }
+
+    messageSocket.on('message', receiveMessage);
+    messageSocket.on('history', loadHistory);
+    messageSocket.on('online', loadOnlineUsers);
+  </script>
 </body>
+
 </html>
