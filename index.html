@@ -1,14 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebChat</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="http://chancejs.com/chance.min.js"></script>
 </head>
+
 <body>
   <h1>WebChat</h1>
+  <h2>Conversa</h2>
+  <div id="conversation"></div>
+  <aside>
+    <h3>Online</h3>
+    <ul id="onlineUsers"></ul>
+  </aside>
   <form>
+    <label htmlFor="nickname-box">Nickname</label>
+    <input type="text" data-testid="nickname-box" name="nickname-box" id="nickname-box" />
+    <button type="submit" data-testid="nickname-save" id="nickname-save">
+      Salvar Nickname
+    </button>
+
+    <label htmlFor="message-box">Mensagem</label>
+    <input type="text" data-testid="message-box" id="message-box" name="message-box" />
+    <button type="submit" data-testid="send-button" id="send-button">
+      Enviar
+    </button>
 
   </form>
 </body>
+<script>
+  const socket = io('http://localhost:3000');
+  const nickInput = document.querySelector('#nickname-box');
+  const saveNickBtn = document.querySelector('#nickname-save');
+  const msgInput = document.querySelector('#message-box');
+  const sendMsgBtn = document.querySelector('#send-button');
+  const chat = document.querySelector('#conversation');
+  const onlineUsers = document.querySelector('#onlineUsers');
+
+  let randomNickName = chance.name();
+  socket.emit('usersOnline', { nickname: randomNickName });
+
+  sendMsgBtn.addEventListener('click', (event) => {
+    (event).preventDefault();
+    socket.emit(
+      'message', {
+        nickname: randomNickName,
+        chatMessage: msgInput.value,
+      });
+      msgInput.value = '';
+  });
+
+  const sendMessage = (message) => {
+    const newMessage = document.createElement('p');
+    newMessage.setAttribute('data-testid', 'message');
+    newMessage.innerText = message;
+    chat.appendChild(newMessage);
+  }
+
+  saveNickBtn.addEventListener('click', (event) => {
+    (event).preventDefault();
+    if (nickInput.value !== '') {
+      socket.emit('updateNickName', { newNickName: nickInput.value });
+      randomNickName = nickInput.value;
+    }
+  });
+
+  socket.on('message', (message) => {
+  sendMessage(message);
+  });
+
+  socket.on('history', (message) => {
+    sendMessage(message);
+  });
+
+  socket.on('onlineUsersListUpdate', (arr) => {
+    onlineUsers.innerHTML = '';
+    arr.forEach((onlineUser) => {
+      const item = document.createElement('li');
+      item.setAttribute('data-testid', 'online-user');
+      onlineUsers.appendChild(item);
+    });
+  });
+
+
+</script>
+
 </html>
