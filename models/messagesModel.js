@@ -1,4 +1,5 @@
 const connection = require('./connection');
+require('dotenv').config();
 
 const getAll = async () => connection().then((db) => db.collection('chats').find().toArray());
 
