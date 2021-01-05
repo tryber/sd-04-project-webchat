@@ -26,11 +26,14 @@
       <div class="messages"></div>
       <input
         data-testid="message-box"
+        id="message-box"
         type="text"
         name="message"
         placeholder="Digite a sua mensagem"
       />
-      <button data-testid="send-button" type="submit">Enviar</button>
+      <button id="submitBtn" data-testid="send-button" type="submit">
+        Enviar
+      </button>
     </form>
     <script type="text/javascript">
       const socket = io('http://localhost:3000');
@@ -46,8 +49,24 @@
       });
 
       function renderMessage(message) {
-        $('.messages').append(
-          '<div class="message" data-testid="message">' +
+        if (!$('.message').length) {
+          $('.messages').append(
+            '<div class="message" data-testid="message">' +
+              message.dateTime +
+              ' ' +
+              '-' +
+              ' ' +
+              '<strong>' +
+              message.nickname +
+              '</strong>: ' +
+              message.chatMessage +
+              ' </div>'
+          );
+        } else {
+          const newMSG = document.createElement('div');
+          newMSG.setAttribute('class', 'message');
+          newMSG.setAttribute('data-testid', 'message');
+          newMSG.innerHTML =
             message.dateTime +
             ' ' +
             '-' +
@@ -56,11 +75,23 @@
             message.nickname +
             '</strong>: ' +
             message.chatMessage +
-            ' </div>'
-        );
+            ' </div>';
+          const currentMSG = document.querySelector('.message');
+          const divPai = currentMSG.parentNode;
+          divPai.insertBefore(currentMSG, newMSG);
+        }
       }
 
       socket.on('previewsMessages', function (messages) {
+        messages.sort(function (a, b) {
+          if (a.dateTime > b.dateTime) {
+            return -1;
+          }
+          if (a.name < b.name) {
+            return 1;
+          }
+          return 0;
+        });
         for (message of messages) {
           renderMessage(message);
         }
@@ -73,18 +104,19 @@
       $('#chat').submit(function () {
         event.preventDefault();
 
-        const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
+        // const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
         const nickname = $('input[name=username]').val();
         const chatMessage = $('input[name=message]').val();
 
         if (nickname.length && chatMessage.length) {
           var messageObject = {
-            dateTime,
+            // dateTime,
             nickname,
             chatMessage,
           };
 
-          renderMessage(messageObject);
+          // renderMessage(messageObject);
+          document.querySelector('#message-box').value = '';
           socket.emit('message', messageObject);
         }
       });

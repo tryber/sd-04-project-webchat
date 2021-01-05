@@ -33,8 +33,13 @@ io.on('connection', async (socket) => {
     const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
     // const dateTime = new Date().toLocaleString('pt-BR', { hour12: true });
     await add(dateTime, data);
-    socket.broadcast.emit('receivedMessage', data);
-    // socket.emit('receivedMessage', data);
+    const userData = {
+      dateTime,
+      nickname: data.nickname,
+      chatMessage: data.chatMessage,
+    };
+    socket.broadcast.emit('receivedMessage', userData);
+    socket.emit('receivedMessage', userData);
   });
 });
 
