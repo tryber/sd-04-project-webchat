@@ -38,8 +38,8 @@ io.on('connection', async (socket) => {
       nickname: data.nickname,
       chatMessage: data.chatMessage,
     };
-    socket.broadcast.emit('receivedMessage', userData);
-    socket.emit('receivedMessage', userData);
+    socket.broadcast.emit('message', userData);
+    socket.emit('message', userData);
   });
 });
 
