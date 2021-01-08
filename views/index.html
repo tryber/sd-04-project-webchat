@@ -81,11 +81,11 @@
       // Envia a mensagem para o servidor
       $('form').submit(function(e) {
         e.preventDefault();
-        // const message = {
-        nickname = $('#nickname-box').val(),
-        chatMessage = $('#mensagemInput').val(),
-        // };
-        socket.emit('message', { nickname, chatMessage });
+        const message = {
+          nickname: $('#nickname-box').val(),
+          chatMessage: $('#mensagemInput').val(),
+        };
+        socket.emit('message',message);
         $('#mensagemInput').val('');
         return false;
       });
@@ -114,16 +114,17 @@
       socket.on('previousMessage', (previousMessage) => {
         if (previousMessage) {
           previousMessage.forEach(message => {
-            $('#messages').append($('<li>').text(message.chatMessage));
+            $('#messages').append($('<li data-testid="message">').text(message.chatMessage));
           });
         }
        });
       // Recebe as mensagens do servidor e coloca na tela
-      socket.on('messageServer', function(message) {
+      socket.on('message', function(message) {
+        console.log('message', message);
         // const { nickname, chatMessage } = message;
         // $('#messages').append($('<li>')
         //   .text(`${nickname}: ${chatMessage}`));
-        $('#messages').append($('<li>').text(message));
+        $('#messages').append($('<li data-testid="message">').text(message));
       });
 
       // Recebe o nickname do servidor
@@ -145,7 +146,7 @@
 <body>
   <h1>Projeto Webchat</h1>
   <div class="box-messages">
-    <ul id="messages" data-testid="message"></ul>
+    <ul id="messages"></ul>
   </div>
   <div id="box-online-users">
     Onlines Users:

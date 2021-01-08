@@ -69,24 +69,26 @@ io.on('connect', async (socket) => {
 
   // socket.on('previousMessage', (previousMessage) => {});
 
-  socket.on('message', async ({ chatMessage, nickname }) => {
-    // const { chatMessage, nickname } = message;
+  socket.on('message', async (message) => {
+    const { chatMessage, nickname } = message;
     const timestamp = new Date();
     // DD-MM-yyyy
     const dateMessage = `${timestamp.getDate()}-${timestamp.getMonth() + 1}-${timestamp.getFullYear()}`;
     // HH:mm:ss
     const timeMessage = `${timestamp.getHours()}:${timestamp.getMinutes()}:${timestamp.getSeconds()}`;
     // DD-MM-yyyy HH:mm:ss - nickname: chatMessage
-    const formatedMessage = `${dateMessage} ${timeMessage}-${nickname}: ${chatMessage}`;
+    const formatedMessage = `${dateMessage} ${timeMessage} - ${nickname}: ${chatMessage}`;
 
     // console.log(`Mensagem ${message}`);
     console.log('MESSAGE: ', nickname, chatMessage);
     console.log('FORMATEDMESSAGE: ', formatedMessage);
+    const chatMessage2 = 'Olá meu caros amigos!';
+    console.log(formatedMessage.includes(chatMessage2));
 
     // Adiciona a mensagem no banco de dados.
     const add = await messagesModel.add(nickname, formatedMessage, timeMessage);
     console.log('ADD: ', add);
-    io.emit('messageServer', formatedMessage);
+    io.emit('message', formatedMessage);
   });
 
   socket.on('changeNickname', (nickname) => {
@@ -101,7 +103,7 @@ io.on('connect', async (socket) => {
   });
 
   socket.broadcast.emit('listNicknameServer');
-  socket.broadcast.emit('messageServer');
+  socket.broadcast.emit('message');
 
   // console.log('----- SOCKET -----');
   // console.log(socket);
