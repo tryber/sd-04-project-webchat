@@ -34,33 +34,43 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/views/index.html'));
 });
 
-// Para ficar mais fácil de ler o código,
-// pense no 'socket' como um 'client'.
+let clients = [];
+
 io.on('connect', async (socket) => {
   console.log('Conectado');
 
   // histórico de mensagens
   const previousMessage = await messagesModel.getAll();
-  console.log('PREVIOUSMESSAGE: ', previousMessage);
+  // console.log('PREVIOUSMESSAGE: ', previousMessage);
   io.emit('previousMessage', previousMessage);
 
   // Random nickname
   // const randomNick = `Guest_${socket.id}`;
   const randomNick = '';
-  console.log('RandomNick: ', randomNick);
-  io.emit('join', randomNick, socket.id);
+
+  clients.push({ userId: socket.id, nickname: randomNick });
+  console.log('CLIENTES: ', clients);
+  // clients.forEach((client) => {
+  //   if (client.userId === socket.id) client.nickname = 'novoNick';
+  //   console.log('Novo: ', client.userId);
+  // });
+
+  // console.log('RandomNick: ', randomNick);
+
+  io.emit('join', clients, randomNick, socket.id);
+  // io.emit('listNicknameServer', randomNick, socket.id);
   io.emit('listNicknameServer', randomNick, socket.id);
 
   socket.on('disconnect', () => {
-    console.log('Desconectado');
     console.log('Desconectado: ', socket.id);
+    clients = clients.filter((client) => client.userId !== socket.id);
     io.emit('exit', socket.id);
   });
 
   // socket.on('previousMessage', (previousMessage) => {});
 
-  socket.on('message', async (message) => {
-    const { chatMessage, nickname } = message;
+  socket.on('message', async ({ chatMessage, nickname }) => {
+    // const { chatMessage, nickname } = message;
     const timestamp = new Date();
     // DD-MM-yyyy
     const dateMessage = `${timestamp.getDate()}-${timestamp.getMonth() + 1}-${timestamp.getFullYear()}`;
@@ -69,7 +79,7 @@ io.on('connect', async (socket) => {
     // DD-MM-yyyy HH:mm:ss - nickname: chatMessage
     const formatedMessage = `${dateMessage} ${timeMessage}-${nickname}: ${chatMessage}`;
 
-    console.log(`Mensagem ${message}`);
+    // console.log(`Mensagem ${message}`);
     console.log('MESSAGE: ', nickname, chatMessage);
     console.log('FORMATEDMESSAGE: ', formatedMessage);
 
@@ -80,6 +90,13 @@ io.on('connect', async (socket) => {
   });
 
   socket.on('changeNickname', (nickname) => {
+    clients = clients.map((client) => {
+      if (client.userId === socket.id) {
+        const clientNewNick = client;
+        clientNewNick.nickname = nickname;
+      }
+      return client;
+    });
     io.emit('listNicknameServer', nickname, socket.id);
   });
 

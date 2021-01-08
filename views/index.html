@@ -81,21 +81,33 @@
       // Envia a mensagem para o servidor
       $('form').submit(function(e) {
         e.preventDefault();
-        const message = {
-          nickname: $('#nickname-box').val(),
-          chatMessage: $('#mensagemInput').val(),
-        };
-        socket.emit('message', message);
+        // const message = {
+        nickname = $('#nickname-box').val(),
+        chatMessage = $('#mensagemInput').val(),
+        // };
+        socket.emit('message', { nickname, chatMessage });
         $('#mensagemInput').val('');
         return false;
       });
 
       // Eventos relacionados ao socket.
       // Random Nickname quando entra no chat
-      socket.on('join', function(randomNick, userId) {
-        $('#nickname-box').val(randomNick);
-        const li = `<li id=${userId} data-testid="online-user">'`;
-        $('#online-user').append($(li).text(randomNick));
+      socket.on('join', function(clients, randomNick, userId) {
+        if (socket.id === userId) $('#nickname-box').val(randomNick);
+
+        clients.forEach((client) => {
+          const listed = $(`#${client.userId}`);
+          if (listed.length === 0) {
+            const li = `<li id=${client.userId} data-testid="online-user">'`;
+            $('#online-user').append($(li).text(client.nickname));
+          }
+
+          if (socket.id === client.userId) {
+            $('#nickname-box').val(client.nickname);
+          }
+        });
+        // const li = `<li id=${userId} data-testid="online-user">'`;
+        // $('#online-user').append($(li).text(randomNick));
       });
 
       // Recebe as mensagens que estão no bando de dados.
