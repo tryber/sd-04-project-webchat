@@ -80,10 +80,8 @@ io.on('connect', async (socket) => {
     const formatedMessage = `${dateMessage} ${timeMessage} - ${nickname}: ${chatMessage}`;
 
     // console.log(`Mensagem ${message}`);
-    console.log('MESSAGE: ', nickname, chatMessage);
-    console.log('FORMATEDMESSAGE: ', formatedMessage);
-    const chatMessage2 = 'Olá meu caros amigos!';
-    console.log(formatedMessage.includes(chatMessage2));
+    // console.log('MESSAGE: ', nickname, chatMessage);
+    // console.log('FORMATEDMESSAGE: ', formatedMessage);
 
     // Adiciona a mensagem no banco de dados.
     const add = await messagesModel.add(nickname, formatedMessage, timeMessage);
