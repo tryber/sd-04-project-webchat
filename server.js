@@ -6,7 +6,8 @@ const moment = require('moment');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const { getAll, add } = require('./models/messagesModel');
+const { getAll, add, addMessages } = require('./models/messagesModel');
+const { timeStamp } = require('console');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -31,8 +32,10 @@ io.on('connection', async (socket) => {
 
   socket.on('message', async (data) => {
     const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
+    const timeS = new Date().getTime();
     // const dateTime = new Date().toLocaleString('pt-BR', { hour12: true });
     await add(dateTime, data);
+    await addMessages(data.nickname, data.chatMessage, timeS);
     const userData = {
       dateTime,
       nickname: data.nickname,

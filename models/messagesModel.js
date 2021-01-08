@@ -8,7 +8,13 @@ const add = async (dateTime, nickChat) => {
   return result.ops[0];
 };
 
+const addMessages = async (nickname, message, timestamp) => {
+  await connection().then((db) =>
+    db.collection('messages').insertOne({ nickname, message, timestamp }));
+};
+
 module.exports = {
   add,
   getAll,
+  addMessages,
 };
