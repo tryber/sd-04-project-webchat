@@ -36,3 +36,11 @@ button {
   padding: 20px;
   width: 600px;
 }
+.onlineUsers {
+  border: 1px solid #ddd;
+  font-size: 15px;
+  height: 100px;
+  margin: 20px 0;
+  /* padding: 20px; */
+  width: 100px;
+}

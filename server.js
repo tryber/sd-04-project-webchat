@@ -7,7 +7,6 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const { getAll, add, addMessages } = require('./models/messagesModel');
-const { timeStamp } = require('console');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
