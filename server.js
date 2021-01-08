@@ -103,7 +103,6 @@ io.on('connect', async (socket) => {
   });
 
   socket.broadcast.emit('listNicknameServer');
-  socket.broadcast.emit('message');
 
   // console.log('----- SOCKET -----');
   // console.log(socket);

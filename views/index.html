@@ -85,7 +85,7 @@
           nickname: $('#nickname-box').val(),
           chatMessage: $('#mensagemInput').val(),
         };
-        socket.emit('message',message);
+        socket.emit('message', message);
         $('#mensagemInput').val('');
         return false;
       });
