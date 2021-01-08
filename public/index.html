@@ -24,7 +24,7 @@
       </button>
       <span id="nickname"></span>
       <span>Online</span>
-      <div class="onlineUsers"></div>
+      <div id="onlineUser" class="onlineUsers"></div>
       <div class="messages"></div>
       <input
         data-testid="message-box"
@@ -40,15 +40,43 @@
     <script type="text/javascript">
       const socket = io('http://localhost:3000');
 
-      if ($('input[name=username]').val().length === 0) {
-        document.querySelector('#nickname').innerText = Math.random();
+      let storage = [];
+      if (localStorage.getItem('onlineUsers') !== null) {
+        storage.push(JSON.parse(localStorage.getItem('onlineUsers')));
       }
+      socket.on('newUser', (socketId) => {
+        if ($('input[name=username]').val().length === 0) {
+          document.querySelector('#nickname').innerText = socketId;
+        }
 
-      $('#nickname-save').click(function () {
-        document.querySelector('#nickname').innerText = $(
-          'input[name=username]'
-        ).val();
+        $('#nickname-save').click(function () {
+          document.querySelector('#nickname').innerText = $(
+            'input[name=username]'
+          ).val();
+          const userNick = (document.createElement('span').value = $(
+            'input[name=username]'
+          ).val());
+          document.querySelector('#onlineUser').append(userNick);
+
+          if (storage.length === 0) {
+            localStorage.setItem('onlineUsers', JSON.stringify(userNick));
+          } else {
+            // storage.push(JSON.parse(localStorage.getItem('onlineUsers')));
+            storage.push(userNick);
+            localStorage.setItem('onlineUsers', JSON.stringify(storage));
+          }
+        });
+        renderUsers(storage);
       });
+
+      function renderUsers(users) {
+        let element;
+        for(user of users)
+        element = document.createElement('p');
+        element.setAttribute('data-testid', 'online-user');
+        element.innerText = user;
+        document.querySelector('#onlineUser').append(element);
+      }
 
       function renderMessage(message) {
         if (!$('.message').length) {

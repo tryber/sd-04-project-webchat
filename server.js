@@ -27,6 +27,7 @@ io.on('connection', async (socket) => {
 
   const messages = await getAll();
 
+  socket.emit('newUser', socket.id);
   socket.emit('previewsMessages', messages);
 
   socket.on('message', async (data) => {
