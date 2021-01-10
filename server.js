@@ -24,8 +24,6 @@ app.use('/', (req, res) => {
 
 const online = {};
 
-const nick = {};
-
 io.on('connection', async (socket) => {
   console.log(`Socket conectado: ${socket.id}`);
 
@@ -33,12 +31,12 @@ io.on('connection', async (socket) => {
 
   socket.emit('newUser', socket.id);
 
-  io.emit('updateUsers', online);
-
   socket.on('setNickname', (nickname) => {
-    nick[socket.id] = nickname;
-    socket.emit('userNick', nick);
+    online[socket.id] = nickname;
+    socket.emit('userNick', online);
   });
+
+  io.emit('updateUsers', online);
 
   const messages = await getAll();
 

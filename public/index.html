@@ -25,7 +25,7 @@
       <span id="nickname"></span>
       <span>Online</span>
       <div class="onlineUsers">
-        <ul id="onlineUser"></ul>
+        <ul id="onlineUser" style="list-style: none"></ul>
       </div>
       <div class="messages"></div>
       <input
@@ -49,15 +49,6 @@
 
       socket.on('newUser', (data) => {
         nickname.innerText = data;
-      });
-
-      socket.on('updateUsers', (data) => {
-        let list = document.querySelectorAll('.list');
-        for (let i = 0; i < list.length; i++) {
-          list[i].remove();
-        }
-        const nick = Object.values(data).reverse();
-        renderUsers(nick);
       });
 
       $('#nickname-save').click(function () {
@@ -155,8 +146,13 @@
           socket.emit('message', messageObject);
         }
       });
-      socket.on('updatedUser', (data) => {
-        console.log(data);
+      socket.on('updateUsers', (data) => {
+        let list = document.querySelectorAll('.list');
+        for (let i = 0; i < list.length; i++) {
+          list[i].remove();
+        }
+        const nick = Object.values(data).reverse();
+        renderUsers(nick);
       });
     </script>
   </body>
