@@ -34,6 +34,7 @@ io.on('connection', async (socket) => {
   socket.on('setNickname', (nickname) => {
     online[socket.id] = nickname;
     socket.emit('userNick', online);
+    io.emit('updateUsers', online);
   });
 
   io.emit('updateUsers', online);
