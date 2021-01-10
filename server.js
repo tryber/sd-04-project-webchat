@@ -43,19 +43,15 @@ io.on('connection', async (socket) => {
 
   socket.emit('previewsMessages', messages);
 
-  socket.on('message', async (data) => {
+  socket.on('message', async ({ nickname, chatMessage }) => {
     const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
     const timeS = new Date().getTime();
     // const dateTime = new Date().toLocaleString('pt-BR', { hour12: true });
-    await add(dateTime, data);
-    await addMessages(data.nickname, data.chatMessage, timeS);
-    const userData = {
-      dateTime,
-      nickname: data.nickname,
-      chatMessage: data.chatMessage,
-    };
-    socket.broadcast.emit('message', userData);
-    socket.emit('message', userData);
+    await add(dateTime, { nickname, chatMessage });
+    await addMessages(nickname, chatMessage, timeS);
+
+    socket.broadcast.emit('message', { dateTime, nickname, chatMessage });
+    socket.emit('message', { dateTime, nickname, chatMessage });
   });
   socket.on('disconnect', () => {
     delete online[socket.id];

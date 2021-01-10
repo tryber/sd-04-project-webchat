@@ -123,9 +123,8 @@
         }
       });
 
-      socket.on('message', function (message) {
-        console.log(message)
-        renderMessage(message);
+      socket.on('message', function ({ dateTime, nickname, chatMessage }) {
+        renderMessage({ dateTime, nickname, chatMessage });
       });
 
       $('#chat').submit(function () {
@@ -136,15 +135,10 @@
         const chatMessage = $('input[name=message]').val();
 
         if (nickname.length && chatMessage.length) {
-          var messageObject = {
-            // dateTime,
-            nickname,
-            chatMessage,
-          };
 
           // renderMessage(messageObject);
           document.querySelector('#message-box').value = '';
-          socket.emit('message', messageObject);
+          socket.emit('message', { nickname, chatMessage });
         }
       });
       socket.on('updateUsers', (data) => {
