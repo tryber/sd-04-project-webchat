@@ -24,7 +24,9 @@
       </button>
       <span id="nickname"></span>
       <span>Online</span>
-      <div id="onlineUser" class="onlineUsers"></div>
+      <div class="onlineUsers">
+        <ul id="onlineUser"></ul>
+      </div>
       <div class="messages"></div>
       <input
         data-testid="message-box"
@@ -40,42 +42,45 @@
     <script type="text/javascript">
       const socket = io('http://localhost:3000');
 
-      let storage = [];
-      if (localStorage.getItem('onlineUsers') !== null) {
-        storage.push(JSON.parse(localStorage.getItem('onlineUsers')));
-      }
-      socket.on('newUser', (socketId) => {
-        if ($('input[name=username]').val().length === 0) {
-          document.querySelector('#nickname').innerText = socketId;
-        }
+      let nickname = document.querySelector('#nickname');
+      const nickValue = document.querySelector('input[name="username"')
+        .innerText;
+      let users = {};
 
-        $('#nickname-save').click(function () {
-          document.querySelector('#nickname').innerText = $(
-            'input[name=username]'
-          ).val();
-          const userNick = (document.createElement('span').value = $(
-            'input[name=username]'
-          ).val());
-          document.querySelector('#onlineUser').append(userNick);
-
-          if (storage.length === 0) {
-            localStorage.setItem('onlineUsers', JSON.stringify(userNick));
-          } else {
-            // storage.push(JSON.parse(localStorage.getItem('onlineUsers')));
-            storage.push(userNick);
-            localStorage.setItem('onlineUsers', JSON.stringify(storage));
-          }
-        });
-        renderUsers(storage);
+      socket.on('newUser', (data) => {
+        nickname.innerText = data;
       });
 
-      function renderUsers(users) {
+      socket.on('updateUsers', (data) => {
+        let list = document.querySelectorAll('.list');
+        for (let i = 0; i < list.length; i++) {
+          list[i].remove();
+        }
+        const nick = Object.values(data).reverse();
+        renderUsers(nick);
+      });
+
+      $('#nickname-save').click(function () {
+        document.querySelector('#nickname').innerText = $(
+          'input[name=username]'
+        ).val();
+        socket.emit('setNickname', nickname.innerText);
+      });
+
+      socket.on('userNick', (data) => {
+        const nick = Object.values(data).reverse()[0];
+        document.querySelector('li').innerText = nick;
+      });
+
+      function renderUsers(data) {
         let element;
-        for(user of users)
-        element = document.createElement('p');
-        element.setAttribute('data-testid', 'online-user');
-        element.innerText = user;
-        document.querySelector('#onlineUser').append(element);
+        for (user of data) {
+          element = document.createElement('li');
+          element.setAttribute('data-testid', 'online-user');
+          element.setAttribute('class', 'list');
+          element.innerText = user;
+          document.querySelector('#onlineUser').appendChild(element);
+        }
       }
 
       function renderMessage(message) {
@@ -149,6 +154,9 @@
           document.querySelector('#message-box').value = '';
           socket.emit('message', messageObject);
         }
+      });
+      socket.on('updatedUser', (data) => {
+        console.log(data);
       });
     </script>
   </body>

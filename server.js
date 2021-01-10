@@ -22,12 +22,26 @@ app.use('/', (req, res) => {
   res.render('index.html');
 });
 
+const online = {};
+
+const nick = {};
+
 io.on('connection', async (socket) => {
   console.log(`Socket conectado: ${socket.id}`);
 
-  const messages = await getAll();
+  online[socket.id] = socket.id;
 
   socket.emit('newUser', socket.id);
+
+  io.emit('updateUsers', online);
+
+  socket.on('setNickname', (nickname) => {
+    nick[socket.id] = nickname;
+    socket.emit('userNick', nick);
+  });
+
+  const messages = await getAll();
+
   socket.emit('previewsMessages', messages);
 
   socket.on('message', async (data) => {
@@ -43,6 +57,10 @@ io.on('connection', async (socket) => {
     };
     socket.broadcast.emit('message', userData);
     socket.emit('message', userData);
+  });
+  socket.on('disconnect', () => {
+    delete online[socket.id];
+    io.emit('updateUsers', online);
   });
 });
 
