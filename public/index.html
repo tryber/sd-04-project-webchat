@@ -131,7 +131,7 @@
         event.preventDefault();
 
         // const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
-        const nickname = $('input[name=username]').val();
+        const nickname = document.querySelector('#nickname').innerText;
         const chatMessage = $('input[name=message]').val();
 
         if (nickname.length && chatMessage.length) {
