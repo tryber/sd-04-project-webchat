@@ -108,6 +108,7 @@
       });
 
       socket.on('message', function (data) {
+        console.log(data)
         renderMessage(data);
       });
 
@@ -122,8 +123,8 @@
 
           // renderMessage(messageObject);
           document.querySelector('#message-box').value = '';
-          const nickPlusChat = `${nickname} ${chatMessage}`
-          socket.emit('message', nickPlusChat);
+          // const nickPlusChat = `${nickname}: ${chatMessage}`
+          socket.emit('message', `${nickname}: ${chatMessage}`);
         }
       });
       socket.on('updateUsers', (data) => {

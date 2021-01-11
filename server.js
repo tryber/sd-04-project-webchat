@@ -46,13 +46,13 @@ io.on('connection', async (socket) => {
   socket.on('message', async (data) => {
     const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
     const timeS = new Date().getTime();
-    const dataToReturn = `${dateTime} - ${data}`;
+    // const dataToReturn = `${dateTime} - ${data}`;
     const dataWithTimestamp = `${data} - ${timeS}`;
-    await add(dataToReturn);
+    await add(`${dateTime} - ${data}`);
     await addMessages(dataWithTimestamp);
 
-    socket.broadcast.emit('message', dataToReturn);
-    socket.emit('message', dataToReturn);
+    socket.broadcast.emit('message', `${dateTime} - ${data}`);
+    socket.emit('message', `${dateTime} - ${data}`);
   });
   socket.on('disconnect', () => {
     delete online[socket.id];
