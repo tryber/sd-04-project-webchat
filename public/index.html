@@ -74,34 +74,18 @@
         }
       }
 
-      function renderMessage(message) {
+      function renderMessage(data) {
         if (!$('.message').length) {
           $('.messages').append(
             '<div class="message" data-testid="message">' +
-              message.dateTime +
-              ' ' +
-              '-' +
-              ' ' +
-              '<strong>' +
-              message.nickname +
-              '</strong>: ' +
-              message.chatMessage +
-              ' </div>'
+              data +' </div>'
           );
         } else {
           const newMSG = document.createElement('div');
           newMSG.setAttribute('class', 'message');
           newMSG.setAttribute('data-testid', 'message');
           newMSG.innerHTML =
-            message.dateTime +
-            ' ' +
-            '-' +
-            ' ' +
-            '<strong>' +
-            message.nickname +
-            '</strong>: ' +
-            message.chatMessage +
-            ' </div>';
+            data;
           const currentMSG = document.querySelector('.message');
           const divPai = currentMSG.parentNode;
           divPai.insertBefore(newMSG, currentMSG);
@@ -119,12 +103,12 @@
         //   return 0;
         // });
         for (message of messages) {
-          renderMessage(message);
+          renderMessage(message.message);
         }
       });
 
-      socket.on('message', function ({ dateTime, nickname, chatMessage }) {
-        renderMessage({ dateTime, nickname, chatMessage });
+      socket.on('message', function (data) {
+        renderMessage(data);
       });
 
       $('#chat').submit(function () {
@@ -138,7 +122,8 @@
 
           // renderMessage(messageObject);
           document.querySelector('#message-box').value = '';
-          socket.emit('message', { nickname, chatMessage });
+          const nickPlusChat = `${nickname} ${chatMessage}`
+          socket.emit('message', nickPlusChat);
         }
       });
       socket.on('updateUsers', (data) => {

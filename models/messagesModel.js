@@ -1,10 +1,10 @@
 const connection = require('./connection');
 
-const getAll = async () => connection().then((db) => db.collection('chats').find().toArray());
+const getAll = async () => connection().then((db) => db.collection('chat').find().toArray());
 
-const add = async (dateTime, nickChat) => {
+const add = async (message) => {
   const result = await connection().then((db) =>
-    db.collection('chats').insertOne({ dateTime, nickname: nickChat.nickname, chatMessage: nickChat.chatMessage }));
+    db.collection('chat').insertOne({ message }));
   return result.ops[0];
 };
 
