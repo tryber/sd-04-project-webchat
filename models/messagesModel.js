@@ -8,9 +8,9 @@ const add = async (message) => {
   return result.ops[0];
 };
 
-const addMessages = async (nickname, message, timestamp) => {
+const addMessages = async (message) => {
   await connection().then((db) =>
-    db.collection('messages').insertOne({ nickname, message, timestamp }));
+    db.collection('messages').insertOne({ message }));
 };
 
 module.exports = {
