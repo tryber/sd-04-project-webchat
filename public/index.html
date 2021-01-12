@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Chat</title>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <form method="POST" id="chat" class="chat">
+      <input
+        data-testid="nickname-box"
+        type="text"
+        name="username"
+        placeholder="Digite o seu usuário"
+      />
+      <button data-testid="nickname-save" type="button" id="nickname-save">
+        Escolher
+      </button>
+      <span id="nickname"></span>
+      <span>Online</span>
+      <div class="onlineUsers">
+        <ul id="onlineUser" style="list-style: none"></ul>
+      </div>
+      <div class="messages"></div>
+      <input
+        data-testid="message-box"
+        id="message-box"
+        type="text"
+        name="message"
+        placeholder="Digite a sua mensagem"
+      />
+      <button id="submitBtn" data-testid="send-button" type="submit">
+        Enviar
+      </button>
+    </form>
+    <script type="text/javascript">
+      const socket = io('http://localhost:3000');
+
+      let nickname = document.querySelector('#nickname');
+      const nickValue = document.querySelector('input[name="username"')
+        .innerText;
+      let users = {};
+
+      socket.on('newUser', (data) => {
+        nickname.innerText = data;
+      });
+
+      $('#nickname-save').click(function () {
+        document.querySelector('#nickname').innerText = $(
+          'input[name=username]'
+        ).val();
+        socket.emit('setNickname', nickname.innerText);
+      });
+
+      socket.on('userNick', (data) => {
+        const nick = Object.values(data).reverse()[0];
+        document.querySelector('li').innerText = nick;
+      });
+
+      function renderUsers(data) {
+        let element;
+        for (user of data) {
+          element = document.createElement('li');
+          element.setAttribute('data-testid', 'online-user');
+          element.setAttribute('class', 'list');
+          element.innerText = user;
+          document.querySelector('#onlineUser').appendChild(element);
+        }
+      }
+
+      function renderMessage(data) {
+        if (!$('.message').length) {
+          $('.messages').append(
+            '<div class="message" data-testid="message">' +
+              data +' </div>'
+          );
+        } else {
+          const newMSG = document.createElement('div');
+          newMSG.setAttribute('class', 'message');
+          newMSG.setAttribute('data-testid', 'message');
+          newMSG.innerHTML =
+            data;
+          const currentMSG = document.querySelector('.message');
+          const divPai = currentMSG.parentNode;
+          divPai.insertBefore(newMSG, currentMSG);
+        }
+      }
+
+      socket.on('previewsMessages', function (messages) {
+        // messages.sort(function (a, b) {
+        //   if (a.dateTime > b.dateTime) {
+        //     return -1;
+        //   }
+        //   if (a.name < b.name) {
+        //     return 1;
+        //   }
+        //   return 0;
+        // });
+        for (message of messages) {
+          renderMessage(message.message);
+        }
+      });
+
+      socket.on('message', function (data) {
+        renderMessage(data);
+      });
+
+      $('#chat').submit(function () {
+        event.preventDefault();
+
+        // const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
+        const nickname = document.querySelector('#nickname').innerText;
+        const chatMessage = $('input[name=message]').val();
+
+        if (nickname.length && chatMessage.length) {
+
+          // renderMessage(messageObject);
+          document.querySelector('#message-box').value = '';
+          // const nickPlusChat = `${nickname}: ${chatMessage}`
+          socket.emit('message', `${nickname}: ${chatMessage}`);
+        }
+      });
+      socket.on('updateUsers', (data) => {
+        let list = document.querySelectorAll('.list');
+        for (let i = 0; i < list.length; i++) {
+          list[i].remove();
+        }
+        const nick = Object.values(data).reverse();
+        renderUsers(nick);
+      });
+    </script>
+  </body>
+</html>
