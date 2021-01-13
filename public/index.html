@@ -3,13 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-         <!--Import Google Icon Font-->
-         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-         <!--Import materialize.css-->
-         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- <link rel="stylesheet" href=" style.css"> -->
+    <script src="/socket.io/socket.io.js"></script>
     <title>Chat</title>
 </head>
 <body>
-<!-- refazer -->
+    <div class="wrapper">
+        <div class="container">
+            <div class="left">
+                <ul class="users">
+                    <li><h4>MyName</h4></li>
+                    <li class="user">James</li>
+                    <li class="user">Harry</li>
+                </ul>
+            </div>
+            <div class="right">
+                <form class="form" id="form-chat">
+                    <input type="text" placeholder="Your nickname" id="nickname-input" class="input" /><br />
+                    <input type="text" placeholder="Your message" id="message-input" class="input" />
+                    <button type="submit" id="btn-form">Send</button>
+                </form>
+                <div class="chat">
+                    <br />
+                    
+                </div>            
+            </div>
+        </div>
+    </div>
+<script>
+    const socket = io();
+
+    const form = document.querySelector('#form-chat');
+    const nickname = document.querySelector('#nickname-input');
+    const message = document.querySelector('#message-input');
+    const users = document.querySelector('#users');
+    const chat = document.querySelector('.chat');
+
+    const showMessage = (message) => {
+        const p = document.createElement('p');
+        p.classList = 'message';
+        p.setAttribute('data-testid', 'message')
+        p.innerText = message;
+        chat.appendChild(p);
+    }
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const msg = { chatMessage: message.value, nickname: nickname.value }
+        console.log('msg', msg)
+        socket.emit('message', msg);
+        message.value = '';
+        message.focus();
+    });
+
+    socket.on('message', (message) => {
+        showMessage(message)
+    })
+
+    socket.on('onlineUsers', (members) => {
+        console.log('users', members)
+    })
+</script>
 </body>
 </html>
