@@ -6,14 +6,18 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
-const { addMessage } = require('./models/messagesModel');
+const { addMessage, getMessages } = require('./models/messagesModel');
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
 const user = {};
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   console.log(`${socket.id} conectado!`);
+
+  const history = await getMessages();
+
+  io.emit('history', history);
 
   socket.emit('newUser', socket.id);
 
@@ -25,7 +29,7 @@ io.on('connection', (socket) => {
     const dateTime = new Date().getTime();
     const dateToUser = moment(dateTime).format('DD-MM-yyyy h:mm:ss A');
     const message = `${dateToUser} - ${data.nickname}: ${data.chatMessage}`;
-    await addMessage(message);
+    await addMessage(data.nickname, data.chatMessage, dateTime);
     io.emit('message', message);
   });
 });

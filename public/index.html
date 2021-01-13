@@ -5,14 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Web chat</title>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   </head>
   <body>
     <form>
-      <input data-testid="nickname-box" id="nickname" type="text" placeholder="nickname" />
-      <button data-testid="nickname-save" id="nickBtn" type="button">select</button>
+      <input
+        data-testid="nickname-box"
+        id="nickname"
+        type="text"
+        placeholder="nickname"
+      />
+      <button data-testid="nickname-save" id="nickBtn" type="button">
+        select
+      </button>
       <span id="chosenNick"></span>
-      <br>
-      <input data-testid="message-box" id="messageBox" type="text" placeholder="type your message" />
+      <br />
+      <input
+        data-testid="message-box"
+        id="messageBox"
+        type="text"
+        placeholder="type your message"
+      />
       <button data-testid="send-button" id="msgBtn" type="button">send</button>
       <div>
         <ul id="messagesList" style="list-style: none"></ul>
@@ -27,6 +40,24 @@
       const messageBox = document.querySelector('#messageBox');
       const msgBtn = document.querySelector('#msgBtn');
       const msgList = document.querySelector('#messagesList');
+
+      socket.on('history', (data) => {
+        const reversedData = Object.values(data).reverse();
+        const date = moment(reversedData.timestamp).format('DD-MM-yyyy h:mm:ss A');
+        let li = '';
+        if (document.querySelectorAll('li')) {
+          li = document.querySelectorAll('li');
+          for (list of li) {
+            list.remove();
+          }
+        }
+        for (dt of reversedData) {
+          li = document.createElement('li');
+          li.setAttribute('data-testid', 'message');
+          li.innerText = `${date} - ${dt.nickname}: ${dt.chatMessage}`;
+          msgList.appendChild(li);
+        }
+      });
 
       socket.on('newUser', (data) => {
         chosenNick.innerText = data;
@@ -48,7 +79,7 @@
         li.setAttribute('data-testid', 'message');
         li.innerText = data;
         msgList.appendChild(li);
-      })
+      });
     </script>
   </body>
 </html>
