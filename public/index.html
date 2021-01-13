@@ -19,6 +19,9 @@
         select
       </button>
       <span id="chosenNick"></span>
+      <div>
+        <ul id="onlineUser"></ul>
+      </div>
       <br />
       <input
         data-testid="message-box"
@@ -40,6 +43,26 @@
       const messageBox = document.querySelector('#messageBox');
       const msgBtn = document.querySelector('#msgBtn');
       const msgList = document.querySelector('#messagesList');
+
+      function renderUsers(data) {
+        let element;
+        for (user of data) {
+          element = document.createElement('li');
+          element.setAttribute('data-testid', 'online-user');
+          element.setAttribute('class', 'online');
+          element.innerText = user;
+          document.querySelector('#onlineUser').appendChild(element);
+        }
+      }
+
+      socket.on('updateUsers', (data) => {
+        const users = Object.values(data);
+        let list = document.querySelectorAll('.online');
+        for (let i = 0; i < list.length; i++) {
+          list[i].remove();
+        }
+        renderUsers(users);
+      })
 
       socket.on('history', (data) => {
         const reversedData = Object.values(data).reverse();
@@ -72,6 +95,7 @@
         const chatMessage = messageBox.value;
         const nickname = chosenNick.innerText;
         socket.emit('message', { chatMessage, nickname });
+        messageBox.value = '';
       });
 
       socket.on('message', (data) => {

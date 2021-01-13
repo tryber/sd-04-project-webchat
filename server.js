@@ -10,10 +10,12 @@ const { addMessage, getMessages } = require('./models/messagesModel');
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-const user = {};
+const online = {};
 
 io.on('connection', async (socket) => {
   console.log(`${socket.id} conectado!`);
+
+  online[socket.id] = socket.id;
 
   const history = await getMessages();
 
@@ -22,8 +24,11 @@ io.on('connection', async (socket) => {
   socket.emit('newUser', socket.id);
 
   socket.on('chosenNick', (data) => {
-    user[socket.id] = data;
+    online[socket.id] = data;
+    io.emit('updateUsers', online);
   });
+
+  io.emit('updateUsers', online);
 
   socket.on('message', async (data) => {
     const dateTime = new Date().getTime();
@@ -31,6 +36,11 @@ io.on('connection', async (socket) => {
     const message = `${dateToUser} - ${data.nickname}: ${data.chatMessage}`;
     await addMessage(data.nickname, data.chatMessage, dateTime);
     io.emit('message', message);
+  });
+
+  socket.on('disconnect', () => {
+    delete online[socket.id];
+    io.emit('updateUsers', online);
   });
 });
 
