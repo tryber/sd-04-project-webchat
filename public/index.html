@@ -8,12 +8,12 @@
   </head>
   <body>
     <form>
-      <input id="nickname" type="text" placeholder="nickname" />
-      <button id="nickBtn" type="button">select</button>
+      <input data-testid="nickname-box" id="nickname" type="text" placeholder="nickname" />
+      <button data-testid="nickname-save" id="nickBtn" type="button">select</button>
       <span id="chosenNick"></span>
       <br>
-      <input id="messageBox" type="text" placeholder="type your message" />
-      <button id="msgBtn" type="button">send</button>
+      <input data-testid="message-box" id="messageBox" type="text" placeholder="type your message" />
+      <button data-testid="send-button" id="msgBtn" type="button">send</button>
       <div>
         <ul id="messagesList" style="list-style: none"></ul>
       </div>
@@ -45,6 +45,7 @@
 
       socket.on('message', (data) => {
         const li = document.createElement('li');
+        li.setAttribute('data-testid', 'message');
         li.innerText = data;
         msgList.appendChild(li);
       })
