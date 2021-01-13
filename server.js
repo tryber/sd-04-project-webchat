@@ -6,7 +6,7 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
-const { addMessage, getMessages } = require('./models/messagesModel');
+const { addMessage } = require('./models/messagesModel');
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
