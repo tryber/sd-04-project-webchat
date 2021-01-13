@@ -1,20 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web chat</title>
-  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-</head>
-<body>
-  <h1></h1>
-  <script>
-    const socket = io('http://localhost:3000');
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web chat</title>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <form>
+      <input id="nickname" type="text" placeholder="nickname" />
+      <button id="nickBtn" type="button">select</button>
+      <span id="chosenNick"></span>
+      <br>
+      <input id="messageBox" type="text" placeholder="type your message" />
+      <button id="msgBtn" type="button">send</button>
+      <div>
+        <ul id="messagesList" style="list-style: none"></ul>
+      </div>
+    </form>
+    <script>
+      const socket = io('http://localhost:3000');
 
-    const h1 = document.querySelector('h1');
-    socket.on('teste', (data) => {
-      h1.innerText = data;
-    })
-  </script>
-</body>
+      const nickName = document.querySelector('#nickname');
+      const nickBtn = document.querySelector('#nickBtn');
+      const chosenNick = document.querySelector('#chosenNick');
+      const messageBox = document.querySelector('#messageBox');
+      const msgBtn = document.querySelector('#msgBtn');
+      const msgList = document.querySelector('#messagesList');
+
+      socket.on('newUser', (data) => {
+        chosenNick.innerText = data;
+      });
+
+      nickBtn.addEventListener('click', () => {
+        chosenNick.innerHTML = nickName.value;
+        socket.emit('chosenNick', nickName.value);
+      });
+
+      msgBtn.addEventListener('click', () => {
+        const chatMessage = messageBox.value;
+        const nickname = chosenNick.innerText;
+        socket.emit('message', { chatMessage, nickname });
+      });
+
+      socket.on('message', (data) => {
+        const li = document.createElement('li');
+        li.innerText = data;
+        msgList.appendChild(li);
+      })
+    </script>
+  </body>
 </html>
