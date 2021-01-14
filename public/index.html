@@ -12,21 +12,17 @@
         <div class="container">
             <div class="left">
                 <ul class="users">
-                    <li><h4>MyName</h4></li>
-                    <li class="user">James</li>
-                    <li class="user">Harry</li>
+                    <li><h4 id="mynick">Anonymous</h4></li>
                 </ul>
             </div>
             <div class="right">
                 <form class="form" id="form-chat">
                     <input type="text" placeholder="Your nickname" id="nickname-input" class="input" /><br />
+                    <div class="chat"></div> 
                     <input type="text" placeholder="Your message" id="message-input" class="input" />
                     <button type="submit" id="btn-form">Send</button>
                 </form>
-                <div class="chat">
-                    <br />
-                    
-                </div>            
+                           
             </div>
         </div>
     </div>
@@ -34,10 +30,11 @@
     const socket = io();
 
     const form = document.querySelector('#form-chat');
+    const userList = document.querySelector('.users');
+    const chat = document.querySelector('.chat');
     const nickname = document.querySelector('#nickname-input');
     const message = document.querySelector('#message-input');
-    const users = document.querySelector('#users');
-    const chat = document.querySelector('.chat');
+    const myNick = document.querySelector('#mynick');
 
     const showMessage = (message) => {
         const p = document.createElement('p');
@@ -49,8 +46,11 @@
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
+
+        myNick.innerText = nickname.value
+
         const msg = { chatMessage: message.value, nickname: nickname.value }
-        console.log('msg', msg)
+        // console.log('msg', msg)
         socket.emit('message', msg);
         message.value = '';
         message.focus();
@@ -58,11 +58,24 @@
 
     socket.on('message', (message) => {
         showMessage(message)
-    })
+    });
 
-    socket.on('onlineUsers', (members) => {
-        console.log('users', members)
-    })
+    socket.on('history', (messages) => {
+        messages.forEach(message => {
+            const msg = `${message.timestamp} - ${message.nickname}: ${message.chatMessage}`
+            showMessage(msg);
+        })
+    });
+
+    socket.on('onlineUsers', (arr) => {
+        userList.innerHTML = '<li><h4 id="mynick">Anonymous</h4></li>';      
+        arr.forEach(user => {
+            const li = document.createElement('li');          
+            li.innerText = user.nickname;
+            userList.appendChild(li)
+        })
+    });
+
 </script>
 </body>
 </html>
