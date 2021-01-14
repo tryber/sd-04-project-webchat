@@ -44,8 +44,10 @@ io.on('connection', async (socket) => {
   socket.on('privateMessage', (data) => {
     const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
     const message = `${dateTime} (private) - ${data.nickname}: ${data.chatMessage}`;
-    const userKey = getKeyByValue(online, data.privateReceiver);
-    io.to(userKey).emit('new privateMessage', message);
+    const sender = getKeyByValue(online, data.nickname);
+    const receiver = getKeyByValue(online, data.privateReceiver);
+    io.to(sender).emit('new privateMessageSender', message);
+    io.to(receiver).emit('new privateMessage', message);
   });
 
   socket.on('disconnect', () => {

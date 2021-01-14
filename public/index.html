@@ -144,9 +144,16 @@
         msgList.appendChild(li);
       });
 
+      socket.on('new privateMessageSender', (data) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'message');
+        li.innerText = data;
+        privateMsgList.appendChild(li);
+      });
+
       socket.on('new privateMessage', (data) => {
         const li = document.createElement('li');
-        li.setAttribute('data-testid', 'Pmessage');
+        li.setAttribute('data-testid', 'message');
         li.innerText = data;
         privateMsgList.appendChild(li);
       });
