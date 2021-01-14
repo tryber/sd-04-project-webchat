@@ -38,6 +38,16 @@ io.on('connection', async (socket) => {
     io.emit('message', message);
   });
 
+  function getKeyByValue(object, value) {
+    return Object.keys(object).find((key) => object[key] === value);
+  }
+  socket.on('privateMessage', (data) => {
+    const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
+    const message = `${dateTime} (private) - ${data.nickname}: ${data.chatMessage}`;
+    const userKey = getKeyByValue(online, data.privateReceiver);
+    io.to(userKey).emit('new privateMessage', message);
+  });
+
   socket.on('disconnect', () => {
     delete online[socket.id];
     io.emit('updateUsers', online);

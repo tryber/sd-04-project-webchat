@@ -33,6 +33,10 @@
       <div>
         <ul id="messagesList" style="list-style: none"></ul>
       </div>
+      <div>
+        <button data-testid="public" type="button" id="public">Public Chat</button>
+        <ul id="privateMessages"></ul>
+      </div>
     </form>
     <script>
       const socket = io('http://localhost:3000');
@@ -43,17 +47,43 @@
       const messageBox = document.querySelector('#messageBox');
       const msgBtn = document.querySelector('#msgBtn');
       const msgList = document.querySelector('#messagesList');
+      const privateMsgList = document.querySelector('#privateMessages');
+      let privateMessage = false;
+      let privateReceiver = '';
 
       function renderUsers(data) {
         let element;
+        let privateChat;
+        let publicChat;
         for (user of data) {
+          privateChat = document.createElement('button');
+          privateChat.setAttribute('type', 'button');
+          privateChat.setAttribute('data-testid', 'private');
+          privateChat.setAttribute('onClick', 'privateAction(this.innerText)');
+          privateChat.innerText = user;
+          if (privateChat.innerText === chosenNick.innerText) {
+          privateChat.setAttribute('disabled', 'disabled');
+        }
+
           element = document.createElement('li');
           element.setAttribute('data-testid', 'online-user');
           element.setAttribute('class', 'online');
           element.innerText = user;
+          element.appendChild(privateChat);
           document.querySelector('#onlineUser').appendChild(element);
         }
+        const privateChatBtn = document.querySelector('#private');
+        const publicChatBtn = document.querySelector('#public');
+
+        publicChatBtn.addEventListener('click', () => {
+          privateMessage = false;
+        });
       }
+
+      function privateAction (clickedUser) {
+          privateMessage = true;
+          privateReceiver = clickedUser;
+        };
 
       socket.on('updateUsers', (data) => {
         const users = Object.values(data);
@@ -62,11 +92,13 @@
           list[i].remove();
         }
         renderUsers(users);
-      })
+      });
 
       socket.on('history', (data) => {
         const reversedData = Object.values(data).reverse();
-        const date = moment(reversedData.timestamp).format('DD-MM-yyyy h:mm:ss A');
+        const date = moment(reversedData.timestamp).format(
+          'DD-MM-yyyy h:mm:ss A'
+        );
         let li = '';
         if (document.querySelectorAll('li')) {
           li = document.querySelectorAll('li');
@@ -92,10 +124,17 @@
       });
 
       msgBtn.addEventListener('click', () => {
-        const chatMessage = messageBox.value;
-        const nickname = chosenNick.innerText;
-        socket.emit('message', { chatMessage, nickname });
-        messageBox.value = '';
+        if (privateMessage === false) {
+          const chatMessage = messageBox.value;
+          const nickname = chosenNick.innerText;
+          socket.emit('message', { chatMessage, nickname });
+          messageBox.value = '';
+        } else {
+          const chatMessage = messageBox.value;
+          const nickname = chosenNick.innerText;
+          socket.emit('privateMessage', { chatMessage, nickname, privateReceiver });
+          messageBox.value = '';
+        }
       });
 
       socket.on('message', (data) => {
@@ -103,6 +142,13 @@
         li.setAttribute('data-testid', 'message');
         li.innerText = data;
         msgList.appendChild(li);
+      });
+
+      socket.on('new privateMessage', (data) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'Pmessage');
+        li.innerText = data;
+        privateMsgList.appendChild(li);
       });
     </script>
   </body>
