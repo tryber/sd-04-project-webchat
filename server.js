@@ -48,7 +48,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('disconnect', () => {
-    users = users.filter((user) => socket.id !== user.id);
+    users = users.filter((person) => socket.id !== person.id);
     io.emit('onlineUsers', users);
   });
 });
