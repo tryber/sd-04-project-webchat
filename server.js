@@ -19,9 +19,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 let users = [];
 
-const formatMessage = (nickname, message, timestamp) => {
-  return `${timestamp} - ${nickname}: ${message}`;
-};
+const formatMessage = (nickname, message, timestamp) =>
+  `${timestamp} - ${nickname}: ${message}`;
 
 // Conexão
 io.on('connection', async (socket) => {
