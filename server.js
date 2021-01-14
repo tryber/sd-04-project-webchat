@@ -25,33 +25,33 @@ const formatMessage = (nickname, message, timestamp) => {
 
 // Conexão
 io.on('connection', async (socket) => {
-	const user = {
-		id: socket.id,
-	}
-	
- 	const history = await Model.getMessages();
-	socket.emit('history', history);  
-	  
-	socket.broadcast.emit('message', 'New user logged');
+  const user = {
+    id: socket.id,
+  };
 
-	socket.on('changeNick', nickname => {
-		user.nickname = nickname;
-		users.push(user);
-		io.emit('onlineUsers', users)
-	})
+  const history = await Model.getMessages();
+  socket.emit('history', history);
 
-  	socket.on('message', async ({ chatMessage, nickname }) => {
-   		const date = Date.now();
-   		const time = moment(date).format('DD-MM-YYYY h:mm:ss a');
-		io.emit('message', formatMessage(nickname, chatMessage, time));
-    	// save in BD
-    	await Model.saveMessage(chatMessage, nickname, time);
-  	});
+  socket.broadcast.emit('message', 'New user logged');
 
-  	socket.on('disconnect', () => {
-		users = users.filter(user => socket.id !== user.id)
-		io.emit('onlineUsers', users)
-	});
+  socket.on('changeNick', (nickname) => {
+    user.nickname = nickname;
+    users.push(user);
+    io.emit('onlineUsers', users);
+  });
+
+  socket.on('message', async ({ chatMessage, nickname }) => {
+    const date = Date.now();
+    const time = moment(date).format('DD-MM-YYYY h:mm:ss a');
+    io.emit('message', formatMessage(nickname, chatMessage, time));
+    // save in BD
+    await Model.saveMessage(chatMessage, nickname, time);
+  });
+
+  socket.on('disconnect', () => {
+    users = users.filter((user) => socket.id !== user.id);
+    io.emit('onlineUsers', users);
+  });
 });
 
 server.listen(PORT, () => console.log(`Ouvindo na porta ${PORT}`));
