@@ -6,7 +6,12 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
-const { addMessage, getMessages } = require('./models/messagesModel');
+const {
+  addMessage,
+  getMessages,
+  addPrivateMessage,
+  getPrivateMessages,
+} = require('./models/messagesModel');
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
@@ -20,6 +25,20 @@ io.on('connection', async (socket) => {
   const history = await getMessages();
 
   io.emit('history', history);
+
+  socket.on('newHistory', async () => {
+    const newHistory = await getMessages();
+    socket.emit('renderNewHistory', newHistory);
+  });
+
+  const privateHistory = await getPrivateMessages();
+
+  io.emit('privateHistory', privateHistory);
+
+  socket.on('privateHistory', async (selectedUser) => {
+    const newPrivateHistory = await getPrivateMessages();
+    socket.emit('renderPrivateHistory', { newPrivateHistory, selectedUser });
+  });
 
   socket.emit('newUser', socket.id);
 
@@ -46,6 +65,7 @@ io.on('connection', async (socket) => {
     const message = `${dateTime} (private) - ${data.nickname}: ${data.chatMessage}`;
     const sender = getKeyByValue(online, data.nickname);
     const receiver = getKeyByValue(online, data.privateReceiver);
+    addPrivateMessage(data.nickname, data.chatMessage, dateTime);
     io.to(sender).emit('new privateMessageSender', message);
     io.to(receiver).emit('new privateMessage', message);
   });

@@ -34,7 +34,12 @@
         <ul id="messagesList" style="list-style: none"></ul>
       </div>
       <div>
-        <button data-testid="public" type="button" id="public">Public Chat</button>
+        <button data-testid="private" type="button" id="private">
+          Private Chat
+        </button>
+        <button data-testid="public" type="button" id="public">
+          Public Chat
+        </button>
         <ul id="privateMessages"></ul>
       </div>
     </form>
@@ -48,42 +53,108 @@
       const msgBtn = document.querySelector('#msgBtn');
       const msgList = document.querySelector('#messagesList');
       const privateMsgList = document.querySelector('#privateMessages');
+      const publicChatBtn = document.querySelector('#public');
+      const privateChatBtn = document.querySelector('#private');
       let privateMessage = false;
       let privateReceiver = '';
 
+      function setReceiver(data) {
+        privateReceiver = data;
+      }
+
+      privateChatBtn.setAttribute('onClick', 'privateAction()');
+
       function renderUsers(data) {
         let element;
-        let privateChat;
+        let onlineUser;
         let publicChat;
         for (user of data) {
-          privateChat = document.createElement('button');
-          privateChat.setAttribute('type', 'button');
-          privateChat.setAttribute('data-testid', 'private');
-          privateChat.setAttribute('onClick', 'privateAction(this.innerText)');
-          privateChat.innerText = user;
-          if (privateChat.innerText === chosenNick.innerText) {
-          privateChat.setAttribute('disabled', 'disabled');
-        }
+          onlineUser = document.createElement('button');
+          onlineUser.setAttribute('type', 'button');
+          onlineUser.setAttribute('class', 'onlineUserButton');
+          onlineUser.setAttribute('onClick', 'setReceiver(this.innerText)');
+          onlineUser.innerText = user;
+
+          if (user === chosenNick.innerText) {
+            onlineUser.setAttribute('disabled', 'disabled');
+          }
 
           element = document.createElement('li');
           element.setAttribute('data-testid', 'online-user');
           element.setAttribute('class', 'online');
-          // element.innerText = user;
-          element.appendChild(privateChat);
+          element.appendChild(onlineUser);
           document.querySelector('#onlineUser').appendChild(element);
         }
-        const privateChatBtn = document.querySelector('#private');
-        const publicChatBtn = document.querySelector('#public');
 
         publicChatBtn.addEventListener('click', () => {
+          privateReceiver = '';
           privateMessage = false;
+          if (document.querySelectorAll('.privateLi').length > 0) {
+            const privateList = document.querySelectorAll('.privateLi');
+            for (li of privateList) {
+              li.remove();
+            }
+          }
+          socket.emit('newHistory', '');
+          socket.on('renderNewHistory', (data) => {
+            const reversedData = Object.values(data).reverse();
+            const date = moment(reversedData.timestamp).format(
+              'DD-MM-yyyy h:mm:ss A'
+            );
+            let li = '';
+            if (document.querySelectorAll('.publicLi')) {
+              li = document.querySelectorAll('.publicLi');
+              for (list of li) {
+                list.remove();
+              }
+            }
+            for (dt of reversedData) {
+              li = document.createElement('li');
+              li.setAttribute('data-testid', 'message');
+              li.setAttribute('class', 'publicLi');
+              li.innerText = `${date} - ${dt.nickname}: ${dt.chatMessage}`;
+              msgList.appendChild(li);
+            }
+          });
         });
       }
 
-      function privateAction (clickedUser) {
-          privateMessage = true;
-          privateReceiver = clickedUser;
-        };
+      function privateAction() {
+        privateMessage = true;
+        if (document.querySelectorAll('.publicLi').length > 0) {
+          const publicList = document.querySelectorAll('.publicLi');
+          for (li of publicList) {
+            li.remove();
+          }
+        }
+        socket.emit('privateHistory', privateReceiver);
+        socket.on('renderPrivateHistory', (data) => {
+          for (nick of data.newPrivateHistory) {
+            if (
+              nick.nickname === chosenNick.innerText ||
+              privateReceiver === chosenNick.innerText
+            ) {
+              const reversedData = Object.values(
+                data.newPrivateHistory
+              ).reverse();
+              let li = '';
+              if (document.querySelectorAll('.privateLi')) {
+                li = document.querySelectorAll('.privateLi');
+                for (list of li) {
+                  list.remove();
+                }
+              }
+              for (dt of reversedData) {
+                li = document.createElement('li');
+                li.setAttribute('data-testid', 'message');
+                li.setAttribute('class', 'privateLi');
+                li.innerText = `${dt.dateTime} (private) - ${dt.nickname}: ${dt.chatMessage}`;
+                privateMsgList.appendChild(li);
+              }
+            }
+          }
+        });
+      }
 
       socket.on('updateUsers', (data) => {
         const users = Object.values(data);
@@ -100,8 +171,8 @@
           'DD-MM-yyyy h:mm:ss A'
         );
         let li = '';
-        if (document.querySelectorAll('li')) {
-          li = document.querySelectorAll('li');
+        if (document.querySelectorAll('.publicLi')) {
+          li = document.querySelectorAll('.publicLi');
           for (list of li) {
             list.remove();
           }
@@ -109,6 +180,7 @@
         for (dt of reversedData) {
           li = document.createElement('li');
           li.setAttribute('data-testid', 'message');
+          li.setAttribute('class', 'publicLi');
           li.innerText = `${date} - ${dt.nickname}: ${dt.chatMessage}`;
           msgList.appendChild(li);
         }
@@ -124,22 +196,46 @@
       });
 
       msgBtn.addEventListener('click', () => {
-        if (privateMessage === false) {
+        if (privateReceiver === '') {
+          if (document.querySelectorAll('.privateLi').length > 0) {
+            const privateList = document.querySelectorAll('.privateLi');
+            for (li of privateList) {
+              li.remove();
+            }
+          }
           const chatMessage = messageBox.value;
           const nickname = chosenNick.innerText;
           socket.emit('message', { chatMessage, nickname });
           messageBox.value = '';
         } else {
+          if (document.querySelectorAll('.publicLi').length > 0) {
+            const publicList = document.querySelectorAll('.publicLi');
+            for (li of publicList) {
+              li.remove();
+            }
+          }
+          const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
           const chatMessage = messageBox.value;
           const nickname = chosenNick.innerText;
-          socket.emit('privateMessage', { chatMessage, nickname, privateReceiver });
+          socket.emit('privateMessage', {
+            chatMessage,
+            nickname,
+            privateReceiver,
+          });
           messageBox.value = '';
         }
       });
 
       socket.on('message', (data) => {
+        if (document.querySelectorAll('.privateLi').length > 0) {
+          const privateList = document.querySelectorAll('.privateLi');
+          for (list of privateList) {
+            list.remove();
+          }
+        }
         const li = document.createElement('li');
         li.setAttribute('data-testid', 'message');
+        li.setAttribute('class', 'publicLi');
         li.innerText = data;
         msgList.appendChild(li);
       });
@@ -147,13 +243,21 @@
       socket.on('new privateMessageSender', (data) => {
         const li = document.createElement('li');
         li.setAttribute('data-testid', 'message');
+        li.setAttribute('class', 'privateLi');
         li.innerText = data;
         privateMsgList.appendChild(li);
       });
 
       socket.on('new privateMessage', (data) => {
+        if (document.querySelectorAll('.publicLi').length > 0) {
+          const publicList = document.querySelectorAll('.publicLi');
+          for (list of publicList) {
+            list.remove();
+          }
+        }
         const li = document.createElement('li');
         li.setAttribute('data-testid', 'message');
+        li.setAttribute('class', 'privateLi');
         li.innerText = data;
         privateMsgList.appendChild(li);
       });
