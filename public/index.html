@@ -77,14 +77,9 @@
         userList.innerHTML = '';      
         arr.forEach(user => {
             const li = document.createElement('li');
-            const btn = document.createElement('button');
-            btn.setAttribute('data-testid', 'private');
-            btn.className = 'btn-private';
-            btn.innerText = 'Chat Privado';
             li.setAttribute('data-testid', 'online-user')          
             li.innerText = user.nickname;
-            li.appendChild(btn);
-            userList.appendChild(li);
+            userList.appendChild(li)
         })
     });
 
