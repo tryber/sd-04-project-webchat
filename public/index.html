@@ -124,10 +124,10 @@
         socket.emit('privateHistory', privateReceiver);
         socket.on('renderPrivateHistory', (data) => {
           for (nick of data.newPrivateHistory) {
-            if (
-              nick.nickname === chosenNick.innerText ||
-              privateReceiver === chosenNick.innerText
-            ) {
+            // if (
+            //   nick.nickname === chosenNick.innerText ||
+            //   privateReceiver === chosenNick.innerText
+            // ) {
               const reversedData = Object.values(
                 data.newPrivateHistory
               ).reverse();
@@ -145,7 +145,7 @@
                 li.innerText = `${dt.dateTime} (private) - ${dt.nickname}: ${dt.chatMessage}`;
                 privateMsgList.appendChild(li);
               }
-            }
+            // }
           }
         });
       }
@@ -221,12 +221,12 @@
       });
 
       socket.on('message', (data) => {
-        if (document.querySelectorAll('.privateLi').length > 0) {
-          const privateList = document.querySelectorAll('.privateLi');
-          for (list of privateList) {
-            list.remove();
-          }
-        }
+        // if (document.querySelectorAll('.privateLi').length > 0) {
+        //   const privateList = document.querySelectorAll('.privateLi');
+        //   for (list of privateList) {
+        //     list.remove();
+        //   }
+        // }
         const li = document.createElement('li');
         li.setAttribute('data-testid', 'message');
         li.setAttribute('class', 'publicLi');
@@ -243,17 +243,17 @@
       });
 
       socket.on('new privateMessage', (data) => {
-        if (document.querySelectorAll('.publicLi').length > 0) {
-          const publicList = document.querySelectorAll('.publicLi');
-          for (list of publicList) {
-            list.remove();
-          }
-        }
+        // if (document.querySelectorAll('.publicLi').length > 0) {
+        //   const publicList = document.querySelectorAll('.publicLi');
+        //   for (list of publicList) {
+        //     list.remove();
+        //   }
+        // }
         const li = document.createElement('li');
         li.setAttribute('data-testid', 'message');
         li.setAttribute('class', 'privateLi');
         li.innerText = data;
-        privateMsgList.appendChild(li);
+        // privateMsgList.appendChild(li);
       });
     </script>
   </body>
