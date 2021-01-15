@@ -51,7 +51,7 @@
     btnMsg.addEventListener('click', (e) => {
         e.preventDefault();
         let msg = {};
-        if (nickname.value === ''){
+        if (nicknameInput.value === ''){
             msg = { chatMessage: message.value, nickname: 'Anonymous' }
         } else {
             msg = { chatMessage: message.value, nickname: nicknameInput.value }
