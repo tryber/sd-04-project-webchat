@@ -17,17 +17,16 @@
     </header>
     <div id="main">
       <div id="chat">
-        <div>
-          <ul id="chat-container">
-          </ul>
+        <div id="chat-container">
+          <p>Bem vindo <span id="title-nickname"></span></p>
         </div>
         <form>
           <textarea type='text' id="msg-input" data-testid="message-box" rows='3'></textarea>
           <button type='submit' id="send-msg" data-testid="send-button">Enviar</button>
         </form>
       </div>
-      <div>
-        <label>Nickname</label>
+      <div id="users">
+        <label>Nickname</label><br>
         <input type="text" data-testid="nickname-box" id="input-name"/>
         <button type="button" id="save-name" data-testid="nickname-save">Salvar</button>
       </div>
@@ -66,11 +65,10 @@
 
       // função renderiza a mensagem
       function renderMessage(msg) {
-        const li = document.createElement('li');
-        li.innerText = msg;
-        li.setAttribute('data-testid', 'message');
-        li.classList.add('msg');
-        chatContainer.appendChild(li);
+        const p = document.createElement('p');
+        p.innerText = msg;
+        p.setAttribute('data-testid', 'message');
+        chatContainer.appendChild(p);
         inputMsg.value = '';
       };
 

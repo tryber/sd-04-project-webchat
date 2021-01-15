@@ -39,7 +39,7 @@ io.on('connection', async (socket) => {
   socket.on('message', async (message) => { // emite e salva mensagens
     const time = moment(new Date()).format('DD-MM-YYYY h:mm:ss a');
     const fullMsgString = `${time} - ${message.nickname}: ${message.chatMessage}`;
-    await createMsg(message.nickname, message.chatMessage, time);
+    await createMsg(message.chatMessage, message.nickname, time);
     io.emit('message', fullMsgString);
   });
 
