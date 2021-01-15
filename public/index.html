@@ -34,9 +34,6 @@
         <ul id="messagesList" style="list-style: none"></ul>
       </div>
       <div>
-        <button data-testid="private" type="button" id="private">
-          Private Chat
-        </button>
         <button data-testid="public" type="button" id="public">
           Public Chat
         </button>
@@ -58,12 +55,6 @@
       let privateMessage = false;
       let privateReceiver = '';
 
-      function setReceiver(data) {
-        privateReceiver = data;
-      }
-
-      privateChatBtn.setAttribute('onClick', 'privateAction()');
-
       function renderUsers(data) {
         let element;
         let onlineUser;
@@ -71,8 +62,10 @@
         for (user of data) {
           onlineUser = document.createElement('button');
           onlineUser.setAttribute('type', 'button');
+          onlineUser.setAttribute('id', 'private');
+          onlineUser.setAttribute('data-testid', 'private');
           onlineUser.setAttribute('class', 'onlineUserButton');
-          onlineUser.setAttribute('onClick', 'setReceiver(this.innerText)');
+          onlineUser.setAttribute('onClick', 'privateAction(this.innerText)');
           onlineUser.innerText = user;
 
           if (user === chosenNick.innerText) {
@@ -119,7 +112,8 @@
         });
       }
 
-      function privateAction() {
+      function privateAction(data) {
+        privateReceiver = data;
         privateMessage = true;
         if (document.querySelectorAll('.publicLi').length > 0) {
           const publicList = document.querySelectorAll('.publicLi');
