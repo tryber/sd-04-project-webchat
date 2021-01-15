@@ -1,0 +1,21 @@
+body {
+  background-color: rgb(166, 243, 217);
+}
+
+#header {
+  background-color: rgb(73, 245, 188);
+  color: black;
+  display: flex;
+  justify-content: center;
+}
+
+#main {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: flex-end;
+}
+
+#chat {
+  flex-grow: 2;
+}

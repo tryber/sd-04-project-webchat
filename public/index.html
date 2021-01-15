@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebChat da Jeh</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <script src="http://chancejs.com/chance.min.js"></script>
+  </head>
+  <body>
+    <head id="header">
+      <h1>Bem vindo ao Bate-papo da Jeh</h1>
+      <p>O seu bate papo uol com uma cara diferente!</p>
+    </head>
+    <div id="main">
+      <div id="chat">
+        <div>
+          <ul id="chat-container">
+    
+          </ul>
+        </div>
+        <form>
+          <textarea type='text' id="msg-input" data-testid="message-box" rows='3'></textarea>
+          <button type='submit' id="send-msg" data-testid="send-button">Enviar</button>
+        </form>
+      </div>
+      <div>
+        <label>Nickname</label>
+        <input type="text" data-testid="nickname-box" id="input-name"/>
+        <button type="button" id="save-name" data-testid="nickname-box">Salvar</button>
+      </div>
+    </div>
+    <script>
+      const socket = io('http://localhost:3000');
+      const inputNick = document.getElementById('input-name');
+      const inputMsg = document.getElementById('msg-input');
+      const sendButton = document.getElementById('send-msg');
+      const saveNameButton = document.getElementById('save-name');
+      const chatContainer = document.getElementById('chat-container');
+      const nickName = document.getElementById('title-nickname');
+
+      // Trabalha com o Nick name do usuario
+      nickName.innerText = chance.name(); // Nome inicial atribuido ao Usuário
+      console.log(saveNameButton)
+
+      socket.emit('newUser', name);
+      saveNameButton.addEventListener('click', () => {
+        console.log('entrou no event listener')
+        const newNickName = inputNick.value;
+        nickName.innerText = newNickName;
+        name = newNickName;
+        socket.emit('newNickName', newNickName);
+        inputNick.value = '';
+      });
+
+      // Coleta as mensagens
+      sendButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        socket.emit('message', {
+          nickname: nickName.textContent,
+          chatMessage: inputMsg.value,
+        });
+      });
+
+      // função renderiza a mensagem
+      function renderMessage(msg) {
+        const li = document.createElement('li');
+        li.innerText = msg;
+        li.setAttribute('data-testid', 'message');
+        li.classList.add('msg');
+        chatContainer.appendChild(li);
+        inputMsg.value = '';
+      };
+
+      // pega o historico de mensagens
+      socket.on('history', (msgHistoric) => {
+        msgHistoric.forEach((msg) => {
+          renderMessage(`${msg.timeStamp} - ${msg.nickname}: ${msg.chatMessage}`);
+        });
+      });
+
+
+    </script>
+  </body>
+</html>
