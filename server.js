@@ -31,7 +31,7 @@ io.on('connection', async (socket) => {
   const history = await Model.getMessages();
   socket.emit('history', history);
 
-  socket.broadcast.emit('message', 'New user logged');
+  // socket.broadcast.emit('message', 'New user logged');
 
   socket.on('changeNick', (nickname) => {
     user.nickname = nickname;

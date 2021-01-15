@@ -11,6 +11,7 @@
     <div class="wrapper">
         <div class="container">
             <div class="left">
+                <button id="btn-public" data-testid="public">Chat Público</button>
                 <h4>Nickname: <span id="mynick">Anonymous</span></h4>
                 <ul class="users"></ul>
             </div>
@@ -76,9 +77,14 @@
         userList.innerHTML = '';      
         arr.forEach(user => {
             const li = document.createElement('li');
+            const btn = document.createElement('button');
+            btn.setAttribute('data-testid', 'private');
+            btn.className = 'btn-private';
+            btn.innerText = 'Chat Privado';
             li.setAttribute('data-testid', 'online-user')          
             li.innerText = user.nickname;
-            userList.appendChild(li)
+            li.appendChild(btn);
+            userList.appendChild(li);
         })
     });
 
