@@ -11,15 +11,14 @@
     <script src="http://chancejs.com/chance.min.js"></script>
   </head>
   <body>
-    <head id="header">
+    <header id="header">
       <h1>Bem vindo ao Bate-papo da Jeh</h1>
       <p>O seu bate papo uol com uma cara diferente!</p>
-    </head>
+    </header>
     <div id="main">
       <div id="chat">
         <div>
           <ul id="chat-container">
-    
           </ul>
         </div>
         <form>
@@ -30,7 +29,7 @@
       <div>
         <label>Nickname</label>
         <input type="text" data-testid="nickname-box" id="input-name"/>
-        <button type="button" id="save-name" data-testid="nickname-box">Salvar</button>
+        <button type="button" id="save-name" data-testid="nickname-save">Salvar</button>
       </div>
     </div>
     <script>
@@ -44,7 +43,7 @@
 
       // Trabalha com o Nick name do usuario
       nickName.innerText = chance.name(); // Nome inicial atribuido ao Usuário
-      console.log(saveNameButton)
+      console.log(saveNameButton);
 
       socket.emit('newUser', name);
       saveNameButton.addEventListener('click', () => {
