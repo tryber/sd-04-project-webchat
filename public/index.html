@@ -30,7 +30,7 @@
     const btnMsg = document.querySelector('#btn-msg');
     const userList = document.querySelector('.users');
     const chat = document.querySelector('.chat');
-    const nickname = document.querySelector('#nickname-input');
+    const nicknameInput = document.querySelector('#nickname-input');
     const message = document.querySelector('#message-input');
     const myNick = document.querySelector('#mynick');
 
@@ -44,13 +44,18 @@
 
     btnNick.addEventListener('click', (e) => {
         e.preventDefault();
-        socket.emit('changeNick', nickname.value)
-        myNick.innerText = nickname.value;
+        socket.emit('changeNick', nicknameInput.value)
+        myNick.innerText = nicknameInput.value;
     })
 
     btnMsg.addEventListener('click', (e) => {
         e.preventDefault();
-        const msg = { chatMessage: message.value, nickname: nickname.value }
+        let msg = {};
+        if (nickname.value === ''){
+            msg = { chatMessage: message.value, nickname: 'Anonymous' }
+        } else {
+            msg = { chatMessage: message.value, nickname: nicknameInput.value }
+        }        
         socket.emit('message', msg);
         message.value = '';
         message.focus();
