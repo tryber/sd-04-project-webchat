@@ -7,7 +7,11 @@ const io = require('socket.io')(server);
 app.use(express.static(__dirname + '/public'));
 app.get('/', (_req, res) => res.sendFile(__dirname + '/public'));
 
-io.on('connection', () => {});
+io.on('connection', (socket) => {
+  socket.on('sendMessage', (data) => {
+    socket.broadcast.emit('receivedMessage', data);
+  });
+});
 
 server.listen(3000, () => {
   console.log('Server rodando na porta 3000!');
