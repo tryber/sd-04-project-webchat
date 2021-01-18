@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+</head>
+
+<body>
+  <div class="contianer-messages">
+    <ul id="list"></ul>
+  </div>
+
+  <div class="container-input-messages">
+    <form>
+      <input type="text" name="chatMessage" placeholder="Digite a menssagem aqui" data-testid="message-box">
+      <button type="submit" data-testid="send-button" id="chat-message-btn">Enviar</button>
+    </form>
+    <form>
+      <input type="text" name="nickname" placeholder="Digite um apelido aqui" data-testid="nickname-box">
+      <button type="submit" data-testid="nickname-save">Salvar</button>
+    </form>
+  </div>
+</body>
+<script src="http://localhost:4555/socket.io/socket.io.js"></script>
+<script src="./script.js"></script>
+
+</html>
