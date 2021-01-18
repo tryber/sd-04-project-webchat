@@ -4,7 +4,7 @@ const http = require('http');
 const cors = require('cors');
 const path = require('path');
 const faker = require('faker'); // Gera dados fakes no browser, Ex.: nome, cidade
-const messages = require('./model/modelMessages');
+const modelChat = require('./model/modelChat');
 const createOn = require('./service/timeNow');
 
 const app = express();
@@ -19,24 +19,58 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+const allUsers = [];
+
 io.on('connect', async (socket) => {
-  faker.locale = 'pt_BR'; // define o idioma dos dados
-  // console.log(
-  //   `Socket conectado: ${socket.id} - Nome: ${faker.name.findName()}`,
-  // );
-  // console.log(`Usuários conectados ${socket.rooms}`);
+  // define o idioma dos dados fake
+  faker.locale = 'pt_BR';
+  // id da sessão
+  const userId = socket.id;
+  const userName = faker.name.findName();
+  // users.reverse();
+
+  const users = { userName, userId };
+  allUsers.unshift(users);
+  console.log('array', allUsers);
+
+  if (allUsers.length >= 2) {
+    console.log('array size', allUsers.length);
+    socket.emit('allUserConected', allUsers);
+    socket.broadcast.emit('userConected', users);
+  } else {
+    socket.emit('userConected', users);
+  }
+
+  socket.on('userConected', (upDateUser) => {
+    // console.log('id upadte', upDateUser.indice);
+    // Verifica se o nome do usuário já existe
+    const vUser = allUsers.map((e) => e.userName).includes(upDateUser.userName);
+    console.log('user exists', vUser);
+
+    // Caso não exista o nome do usuário no array,
+    // atualizamos o nome.
+    if (vUser === false) {
+      const id = upDateUser.indice;
+      const index = allUsers.findIndex((e) => e.userId === id);
+      console.log('indice array update', index);
+      allUsers[index].userName = upDateUser.userName;
+      console.log('update', allUsers);
+      const newName = upDateUser.userName;
+      const update = { newName, id };
+      io.emit('userUpdate', update);
+    } else {
+      // Seo nome já existe mostra mensagem
+      const userExist = 'Usuário já existe!';
+      socket.emit('userExist', userExist);
+    }
+  });
 
   /**
    *  Quando o cliente conecta no chat,
    *  carrega todas as mensagens que estão salvas no banco.
    */
-  const Messages = await messages.getAllMessages();
+  const Messages = await modelChat.getAllMessages();
   socket.emit('previousMessage', Messages);
-
-  // Gerando nome dos usuários conectados
-  const users = [];
-  await users.push(faker.name.findName());
-  socket.emit('userConected', users);
 
   /**
    * Salva todas as mensagens do cliente no banco
@@ -47,19 +81,33 @@ io.on('connect', async (socket) => {
   const dateTime = createOn();
   socket.on('message', (data) => {
     try {
-      messages.saveMessage(dateTime, data.nickname, data.chatMessage);
+      modelChat.saveMessage(dateTime, data.nickname, data.chatMessage);
       // console.log(result);
     } catch (error) {
       console.log(error);
     }
     const message = `${dateTime} - ${data.nickname}: ${data.chatMessage}`;
-    console.log('vamos ver', message);
+    // users.add(name);
+    // console.log('vamos ver', message);
     /**
      * Envia a mensagem digitada para todos clientes,
-     * utilizando a variável data.
+     * utilizando a variável message.
      */
     socket.broadcast.emit('message', message);
     socket.emit('message', message);
+  });
+
+  socket.on('disconected', () => {
+    console.log('user disconected', allUsers);
+    const disconected = socket.id;
+    console.log('disconected', disconected);
+    io.emit('disconected', disconected);
+    // Encontra a posição do elmento no array
+    const userIndex = allUsers.map((e) => e.userId).indexOf(socket.id);
+    console.log('indice', userIndex);
+    // Remove elemento do array
+    allUsers.splice(userIndex, 1);
+    console.log('novo array desconet', allUsers);
   });
 });
 
