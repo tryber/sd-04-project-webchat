@@ -68,8 +68,12 @@ io.on('connection', async (socket) => {
     io.emit('onlineUsers', onlineUsers);
   });
 
-  socket.on('privateMessage', (anotherSocketId, msg) => {
-    socket.to(anotherSocketId).emit('privateMessage', socket.id, msg);
+  socket.on('privateMessage', ({ anotherSocketId, msg }) => {
+    const time = moment(new Date()).format('DD-MM-YYYY h:mm:ss a');
+    const userTo = onlineUsers.find((user) => user.id === anotherSocketId);
+    const privateMsgSend = `PRIVATE TO ${userTo.nick} - ${time}: ${msg}`;
+    io.to(socket.id).emit('privateMessage', privateMsgSend);
+    io.to(anotherSocketId).emit('privateMessageReceiver', privateMsgSend);
   });
 });
 

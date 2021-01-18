@@ -21,7 +21,7 @@
           <p>Bem vindo <span id="title-nickname"></span></p>
         </div>
         <div class="chat-container" id="private-chat">
-          <button type="button" id="public-chat">Public Chat</button>
+          <button type="button" id="public-chat" data-testid="public">Public Chat</button>
         </div>
         <form>
           <textarea type='text' id="msg-input" data-testid="message-box" rows='3'></textarea>
@@ -68,13 +68,10 @@
       sendButton.addEventListener('click', (e) => {
         e.preventDefault();
         if (privateChat.style.display === 'block') {
-          console.log(inputMsg.value);
+          const chatValue = document.getElementById('private-chat').getAttribute('data-value');
           socket.emit('privateMessage', {
-            anotherSocketId: privateChat.getAttribute('data-value'),
+            anotherSocketId: chatValue,
             msg: inputMsg.value,
-          });
-          socket.on('privateMessage', (fullMsgString) => {
-            return renderMessage(fullMsgString);
           });
         }
         socket.emit('message', {
@@ -91,8 +88,8 @@
         const p = document.createElement('p');
         p.innerText = msg;
         p.setAttribute('data-testid', 'message');
-        chatContainer.appendChild(p);
         inputMsg.value = '';
+        chatContainer.appendChild(p);
       };
 
       // pega o historico de mensagens
@@ -100,6 +97,23 @@
         msgHistoric.forEach((msg) => {
           renderMessage(msg);
         });
+      });
+
+
+      socket.on('privateMessage', (privateMsgSend) => {
+        const p = document.createElement('p');
+        p.innerText = privateMsgSend;
+        p.setAttribute('data-testid', 'message');
+        inputMsg.value = '';
+        privateChat.appendChild(p);
+      });
+
+      socket.on('privateMessageReceiver', (privateMsgSend) => {
+        const p = document.createElement('p');
+        p.innerText = privateMsgSend;
+        p.setAttribute('data-testid', 'message');
+        chatContainer.appendChild(p);
+        inputMsg.value = '';
       });
 
       socket.on('onlineUsers', (onlineUsers) => {
