@@ -34,6 +34,7 @@ io.on('connection', async (socket) => {
     const { chatMessage, nickname, timestamp } = element;
     return msgSend.push(`${timestamp} - ${nickname}: ${chatMessage}`);
   });
+
   socket.emit('history', msgSend);
 
   socket.on('message', async (message) => { // emite e salva mensagens
@@ -48,5 +49,6 @@ io.on('connection', async (socket) => {
   });
 });
 
-app.listen(3000);
-console.log('Express ouvindo na porta 3000');
+socketIoServer.listen(3000, () => {
+  console.log('Express ouvindo na porta 3000');
+});
