@@ -67,14 +67,23 @@
       // Coleta as mensagens
       sendButton.addEventListener('click', (e) => {
         e.preventDefault();
-        console.log('entrou no event listener')
+        if (privateChat.style.display === 'block') {
+          console.log(inputMsg.value);
+          socket.emit('privateMessage', {
+            anotherSocketId: privateChat.getAttribute('data-value'),
+            msg: inputMsg.value,
+          });
+          socket.on('privateMessage', (fullMsgString) => {
+            return renderMessage(fullMsgString);
+          });
+        }
         socket.emit('message', {
           nickname: nickName.textContent,
           chatMessage: inputMsg.value,
         });
         socket.on('message', (fullMsgString) => {
           return renderMessage(fullMsgString);
-        })
+        });
       });
 
       // função renderiza a mensagem
@@ -105,15 +114,23 @@
         // imprimi a lista dos outros usuarios
         onlineUserWithOutActual.forEach((user) => {
           const li = document.createElement('li');
-          const btn = document.createElement('button');
-          btn.setAttribute('data-testid', 'private');
-          btn.className = 'private';
-          btn.type = 'button';
-          btn.innerText = 'chat';
           li.setAttribute('data-testid', 'online-user');
           li.innerText = user.nick;
+          // configora o button
+          const btn = document.createElement('button');
+          btn.setAttribute('data-testid', 'private');
+          btn.setAttribute('onClick', `privateClick(${user})`);
+          btn.type = 'button';
+          btn.innerText = 'chat';
+          btn.addEventListener('click', () => {
+            chatContainer.style.display = "none";
+            privateChat.style.display = "block";
+            privateChat.setAttribute('data-value', user.id)
+          });
+
+          // determina o append child
           onlineUsersList.appendChild(li);
-          onlineUsersList.appendChild(btn)
+          onlineUsersList.appendChild(btn);
         });
       });
 
@@ -123,23 +140,10 @@
         renderMessage(`usuário saiu do chat...`);
       });
 
-      console.log(userPrivate)
-      if (userPrivate) {
-        // esconde o chate publico e coloca o privado
-        userPrivate.map((btn) => {
-          btn.addEventListener('click', () => {
-            console.log('entrou no evento')
-            chatContainer.style.display = "none";
-            privateChat.style.display = "block";
-          })
-        });
-  
-        // volta pro chat publico
-        publicChat.addEventListener('click', () => {
-          chatContainer.style.display = "block";
-          privateChat.style.display = "none";
-        });
-      };
+      publicChat.addEventListener('click', () => {
+        chatContainer.style.display = "block";
+        privateChat.style.display = "none";
+      });
     </script>
   </body>
 </html>

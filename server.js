@@ -67,6 +67,10 @@ io.on('connection', async (socket) => {
     onlineUsers = onlineUsers.filter((user) => user.id !== socket.id);
     io.emit('onlineUsers', onlineUsers);
   });
+
+  socket.on('privateMessage', (anotherSocketId, msg) => {
+    socket.to(anotherSocketId).emit('privateMessage', socket.id, msg);
+  });
 });
 
 socketIoServer.listen(3000, () => {
