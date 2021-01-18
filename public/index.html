@@ -17,8 +17,11 @@
     </header>
     <div id="main">
       <div id="chat">
-        <div id="chat-container">
+        <div class="chat-container">
           <p>Bem vindo <span id="title-nickname"></span></p>
+        </div>
+        <div class="chat-container" id="private-chat">
+          <button type="button" id="public-chat">Public Chat</button>
         </div>
         <form>
           <textarea type='text' id="msg-input" data-testid="message-box" rows='3'></textarea>
@@ -42,13 +45,16 @@
       const inputMsg = document.getElementById('msg-input');
       const sendButton = document.getElementById('send-msg');
       const saveNameButton = document.getElementById('save-name');
-      const chatContainer = document.getElementById('chat-container');
+      const chatContainer = document.getElementsByClassName('chat-container')[0];
       const nickName = document.getElementById('title-nickname');
       const onlineUsersList = document.getElementById('online-users')
+      const userPrivate = document.getElementsByClassName('private');
+      const privateChat = document.getElementById('private-chat');
+      const publicChat = document.getElementById('public-chat');
 
       // Trabalha com o Nick name do usuario
       nickName.innerText = chance.name(); // Nome inicial atribuido ao Usuário
-
+      privateChat.style.display = 'none';
       socket.emit('newUser', nickName.innerText);
     
       saveNameButton.addEventListener('click', () => {
@@ -89,11 +95,25 @@
 
       socket.on('onlineUsers', (onlineUsers) => {
         onlineUsersList.innerHTML = '';
-        onlineUsers.forEach((user) => {
+        // cria o primeiro elemento da lista, sempre sendo o usuario atual
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'online-user');
+        li.innerText = nickName.innerText;
+        onlineUsersList.appendChild(li);
+        // retira o usuario atual da lista
+        onlineUserWithOutActual = onlineUsers.filter((user) => user.nick !== nickName.innerText);
+        // imprimi a lista dos outros usuarios
+        onlineUserWithOutActual.forEach((user) => {
           const li = document.createElement('li');
+          const btn = document.createElement('button');
+          btn.setAttribute('data-testid', 'private');
+          btn.className = 'private';
+          btn.type = 'button';
+          btn.innerText = 'chat';
           li.setAttribute('data-testid', 'online-user');
           li.innerText = user.nick;
           onlineUsersList.appendChild(li);
+          onlineUsersList.appendChild(btn)
         });
       });
 
@@ -102,6 +122,24 @@
         onlineUsersList.innerHTML = '';
         renderMessage(`usuário saiu do chat...`);
       });
+
+      console.log(userPrivate)
+      if (userPrivate) {
+        // esconde o chate publico e coloca o privado
+        userPrivate.map((btn) => {
+          btn.addEventListener('click', () => {
+            console.log('entrou no evento')
+            chatContainer.style.display = "none";
+            privateChat.style.display = "block";
+          })
+        });
+  
+        // volta pro chat publico
+        publicChat.addEventListener('click', () => {
+          chatContainer.style.display = "block";
+          privateChat.style.display = "none";
+        });
+      };
     </script>
   </body>
 </html>

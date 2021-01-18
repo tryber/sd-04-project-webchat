@@ -54,21 +54,17 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('newNickName', (newUser) => {
-    console.log('Online user before map', onlineUsers);
     onlineUsers.map((user) => {
       const thisNewUser = user;
-      console.log(user);
       if (thisNewUser.id === thisUser.id) thisNewUser.nick = newUser;
       return console.log(user);
     });
-    console.log('Online user after map', onlineUsers);
     io.emit('onlineUsers', onlineUsers);
   });
 
   socket.on('disconnect', () => {
     console.log('usuario se desconectou');
     onlineUsers = onlineUsers.filter((user) => user.id !== socket.id);
-    console.log('array atualizado depois de sair um user', onlineUsers);
     io.emit('onlineUsers', onlineUsers);
   });
 });
