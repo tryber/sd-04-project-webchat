@@ -20,6 +20,7 @@
       </button>
       <span id="chosenNick"></span>
       <div>
+        <div id="firstUser"></div>
         <ul id="onlineUser"></ul>
       </div>
       <br />
@@ -52,6 +53,7 @@
       const privateMsgList = document.querySelector('#privateMessages');
       const publicChatBtn = document.querySelector('#public');
       const privateChatBtn = document.querySelector('#private');
+      const firstUser = document.querySelector('#firstUser');
       let privateMessage = false;
       let privateReceiver = '';
 
@@ -76,7 +78,14 @@
           element.setAttribute('data-testid', 'online-user');
           element.setAttribute('class', 'online');
           element.appendChild(onlineUser);
-          document.querySelector('#onlineUser').appendChild(element);
+          if (user === chosenNick.innerText) {
+            firstUser.appendChild(onlineUser);
+            if (firstUser.innerText.length > 25) {
+              firstUser.removeChild(onlineUser);
+            }
+          } else {
+            document.querySelector('#onlineUser').appendChild(element);
+          }
         }
 
         publicChatBtn.addEventListener('click', () => {
@@ -128,23 +137,23 @@
             //   nick.nickname === chosenNick.innerText ||
             //   privateReceiver === chosenNick.innerText
             // ) {
-              const reversedData = Object.values(
-                data.newPrivateHistory
-              ).reverse();
-              let li = '';
-              if (document.querySelectorAll('.privateLi')) {
-                li = document.querySelectorAll('.privateLi');
-                for (list of li) {
-                  list.remove();
-                }
+            const reversedData = Object.values(
+              data.newPrivateHistory
+            ).reverse();
+            let li = '';
+            if (document.querySelectorAll('.privateLi')) {
+              li = document.querySelectorAll('.privateLi');
+              for (list of li) {
+                list.remove();
               }
-              for (dt of reversedData) {
-                li = document.createElement('li');
-                li.setAttribute('data-testid', 'message');
-                li.setAttribute('class', 'privateLi');
-                li.innerText = `${dt.dateTime} (private) - ${dt.nickname}: ${dt.chatMessage}`;
-                privateMsgList.appendChild(li);
-              }
+            }
+            for (dt of reversedData) {
+              li = document.createElement('li');
+              li.setAttribute('data-testid', 'message');
+              li.setAttribute('class', 'privateLi');
+              li.innerText = `${dt.dateTime} (private) - ${dt.nickname}: ${dt.chatMessage}`;
+              privateMsgList.appendChild(li);
+            }
             // }
           }
         });
@@ -253,7 +262,7 @@
         li.setAttribute('data-testid', 'message');
         li.setAttribute('class', 'privateLi');
         li.innerText = data;
-        // privateMsgList.appendChild(li);
+        privateMsgList.appendChild(li);
       });
     </script>
   </body>
