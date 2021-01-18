@@ -22,11 +22,20 @@ app.get('/', (_req, res) => {
   res.sendFile('index.html'); // conecta com o index.html
 });
 
+let onlineUsers = [];
+let thisUser;
+
 io.on('connection', async (socket) => {
   const allMsg = await getAllMsg();
 
+  io.emit('onlineUsers', onlineUsers);
+
   socket.on('newUser', (nick) => {
     console.log('esse é o nome atual', nick); // usuario
+    thisUser = { id: socket.id, nick };
+    onlineUsers.push(thisUser);
+    console.log(onlineUsers);
+    io.emit('onlineUsers', onlineUsers);
   });
 
   const msgSend = [];
@@ -39,13 +48,28 @@ io.on('connection', async (socket) => {
 
   socket.on('message', async (message) => { // emite e salva mensagens
     const time = moment(new Date()).format('DD-MM-YYYY h:mm:ss a');
-    const fullMsgString = `${time} - ${message.nickname}: ${message.chatMessage}`;
     await createMsg(message.chatMessage, message.nickname, time);
+    const fullMsgString = `${time} - ${message.nickname}: ${message.chatMessage}`;
     io.emit('message', fullMsgString);
   });
 
-  socket.on('newNickName', (user) => {
-    console.log('o novo NICK vindo do front', user);
+  socket.on('newNickName', (newUser) => {
+    console.log('Online user before map', onlineUsers);
+    onlineUsers.map((user) => {
+      const thisNewUser = user;
+      console.log(user);
+      if (thisNewUser.id === thisUser.id) thisNewUser.nick = newUser;
+      return console.log(user);
+    });
+    console.log('Online user after map', onlineUsers);
+    io.emit('onlineUsers', onlineUsers);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('usuario se desconectou');
+    onlineUsers = onlineUsers.filter((user) => user.id !== socket.id);
+    console.log('array atualizado depois de sair um user', onlineUsers);
+    io.emit('onlineUsers', onlineUsers);
   });
 });
 

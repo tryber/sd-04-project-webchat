@@ -26,6 +26,11 @@
         </form>
       </div>
       <div id="users">
+        <div>
+          <h4>Usuários Online</h4>
+          <ul id="online-users">
+          </ul>
+        </div>
         <label>Nickname</label><br>
         <input type="text" data-testid="nickname-box" id="input-name"/>
         <button type="button" id="save-name" data-testid="nickname-save">Salvar</button>
@@ -39,15 +44,16 @@
       const saveNameButton = document.getElementById('save-name');
       const chatContainer = document.getElementById('chat-container');
       const nickName = document.getElementById('title-nickname');
+      const onlineUsersList = document.getElementById('online-users')
 
       // Trabalha com o Nick name do usuario
       nickName.innerText = chance.name(); // Nome inicial atribuido ao Usuário
 
-      socket.emit('newUser', name);
+      socket.emit('newUser', nickName.innerText);
+    
       saveNameButton.addEventListener('click', () => {
         const newNickName = inputNick.value;
         nickName.innerText = newNickName;
-        name = newNickName;
         socket.emit('newNickName', newNickName);
         inputNick.value = '';
       });
@@ -60,6 +66,9 @@
           nickname: nickName.textContent,
           chatMessage: inputMsg.value,
         });
+        socket.on('message', (fullMsgString) => {
+          return renderMessage(fullMsgString);
+        })
       });
 
       // função renderiza a mensagem
@@ -73,10 +82,25 @@
 
       // pega o historico de mensagens
       socket.on('history', (msgHistoric) => {
-        console.log(msgHistoric)
         msgHistoric.forEach((msg) => {
           renderMessage(msg);
         });
+      });
+
+      socket.on('onlineUsers', (onlineUsers) => {
+        onlineUsersList.innerHTML = '';
+        onlineUsers.forEach((user) => {
+          const li = document.createElement('li');
+          li.setAttribute('data-testid', 'online-user');
+          li.innerText = user.nick;
+          onlineUsersList.appendChild(li);
+        });
+      });
+
+      socket.on('disconnect', (users) => {
+        console.log('MSG EMITIDA PELO BACK', users);
+        onlineUsersList.innerHTML = '';
+        renderMessage(`usuário saiu do chat...`);
       });
     </script>
   </body>
