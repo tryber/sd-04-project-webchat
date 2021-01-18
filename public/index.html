@@ -34,6 +34,11 @@
     const nicknameInput = document.querySelector('#nickname-input');
     const message = document.querySelector('#message-input');
     const myNick = document.querySelector('#mynick');
+    const publicBtn = document.querySelector('#btn-public');
+
+    publicBtn.addEventListener('click', () => {
+        receiver = '';
+    })
 
     const showMessage = (message) => {
         const p = document.createElement('p');
@@ -49,13 +54,15 @@
         myNick.innerText = nicknameInput.value;
     })
 
+    let receiver = '';
+
     btnMsg.addEventListener('click', (e) => {
         e.preventDefault();
         let msg = {};
         if (nicknameInput.value === ''){
-            msg = { chatMessage: message.value, nickname: 'Anonymous' }
+            msg = { chatMessage: message.value, nickname: 'Anonymous', receiver }
         } else {
-            msg = { chatMessage: message.value, nickname: nicknameInput.value }
+            msg = { chatMessage: message.value, nickname: nicknameInput.value, receiver }
         }        
         socket.emit('message', msg);
         message.value = '';
@@ -74,11 +81,18 @@
     });
 
     socket.on('onlineUsers', (arr) => {
-        userList.innerHTML = '';      
+        userList.innerHTML = '';
         arr.forEach(user => {
             const li = document.createElement('li');
-            li.setAttribute('data-testid', 'online-user')          
-            li.innerText = user.nickname;
+            li.setAttribute('data-testid', 'online-user');            
+            const btn = document.createElement('button');
+            btn.setAttribute('data-testid', 'private');
+            socket.id !== user.id ?
+            btn.addEventListener('click', () => {
+                receiver = user.id;
+            }) : btn.disabled = true
+            btn.innerText = user.nickname;
+            li.appendChild(btn)
             userList.appendChild(li)
         })
     });

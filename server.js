@@ -22,6 +22,9 @@ let users = [];
 const formatMessage = (nickname, message, timestamp) =>
   `${timestamp} - ${nickname}: ${message}`;
 
+const formatMessagePrivate = (nickname, message, timestamp) =>
+  `${timestamp} (private) - ${nickname}: ${message}`;
+
 // Conexão
 io.on('connection', async (socket) => {
   const user = {
@@ -39,13 +42,24 @@ io.on('connection', async (socket) => {
     io.emit('onlineUsers', users);
   });
 
-  socket.on('message', async ({ chatMessage, nickname }) => {
+  socket.on('message', async ({ chatMessage, nickname, receiver }) => {
     const date = Date.now();
     const time = moment(date).format('DD-MM-YYYY h:mm:ss a');
-    io.emit('message', formatMessage(nickname, chatMessage, time));
-    // save in BD
-    await Model.saveMessage(chatMessage, nickname, time);
+
+    if (!receiver) {
+      io.emit('message', formatMessage(nickname, chatMessage, time));
+      // save in BD
+      await Model.saveMessage(chatMessage, nickname, time)
+    } else {
+      socket.to(receiver).emit('message', formatMessagePrivate(nickname, chatMessage, time))
+      socket.emit('message', formatMessagePrivate(nickname, chatMessage, time))
+    }
+;
   });
+
+  // socket.on('private', (data) => {
+  //   socket.to(data.to).emit('message', data.msg)
+  // })
 
   socket.on('disconnect', () => {
     users = users.filter((person) => socket.id !== person.id);
