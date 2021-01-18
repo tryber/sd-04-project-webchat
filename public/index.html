@@ -36,6 +36,8 @@
     const myNick = document.querySelector('#mynick');
     const publicBtn = document.querySelector('#btn-public');
 
+    let receiver = '';
+
     publicBtn.addEventListener('click', () => {
         receiver = '';
     })
@@ -52,9 +54,7 @@
         e.preventDefault();
         socket.emit('changeNick', nicknameInput.value)
         myNick.innerText = nicknameInput.value;
-    })
-
-    let receiver = '';
+    })    
 
     btnMsg.addEventListener('click', (e) => {
         e.preventDefault();
