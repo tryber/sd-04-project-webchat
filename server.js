@@ -97,17 +97,17 @@ io.on('connect', async (socket) => {
     socket.emit('message', message);
   });
 
-  socket.on('disconected', () => {
-    console.log('user disconected', allUsers);
-    const disconected = socket.id;
-    console.log('disconected', disconected);
-    io.emit('disconected', disconected);
+  socket.on('disconnect', () => {
+    console.log('user disconnect', allUsers);
+    const disconnect = socket.id;
+    console.log('disconnect', disconnect);
+    io.emit('disconnect', disconnect);
     // Encontra a posição do elmento no array
     const userIndex = allUsers.map((e) => e.userId).indexOf(socket.id);
     console.log('indice', userIndex);
     // Remove elemento do array
     allUsers.splice(userIndex, 1);
-    console.log('novo array desconet', allUsers);
+    console.log('novo array disconnect', allUsers);
   });
 });
 

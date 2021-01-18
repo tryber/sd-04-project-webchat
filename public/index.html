@@ -111,8 +111,8 @@
       });
       // }
 
-      socket.on('disconected', function (data) {
-        console.log('disconect', data);
+      socket.on('disconnect', function (data) {
+        console.log('disconnect', data);
         $('#' + data).remove();
       });
 
@@ -158,7 +158,7 @@
       });
 
       $(window).on('beforeunload', function () {
-        socket.emit('disconected');
+        socket.emit('disconnect');
         console.log('closedddddd');
       });
 
