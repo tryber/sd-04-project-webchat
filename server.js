@@ -49,12 +49,13 @@ io.on('connection', async (socket) => {
     if (!receiver) {
       io.emit('message', formatMessage(nickname, chatMessage, time));
       // save in BD
-      await Model.saveMessage(chatMessage, nickname, time)
+      await Model.saveMessage(chatMessage, nickname, time);
     } else {
-      socket.to(receiver).emit('message', formatMessagePrivate(nickname, chatMessage, time))
-      socket.emit('message', formatMessagePrivate(nickname, chatMessage, time))
+      socket
+        .to(receiver)
+        .emit('message', formatMessagePrivate(nickname, chatMessage, time));
+      socket.emit('message', formatMessagePrivate(nickname, chatMessage, time));
     }
-;
   });
 
   // socket.on('private', (data) => {
