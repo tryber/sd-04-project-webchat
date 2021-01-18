@@ -9,6 +9,3 @@ socket.on('message', (message) => {
   document.getElementById('list').appendChild(li);
 });
 
-const forms = document.querySelectorAll('form');
-
-forms.forEach((form) => form.submit((e) => e.preventDefault()));

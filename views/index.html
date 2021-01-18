@@ -14,11 +14,11 @@
   </div>
 
   <div class="container-input-messages">
-    <form>
+    <form action="/chat" method="POST">
       <input type="text" name="chatMessage" placeholder="Digite a menssagem aqui" data-testid="message-box">
       <button type="submit" data-testid="send-button" id="chat-message-btn">Enviar</button>
     </form>
-    <form>
+    <form action="/chat" method="POST">
       <input type="text" name="nickname" placeholder="Digite um apelido aqui" data-testid="nickname-box">
       <button type="submit" data-testid="nickname-save">Salvar</button>
     </form>
