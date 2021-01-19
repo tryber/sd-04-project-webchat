@@ -13,21 +13,27 @@
       font: 13px Helvetica, Arial;
     }
     .box-messages {
-      top: 31px;
+      top: 52px;
       overflow: auto;
       position: fixed;
-      height: 60%;
+      height: 53%;
       width: 100%;
+    }
+    .box-user {
+      display: inline-flex;
     }
     #box-online-users {
       background: rgb(164, 230, 252);
       border: 2px solid black;
-      bottom: 80px;
+      bottom: 95px;
       height: 15%;
       padding: 3px;
       overflow: auto;
       position: fixed;
       width: 100%;
+    }
+    #nickname-user {
+      color: rgb(255, 255, 255);
     }
     form {
       background: rgb(0, 0, 0);
@@ -93,21 +99,30 @@
       // Eventos relacionados ao socket.
       // Random Nickname quando entra no chat
       socket.on('join', function(clients, randomNick, userId) {
-        if (socket.id === userId) $('#nickname-box').val(randomNick);
+        if (socket.id === userId) $('#nickname-user').val(randomNick);
 
         clients.forEach((client) => {
           const listed = $(`#${client.userId}`);
           if (listed.length === 0) {
-            const li = `<li id=${client.userId} data-testid="online-user">'`;
-            $('#online-user').append($(li).text(client.nickname));
+            // li - contem informações do cliente
+            const li = `<li id=${client.userId} data-testid="online-user">${client.nickname}</li>`;
+            // btn - private chat
+            const btnPrivate = '<button type="button" data-testid="private">Private</button>';
+            // boxLi - que será composta pela li e btnPrivate 
+            const boxLi = `<div id="box-${client.userId}" class="box-user">${li}${btnPrivate}</div>`;
+
+            if (socket.id === client.userId) {
+              $('#online-user').prepend(boxLi);
+            } else {
+              $('#online-user').append(boxLi);
+            }
           }
 
           if (socket.id === client.userId) {
-            $('#nickname-box').val(client.nickname);
+            $('#nickname-user').text(client.nickname);
+            // $('#nickname-box').val(client.nickname);
           }
         });
-        // const li = `<li id=${userId} data-testid="online-user">'`;
-        // $('#online-user').append($(li).text(randomNick));
       });
 
       // Recebe as mensagens que estão no bando de dados.
@@ -120,16 +135,13 @@
        });
       // Recebe as mensagens do servidor e coloca na tela
       socket.on('message', function(message) {
-        // console.log('message', message);
-        // const { nickname, chatMessage } = message;
-        // $('#messages').append($('<li>')
-        //   .text(`${nickname}: ${chatMessage}`));
         $('#messages').append($('<li data-testid="message">').text(message));
       });
 
       // Recebe o nickname do servidor
       // e coloca na lista #online-user
       socket.on('listNicknameServer', function(nickname, userId) {
+        if (socket.id === userId) $('#nickname-user').text(nickname);
         $(`#${userId}`).text(nickname);
       });
 
@@ -138,13 +150,14 @@
         const client = $(`#${userId}`).text();
         // const exitMsg = `${client} saiu do chat.`;
         // $('#messages').append($('<li>').text(exitMsg));
-        $(`#${userId}`).remove();
+        $(`#box-${userId}`).remove();
       });
     });
   </script>
 </head>
 <body>
   <h1>Projeto Webchat</h1>
+  <button data-testid="public" type="button">Public Chat</button>
   <div class="box-messages">
     <ul id="messages"></ul>
   </div>
@@ -154,6 +167,7 @@
   </div>
   <div>
     <form action="">
+      <p id="nickname-user"></p>
       <input type="text" id="nickname-box" data-testid="nickname-box"/><button type="button" id="nickname-save" data-testid="nickname-save">Save</button>
       <input
         id="mensagemInput"
