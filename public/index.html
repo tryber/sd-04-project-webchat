@@ -67,21 +67,23 @@
       // Coleta as mensagens
       sendButton.addEventListener('click', (e) => {
         e.preventDefault();
-        if (privateChat.style.display === 'block') {
+        const privPubMsg = (privateChat.style.display === 'block') ? true : false;
+        if (privPubMsg) {
           const chatValue = document.getElementById('private-chat').getAttribute('data-value');
           socket.emit('privateMessage', {
             anotherSocketId: chatValue,
             msg: inputMsg.value,
             nickname: nickName.textContent,
           });
+        } else {
+          socket.emit('message', {
+            nickname: nickName.textContent,
+            chatMessage: inputMsg.value,
+          });
+          socket.on('message', (fullMsgString) => {
+            return renderMessage(fullMsgString);
+          });
         }
-        socket.emit('message', {
-          nickname: nickName.textContent,
-          chatMessage: inputMsg.value,
-        });
-        socket.on('message', (fullMsgString) => {
-          return renderMessage(fullMsgString);
-        });
       });
 
       // função renderiza a mensagem

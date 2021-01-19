@@ -73,15 +73,15 @@ io.on('connection', async (socket) => {
     const time = moment(new Date()).format('DD-MM-YYYY h:mm:ss a');
     const userTo = onlineUsers.find((user) => user.id === anotherSocketId);
     await createPrivateMsg(msg, nickname, time, userTo.nick);
-    const privateMsgSend = `PRIVATE TO ${userTo.nick} - ${time}: ${msg}`;
+    const privateMsgSend = `${nickname} - ${time}: ${msg}`;
     io.to(socket.id).emit('privateMessage', privateMsgSend);
     io.to(anotherSocketId).emit('privateMessageReceiver', privateMsgSend);
   });
 
   const allMsgPrivate = [];
   allPrivateMsg.map((element) => {
-    const { chatMessage, ReceiverNick, timestamp } = element;
-    return allMsgPrivate.push(`PRIVATE TO ${ReceiverNick} - ${timestamp}: ${chatMessage}`);
+    const { chatMessage, nickname, timestamp } = element;
+    return allMsgPrivate.push(`${nickname} - ${timestamp}: ${chatMessage}`);
   });
 
   socket.emit('privateHistory', allMsgPrivate);
