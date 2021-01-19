@@ -20,7 +20,7 @@
       </button>
       <span id="chosenNick"></span>
       <div>
-        <div id="firstUser"></div>
+        <ul id="firstUser"></ul>
         <ul id="onlineUser"></ul>
       </div>
       <br />
@@ -79,7 +79,7 @@
           element.setAttribute('class', 'online');
           element.appendChild(onlineUser);
           if (user === chosenNick.innerText) {
-            firstUser.appendChild(onlineUser);
+            firstUser.appendChild(element);
             if (firstUser.innerText.length > 25) {
               firstUser.removeChild(onlineUser);
             }
