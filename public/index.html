@@ -116,6 +116,7 @@
         const p = document.createElement('p');
         p.innerText = privateMsgSend;
         p.setAttribute('data-testid', 'message');
+        p.setAttribute('classname', 'privateMsg');
         inputMsg.value = '';
         privateChat.appendChild(p);
       });
@@ -124,6 +125,7 @@
         const p = document.createElement('p');
         p.innerText = privateMsgSend;
         p.setAttribute('data-testid', 'message');
+        p.setAttribute('classname', 'privateMsg');
         privateChat.appendChild(p);
         inputMsg.value = '';
       });
@@ -169,6 +171,10 @@
       publicChat.addEventListener('click', () => {
         chatContainer.style.display = "block";
         privateChat.style.display = "none";
+        const privateMsg = document.querySelectorAll('.privateMsg');
+        for (p in privateMsg) {
+          p.remove();
+        }
       });
     </script>
   </body>
