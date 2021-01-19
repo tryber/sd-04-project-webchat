@@ -1,29 +1,20 @@
 const express = require('express');
 const http = require('http');
-const socket_io = require('socket.io');
-const cors = require('cors');
+const socketIo = require('socket.io');
 const path = require('path');
-
-const socketIoServer = http.createServer();
+const app = express();
+const httpServer = http.createServer(app);
 
 require('dotenv').config();
 
-const io = socket_io(socketIoServer, {
-  cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-  }
-});
+const io = socketIo(httpServer)
 
 const {
   messagesController,
 } = require('./controllers');
 
-const app = express();
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors());
 
 app.use('/', express.static(path.join(__dirname, 'views')));
 
@@ -33,6 +24,4 @@ app.post('/chat',
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => console.log(`Express escutando na porta ${PORT}`));
-
-socketIoServer.listen(4555, () => console.log('Socket.io escutando na porta 4555'));
+httpServer.listen(PORT, () => console.log('Escutando na porta 4555'));
