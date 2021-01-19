@@ -5,6 +5,7 @@ const http = require('http');
 const socketio = require('socket.io');
 const moment = require('moment');
 const Model = require('./models/chatModel');
+const faker = require('faker');
 
 const PORT = process.env.PORT || 3000;
 
@@ -25,11 +26,17 @@ const formatMessage = (nickname, message, timestamp) =>
 const formatMessagePrivate = (nickname, message, timestamp) =>
   `${timestamp} (private) - ${nickname}: ${message}`;
 
+  // Faker utilizado para gerar o botão e não me confundir com Anonymous
+
 // Conexão
 io.on('connection', async (socket) => {
   const user = {
     id: socket.id,
+    nickname: faker.name.firstName()
   };
+
+  io.emit('onlineUsers', [...users, user]);
+  users.push(user)
 
   const history = await Model.getMessages();
   socket.emit('history', history);
@@ -55,6 +62,7 @@ io.on('connection', async (socket) => {
         .to(receiver)
         .emit('message', formatMessagePrivate(nickname, chatMessage, time));
       socket.emit('message', formatMessagePrivate(nickname, chatMessage, time));
+      await Model.saveMessage(chatMessage, nickname, time);
     }
   });
 
