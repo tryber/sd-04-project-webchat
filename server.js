@@ -1,8 +1,5 @@
 // Server.js será como o index.js dos projetos anteriores
-/*
-  1 - Crie um back-end para conexão simultaneamente de clientes
-e troca de mensagens em chat público
-*/
+
 const express = require('express');
 
 const app = express();
@@ -45,20 +42,15 @@ io.on('connect', async (socket) => {
   io.emit('previousMessage', previousMessage);
 
   // Random nickname
-  // const randomNick = `Guest_${socket.id}`;
-  const randomNick = '';
+  const randomNick = `Guest_${socket.id}`;
+  // const randomNick = '';
 
   clients.push({ userId: socket.id, nickname: randomNick });
   console.log('CLIENTES: ', clients);
-  // clients.forEach((client) => {
-  //   if (client.userId === socket.id) client.nickname = 'novoNick';
-  //   console.log('Novo: ', client.userId);
-  // });
 
   // console.log('RandomNick: ', randomNick);
 
   io.emit('join', clients, randomNick, socket.id);
-  // io.emit('listNicknameServer', randomNick, socket.id);
   io.emit('listNicknameServer', randomNick, socket.id);
 
   socket.on('disconnect', () => {
@@ -66,8 +58,6 @@ io.on('connect', async (socket) => {
     clients = clients.filter((client) => client.userId !== socket.id);
     io.emit('exit', socket.id);
   });
-
-  // socket.on('previousMessage', (previousMessage) => {});
 
   socket.on('message', async (message) => {
     const { chatMessage, nickname } = message;
@@ -89,6 +79,14 @@ io.on('connect', async (socket) => {
     io.emit('message', formatedMessage);
   });
 
+  // private message
+  // anotherSocketId -> destinatário (receiver)
+  socket.on('privateMessage', (receiver, msg) => {
+    socket.to(receiver).emit('privateMessage', socket.id, msg);
+    // socket.to(receiver).emit('privateMessage', msg);
+  });
+  // --- private message ---
+
   socket.on('changeNickname', (nickname) => {
     clients = clients.map((client) => {
       if (client.userId === socket.id) {
@@ -101,10 +99,6 @@ io.on('connect', async (socket) => {
   });
 
   socket.broadcast.emit('listNicknameServer');
-
-  // console.log('----- SOCKET -----');
-  // console.log(socket);
-  // console.log('----- // -----');
 });
 
 socketIoServer.listen(3000, () => {
