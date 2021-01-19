@@ -133,10 +133,10 @@
         socket.emit('privateHistory', privateReceiver);
         socket.on('renderPrivateHistory', (data) => {
           for (nick of data.newPrivateHistory) {
-            // if (
-            //   nick.nickname === chosenNick.innerText ||
-            //   privateReceiver === chosenNick.innerText
-            // ) {
+            if (
+              nick.nickname === chosenNick.innerText ||
+              privateReceiver === chosenNick.innerText
+            ) {
             const reversedData = Object.values(
               data.newPrivateHistory
             ).reverse();
@@ -154,7 +154,7 @@
               li.innerText = `${dt.dateTime} (private) - ${dt.nickname}: ${dt.chatMessage}`;
               privateMsgList.appendChild(li);
             }
-            // }
+            }
           }
         });
       }
