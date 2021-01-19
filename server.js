@@ -7,7 +7,6 @@ const moment = require('moment');
 const faker = require('faker');
 const Model = require('./models/chatModel');
 
-
 const PORT = process.env.PORT || 3000;
 
 const app = express();
