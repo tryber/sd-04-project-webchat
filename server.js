@@ -4,8 +4,9 @@ const path = require('path');
 const http = require('http');
 const socketio = require('socket.io');
 const moment = require('moment');
-const Model = require('./models/chatModel');
 const faker = require('faker');
+const Model = require('./models/chatModel');
+
 
 const PORT = process.env.PORT || 3000;
 
