@@ -13,7 +13,7 @@
 
       #mensagens {
         background-color: rgb(202, 202, 202);
-        color: white;
+        color: black;
         font-size: 20pt;
         height: 80vh;
         list-style-type: none;
@@ -58,39 +58,46 @@
     </style>
   </head>
   <body>
-    <input autocomplete="off" id="userName" placeholder="Type your user name" />
+    <div style="display: flex;">
+      <input autocomplete="off" data-testid="nickname-box" id="userName" placeholder="Type your user name" />
+      <button id="btn-save-nick" data-testid="nickname-save">Enter nickname</button>
+    </div>
     <ul id="mensagens"></ul>
     <form id="formChat">
-      <input autocomplete="off" id="mensagemInput" placeholder="Type a message here" />
-      <button>Send</button>
+      <input autocomplete="off" data-testid="message-box" id="mensagemInput" placeholder="Type a message here" />
+      <button data-testid="send-button">Send</button>
     </form>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.0/socket.io.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
       const socket = io('http://localhost:3000');
+      let nickname = `${Math.random()}`;
 
-      function renderMessages(msg) {
-        $('#mensagens').append(`<li><strong>${msg.userName}:</strong> ${msg.typedMessage}</li>`);
+      $('#btn-save-nick').click(function() {
+        nickname = $('#userName').val();
+      });
+
+      function renderMessages({ messageDate, nickname, chatMessage }) {
+        $('#mensagens')
+          .append(`<li>${messageDate} ${nickname} ${chatMessage}</li>`);
       }
 
-      socket.on('previousMessages', function (messages) {
-        messages.forEach((message) => renderMessages(message));
-      });
+      // socket.on('previousMessages', function (messages) {
+      //   messages.forEach((message) => renderMessages(message));
+      // });
 
       socket.on('receivedMessage', function (message) {
         renderMessages(message);
       });
 
-      $('#formChat').submit(function (e) {
+      $('#formChat').submit(function(e) {
         e.preventDefault();
-        const typedMessage = $('#mensagemInput').val();
-        const userName = $('#userName').val();
-        if (typedMessage.length) {
-          const userMessageInfo = { userName, typedMessage };
-          renderMessages(userMessageInfo);
+        const chatMessage = $('#mensagemInput').val();
+        // const nickname = $('#userName').val();
+        if (chatMessage.length) {
+          const userMessageInfo = { chatMessage, nickname };
+          socket.emit('message', userMessageInfo);
           $('#mensagemInput').val('');
-          socket.emit('sendMessage', userMessageInfo);
         }
       });
     </script>

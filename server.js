@@ -6,14 +6,22 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
+const Messages = require('./model/Messages');
+
 app.use(cors());
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 io.on('connection', async (socket) => {
-  socket.on('sendMessage', async (data) => {
-    await socket.broadcast.emit('receivedMessage', data);
+  const allMessages = await Messages.getMessages() || [];
+
+  allMessages.forEach((data) => socket.emit('receivedMessage', data));
+
+  socket.on('message', async (data) => {
+    const storedResult = await Messages.saveUserMessage(data);
+    socket.emit('receivedMessage', storedResult);
+    socket.broadcast.emit('receivedMessage', storedResult);
   });
 });
 
