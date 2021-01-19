@@ -26,17 +26,17 @@ const formatMessage = (nickname, message, timestamp) =>
 const formatMessagePrivate = (nickname, message, timestamp) =>
   `${timestamp} (private) - ${nickname}: ${message}`;
 
-  // Faker utilizado para gerar o botão e não me confundir com Anonymous
+// Faker utilizado para gerar o botão e não me confundir com Anonymous
 
 // Conexão
 io.on('connection', async (socket) => {
   const user = {
     id: socket.id,
-    nickname: faker.name.firstName()
+    nickname: faker.name.firstName(),
   };
 
   io.emit('onlineUsers', [...users, user]);
-  users.push(user)
+  users.push(user);
 
   const history = await Model.getMessages();
   socket.emit('history', history);
