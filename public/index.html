@@ -20,8 +20,8 @@
         <div class="chat-container">
           <p>Bem vindo <span id="title-nickname"></span></p>
         </div>
+        <button type="button" id="public-chat" data-testid="public">Public Chat</button>
         <div class="chat-container" id="private-chat">
-          <button type="button" id="public-chat" data-testid="public">Public Chat</button>
         </div>
         <form>
           <textarea type='text' id="msg-input" data-testid="message-box" rows='3'></textarea>
@@ -69,6 +69,7 @@
         e.preventDefault();
         const privPubMsg = (privateChat.style.display === 'block') ? true : false;
         if (privPubMsg) {
+          console.log('emit privado')
           const chatValue = document.getElementById('private-chat').getAttribute('data-value');
           socket.emit('privateMessage', {
             anotherSocketId: chatValue,
@@ -76,6 +77,7 @@
             nickname: nickName.textContent,
           });
         } else {
+          console.log('emit publico')
           socket.emit('message', {
             nickname: nickName.textContent,
             chatMessage: inputMsg.value,
@@ -102,16 +104,6 @@
         });
       });
 
-      socket.on('privateHistory', (allMsgPrivate) => {
-        allMsgPrivate.forEach((msg) => {
-          const p = document.createElement('p');
-          p.innerText = privateMsgSend;
-          p.setAttribute('data-testid', 'message');
-          inputMsg.value = '';
-          privateChat.appendChild(p);
-        });
-      });
-
       socket.on('privateMessage', (privateMsgSend) => {
         const p = document.createElement('p');
         p.innerText = privateMsgSend;
@@ -130,7 +122,7 @@
         inputMsg.value = '';
       });
 
-      socket.on('onlineUsers', (onlineUsers) => {
+      const ListOnlineUsers = (onlineUsers) => {
         onlineUsersList.innerHTML = '';
         // cria o primeiro elemento da lista, sempre sendo o usuario atual
         const li = document.createElement('li');
@@ -154,17 +146,39 @@
             chatContainer.style.display = "none";
             privateChat.style.display = "block";
             privateChat.setAttribute('data-value', user.id)
+            socket.on('privateHistory', (allMsgPrivate) => {
+              allMsgPrivate.forEach((msg) => {
+                const p = document.createElement('p');
+                p.innerText = privateMsgSend;
+                p.setAttribute('data-testid', 'message');
+                p.setAttribute('classname', 'privateMsg');
+                inputMsg.value = '';
+                privateChat.appendChild(p);
+              });
+            });
           });
-
           // determina o append child
           onlineUsersList.appendChild(li);
           onlineUsersList.appendChild(btn);
         });
+      };
+
+      socket.on('onlineUsers', (onlineUsers) => {
+        ListOnlineUsers(onlineUsers);
+      });
+
+      socket.on('newNickName', (onlineUsers) => {
+        ListOnlineUsers(onlineUsers);
+      });
+
+      socket.on('newUser', (onlineUsers) => {
+        ListOnlineUsers(onlineUsers);
       });
 
       socket.on('disconnect', (users) => {
         console.log('MSG EMITIDA PELO BACK', users);
         onlineUsersList.innerHTML = '';
+        ListOnlineUsers(onlineUsers)
         renderMessage(`usuário saiu do chat...`);
       });
 
@@ -172,6 +186,7 @@
         chatContainer.style.display = "block";
         privateChat.style.display = "none";
         const privateMsg = document.querySelectorAll('.privateMsg');
+        console.log(privateMsg)
         for (p in privateMsg) {
           p.remove();
         }

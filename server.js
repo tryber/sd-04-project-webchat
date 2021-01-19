@@ -35,8 +35,8 @@ io.on('connection', async (socket) => {
     console.log('esse é o nome atual', nick); // usuario
     thisUser = { id: socket.id, nick };
     onlineUsers.push(thisUser);
-    console.log(onlineUsers);
-    io.emit('onlineUsers', onlineUsers);
+    // console.log(onlineUsers);
+    io.emit('newUser', onlineUsers);
   });
 
   const msgSend = [];
@@ -60,13 +60,13 @@ io.on('connection', async (socket) => {
       if (thisNewUser.id === thisUser.id) thisNewUser.nick = newUser;
       return console.log(user);
     });
-    io.emit('onlineUsers', onlineUsers);
+    io.emit('newNickName', onlineUsers);
   });
 
   socket.on('disconnect', () => {
     console.log('usuario se desconectou');
     onlineUsers = onlineUsers.filter((user) => user.id !== socket.id);
-    io.emit('onlineUsers', onlineUsers);
+    io.emit('disconnect', onlineUsers);
   });
 
   socket.on('privateMessage', async ({ anotherSocketId, msg, nickname }) => {
