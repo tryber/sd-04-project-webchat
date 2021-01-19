@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 const path = require('path');
 const cors = require('cors');
 const moment = require('moment');
-const { getAllMsg, createMsg } = require('./models/msgModel');
+const { getAllMsg, createMsg, getPrivateMessages, createPrivateMsg } = require('./models/msgModel');
 
 const app = express();
 const socketIoServer = http.createServer(app); // cria o servidor
@@ -27,6 +27,7 @@ let thisUser;
 
 io.on('connection', async (socket) => {
   const allMsg = await getAllMsg();
+  const allPrivateMsg = await getPrivateMessages();
 
   io.emit('onlineUsers', onlineUsers);
 
@@ -68,13 +69,22 @@ io.on('connection', async (socket) => {
     io.emit('onlineUsers', onlineUsers);
   });
 
-  socket.on('privateMessage', ({ anotherSocketId, msg }) => {
+  socket.on('privateMessage', async ({ anotherSocketId, msg, nickname }) => {
     const time = moment(new Date()).format('DD-MM-YYYY h:mm:ss a');
     const userTo = onlineUsers.find((user) => user.id === anotherSocketId);
+    await createPrivateMsg(msg, nickname, time, userTo.nick);
     const privateMsgSend = `PRIVATE TO ${userTo.nick} - ${time}: ${msg}`;
     io.to(socket.id).emit('privateMessage', privateMsgSend);
     io.to(anotherSocketId).emit('privateMessageReceiver', privateMsgSend);
   });
+
+  const allMsgPrivate = [];
+  allPrivateMsg.map((element) => {
+    const { chatMessage, ReceiverNick, timestamp } = element;
+    return allMsgPrivate.push(`PRIVATE TO ${ReceiverNick} - ${timestamp}: ${chatMessage}`);
+  });
+
+  socket.emit('privateHistory', allMsgPrivate);
 });
 
 socketIoServer.listen(3000, () => {

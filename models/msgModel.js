@@ -15,4 +15,20 @@ const createMsg = async (chatMessage, nickname, timestamp) =>
       timestamp,
     }));
 
-module.exports = { getAllMsg, createMsg };
+const createPrivateMsg = async (chatMessage, nickname, timestamp, ReceiverNick) =>
+  connection()
+    .then((db) =>
+      db.collection('PrivateMessages').insertOne({ chatMessage, nickname, timestamp, ReceiverNick }))
+    .then(({ insertedId }) => ({
+      _id: insertedId,
+      chatMessage,
+      nickname,
+      timestamp,
+      ReceiverNick,
+    }));
+
+const getPrivateMessages = async () =>
+  connection()
+    .then((db) => db.collection('privateMessages').find({}).toArray());
+
+module.exports = { getAllMsg, createMsg, getPrivateMessages, createPrivateMsg };
