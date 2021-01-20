@@ -8,20 +8,37 @@
       <h2>Chat!</h2>
     </header>
     <main>
-      <div class="users">usuarios</div>
+      <ul class="users">usuarios</ul>
       <div class="chatMessages">chat message </div>       
       <form id="chatForm">
-        <input
-          id="inputMessage"
-          type="text"
-          data-testid="message-box"
-          placeholder="Enter Message"
-        />
+        <label><strong>Message</strong>
+          <input
+            id="inputMessage"
+            type="text"
+            data-testid="message-box"
+            placeholder="Enter Message"
+          />
+        </label>
         <button
           type="submit"
           id="sendBtn"
           data-testid="send-button"
-        >Enviar</button>
+        >Send</button>
+      </form>
+      <form id="nickForm">
+        <label><strong>Nickname</strong>
+          <input
+            id="inputNickname"
+            type="text"
+            data-testid="nickname-box"
+            placeholder="Chose a Nickname"
+          />
+        </label>
+        <button
+          type="submit"
+          id="sendNick"
+          data-testid="nickname-save"
+        >Send</button>
       </form>
     </main>
   </body>
@@ -29,11 +46,13 @@
 
       const socket = io('http://localhost:3000');
       const inputMessage = document.getElementById('inputMessage');
+      const inputNick = document.getElementById('inputNickname');
       const usersList = document.querySelector('.users');
       const chatMessages = document.querySelector('.chatMessages');
       const sendBtn = document.getElementById('sendBtn');
+      const sendNick = document.getElementById('sendNick');
       const randon = Math.round(Math.random() * 100);
-      const nickname = `User${randon}`
+      let nickname = `User${randon}`;
 
       // botao de enviar msg
       sendBtn.addEventListener('click', (event) => {
@@ -46,6 +65,13 @@
         inputMessage.value = '';
         // mantem o campo selecionado depois do envio
         inputMessage.focus();
+      });
+
+      // botao de salvar nick
+      sendNick.addEventListener('click', (event) => {
+        event.preventDefault();
+        nickname = inputNick.value;
+        inputNick.value= '';
       })
 
       // recebe as msg do banco
@@ -75,7 +101,16 @@
 
         // concrola barra de rolagem
         chatMessages.scrollTop = chatMessages.scrollHeight;
-      })
+      });
+
+      socket.on('users', (users) => {
+        const allUsers = users.map((user) => {
+          const guest = document.createElement('li');
+          guest.innerHTML = user;
+          usersList.appendChild(guest);
+        })
+      });
+
     </script>   
 </html>
 <!-- Cada mensagem deve ter o data-testid="message". -->

@@ -3,6 +3,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
 const moment = require('moment');
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
@@ -16,12 +17,16 @@ const PORT = 3000 || process.env.PORT;
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cors());
+
+let users = [];
 
 io.on('connection', async (socket) => {
   const allMessage = await getAllMessages();
   console.log('conected');
   console.log('allMessages', allMessage);
   socket.emit('allMessage', allMessage);
+  socket.emit('users', users);
 
   socket.on('message', async ({ chatMessage, nickname }) => {
     console.log('chatMessage', chatMessage);
