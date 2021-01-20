@@ -79,11 +79,26 @@ io.on('connect', async (socket) => {
     io.emit('message', formatedMessage);
   });
 
+  // public chat
+  socket.on('publicChat', async () => {
+    const previousMessages = await messagesModel.getAll();
+    socket.emit('previousMessage', previousMessages);
+  });
   // private message
   // anotherSocketId -> destinatário (receiver)
-  socket.on('privateMessage', (receiver, msg) => {
-    socket.to(receiver).emit('privateMessage', socket.id, msg);
-    // socket.to(receiver).emit('privateMessage', msg);
+  // DD-MM-yyyy HH:mm:ss (private) - nickname: chatMessage
+  socket.on('privateMessage', (message) => {
+    const { chatMessage, nickname, receiver } = message;
+    const timestamp = new Date();
+    // DD-MM-yyyy
+    const dateMessage = `${timestamp.getDate()}-${timestamp.getMonth() + 1}-${timestamp.getFullYear()}`;
+    // HH:mm:ss
+    const timeMessage = `${timestamp.getHours()}:${timestamp.getMinutes()}:${timestamp.getSeconds()}`;
+    // DD-MM-yyyy HH:mm:ss (private) - nickname: chatMessage
+    const formatedMessage = `${dateMessage} ${timeMessage} (private) - ${nickname}: ${chatMessage}`;
+    // socket.to(receiver).emit('privateMessage', socket.id, formatedMessage);
+    socket.to(receiver).emit('privateMessage', formatedMessage);
+    socket.emit('privateMessage', formatedMessage);
   });
   // --- private message ---
 
