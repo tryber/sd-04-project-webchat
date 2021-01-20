@@ -4,6 +4,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
 const moment = require('moment');
+const { insertMsg, getMsgs } = require('./models/messages');
 
 const app = express();
 const PORT = 3000;
@@ -22,7 +23,13 @@ app.use(cors());
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
+  const msgs = await getMsgs();
+  msgs.map(({ timestamp, nickname, message }) =>
+    io.emit(
+      'message',
+      `${timestamp} - ${nickname}: ${message}`,
+    ));
   console.log(
     'Conectado',
   );
@@ -31,10 +38,15 @@ io.on('connection', (socket) => {
       'Desconectado',
     );
   });
-  socket.on('message', ({ nickname, chatMessage }) => {
+  socket.on('message', async ({ nickname, chatMessage }) => {
+    const msg = await insertMsg({
+      nickname,
+      message: chatMessage,
+      timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
+    });
     io.emit(
       'message',
-      `${moment(new Date()).format('DD-MM-yyyy hh:mm:ss A')} - ${nickname}: ${chatMessage}`,
+      `${msg.timestamp} - ${nickname}: ${chatMessage}`,
     );
   });
   socket.on('updateNick', (nickname) => {
