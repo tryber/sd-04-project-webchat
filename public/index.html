@@ -35,34 +35,45 @@
       const randon = Math.round(Math.random() * 100);
       const nickname = `User${randon}`
 
+      // botao de enviar msg
       sendBtn.addEventListener('click', (event) => {
         event.preventDefault();
         const chatMessage = inputMessage.value;
         console.log('chatMessage', chatMessage);
         socket.emit('message', { chatMessage, nickname });
+
+        // apaga o campo depois do envio
         inputMessage.value = '';
+        // mantem o campo selecionado depois do envio
         inputMessage.focus();
       })
 
+      // recebe as msg do banco
       socket.on('allMessage', (data) => {
         console.log('data', data);
+        //map maroto pra renderizar as msg na tela
         const allMessages = data.map((msg) => {
          const message = document.createElement("p");
          message.innerText = `${msg.timestamp} - ${msg.nickname}: ${msg.chatMessage}`
          const div = document.createElement("div");
          div.appendChild(message);
+         div.setAttribute('data-testid', 'message');
          chatMessages.appendChild(div);
         })
       });
 
+      // escuta a msg
       socket.on('message', (msgData) => {
         console.log('msgData', msgData);
         const message = document.createElement("p");
          message.innerText = `${msgData}`
          const div = document.createElement("div");
+         div.setAttribute('data-testid', 'message');
+
          div.appendChild(message);
          chatMessages.appendChild(div);
 
+        // concrola barra de rolagem
         chatMessages.scrollTop = chatMessages.scrollHeight;
       })
     </script>   

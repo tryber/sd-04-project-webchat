@@ -5,23 +5,17 @@ const path = require('path');
 const moment = require('moment');
 require('dotenv').config();
 
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
 const { getAllMessages, addMessage } = require('./models/message');
 
-const PORT = 3000 || process.env.PORT
+const PORT = 3000 || process.env.PORT;
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-
-// app.get('/', (req, res) => {
-//   res.status(200).json({msg: 'ola'})
-// })
 
 io.on('connection', async (socket) => {
   const allMessage = await getAllMessages();
@@ -32,13 +26,13 @@ io.on('connection', async (socket) => {
   socket.on('message', async ({ chatMessage, nickname }) => {
     console.log('chatMessage', chatMessage);
     console.log('nick', nickname);
-    const timestamp = moment().format('h:mm a');
+    const timestamp = moment().format('MM-DD-YYYY h:mm a');
     console.log('time', timestamp);
     const newMsg = `${timestamp} - ${nickname}: ${chatMessage}`;
-    socket.emit('message',newMsg);
+    socket.emit('message', newMsg);
 
-    socket.broadcast.emit('message',newMsg);
-    await addMessage(chatMessage, nickname , timestamp);
+    socket.broadcast.emit('message', newMsg);
+    await addMessage(chatMessage, nickname, timestamp);
   });
 
   socket.on('changeName', () => {});
