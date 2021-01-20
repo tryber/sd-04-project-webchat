@@ -6,12 +6,13 @@
   <title>Web chat</title>
 </head>
 <body>
-  <form id="nickname-form">
+  <!-- <form id="nickname-form">
     <input type="text" id="nickname" placeholder="Type your nickname" data-testid="nickname-box">
     <button class="nickname-save" data-testid="nickname-save">Save</button>
-  </form>
+  </form> -->
   <div class="chat-messages"></div>
   <form id="chat-form">
+    <input type="text" id="nickname" placeholder="Type your nickname" data-testid="nickname-box">
     <input type="text" id="message" placeholder="Enter message" required data-testid="message-box">
     <button class="send-btn" data-testid="send-button">Send</button>
   </form>
@@ -32,35 +33,6 @@
       document.querySelector('.chat-messages').appendChild(div);
     };
 
-    const addOnlineUsersList = (nickanme) => {
-      const div = document.createElement('div');
-      div.classList.add('online-user-container');
-      div.innerHTML = `<p class="online-user" data-testid="online-user">${nickanme}</p>`
-      document.querySelector('#users-list').appendChild(div);
-    };
-
-    let userNickname;
-
-    socket.on('connect', () => {
-      socket.emit('userOnline', userNickname ? userNickname : `User ${socket.id}`)
-    });
-
-    socket.on('userList', (userList) => {
-      document.querySelector('#users-list').innerHTML = '';
-      const sortedUserList = userList.filter((user) => user.userId !== socket.id);
-      sortedUserList.unshift(userList.find((user) => user.userId === socket.id));
-      sortedUserList.map((user) => {
-        const li = document.createElement('li');
-        li.innerText = user.nickname;
-        li.setAttribute('data-testid', 'online-user');
-        document.querySelector('#users-list').appendChild(li);
-      });
-    });
-
-    socket.on('loadMessagesHistory', (messages) => {
-      messages.forEach((message) => outputMessage(message))
-    });
-
     socket.on('message', (message) => {
       outputMessage(message);
       chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -69,23 +41,14 @@
     chatForm.addEventListener('submit', (event) => {
       event.preventDefault();
 
-      const nickname = userNickname ? userNickname : `User ${socket.id}`
 
       const chatMessage = event.target.elements.message.value;
+      const nickname = event.target.elements.nickname.value;
       socket.emit('message', { chatMessage, nickname });
 
       event.target.elements.message.value = '';
       event.target.elements.message.focus();
     });
-
-    nicknameForm.addEventListener('submit', (event) => {
-      event.preventDefault();
-
-      const nickname = event.target.elements.nickname.value;
-      userNickname = nickname;
-      socket.emit('updateNickname', userNickname)
-    })
-
   </script>
 </body>
 </html>
