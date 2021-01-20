@@ -18,7 +18,8 @@
             <div class="right">                
                 <input type="text" placeholder="Your nickname" id="nickname-input" class="input" data-testid="nickname-box" />
                 <button type="button" id="btn-nick" data-testid="nickname-save">Save</button>
-                <div class="chat"></div> 
+                <div class="chat"></div>
+
                 <input type="text" placeholder="Your message" id="message-input" class="input" data-testid="message-box" />
                 <button type="button" id="btn-msg" data-testid="send-button">Send</button>                           
             </div>
@@ -31,15 +32,24 @@
     const btnMsg = document.querySelector('#btn-msg');
     const userList = document.querySelector('.users');
     const chat = document.querySelector('.chat');
+    const privateChat = document.querySelector('.private-chat');
     const nicknameInput = document.querySelector('#nickname-input');
     const message = document.querySelector('#message-input');
     const myNick = document.querySelector('#mynick');
     const publicBtn = document.querySelector('#btn-public');
 
     let receiver = '';
+    let objMessages = {
+        public: [],
+        private: [],
+    }
+    let active = 'public';
 
     publicBtn.addEventListener('click', () => {
         receiver = '';
+        active = 'public';
+        clearMessages();
+        objMessages.public.forEach(msg => showMessage(msg))
     })
 
     const showMessage = (message) => {
@@ -48,6 +58,10 @@
         p.setAttribute('data-testid', 'message')
         p.innerText = message;
         chat.appendChild(p);
+    }
+
+    const clearMessages = () => {
+        chat.innerHTML = ''
     }
 
     btnNick.addEventListener('click', (e) => {
@@ -63,15 +77,23 @@
             msg = { chatMessage: message.value, nickname: 'Anonymous', receiver }
         } else {
             msg = { chatMessage: message.value, nickname: nicknameInput.value, receiver }
-        }        
+        }
         socket.emit('message', msg);
         message.value = '';
         message.focus();
     });
 
-    socket.on('message', (message) => {
-        showMessage(message)
+    socket.on('message', (message, type) => {
+        objMessages[type].push(message)
+        if (type === active) showMessage(message)
     });
+
+    // socket.on('private-message', (message) => {
+    //     // chat.style.display = 'block';
+    //     // privateChat.style.display = 'none';
+    //     objMessages.private.push(message);
+    //     showMessage(message)
+    // });
 
     socket.on('history', (messages) => {
         messages.forEach(message => {
@@ -82,19 +104,51 @@
 
     socket.on('onlineUsers', (arr) => {
         userList.innerHTML = '';
-        arr.forEach(user => {
+        const myself = [arr.find(user => socket.id === user.id)];
+        const others = arr.filter(user => socket.id !== user.id);
+
+        myself.forEach(user => {
             const li = document.createElement('li');
             li.setAttribute('data-testid', 'online-user');            
             const btn = document.createElement('button');
             btn.setAttribute('data-testid', 'private');
-            socket.id !== user.id ?
+            btn.innerText = user.nickname;
+            btn.disabled = true;
+            li.appendChild(btn)
+            userList.appendChild(li)
+        })
+
+        others.forEach(user => {
+            const li = document.createElement('li');
+            li.setAttribute('data-testid', 'online-user');            
+            const btn = document.createElement('button');
+            btn.setAttribute('data-testid', 'private');
             btn.addEventListener('click', () => {
                 receiver = user.id;
-            }) : btn.disabled = true
+                clearMessages();
+                active = 'private';
+                objMessages.private.forEach(msg => showMessage(msg));
+            });
             btn.innerText = user.nickname;
             li.appendChild(btn)
             userList.appendChild(li)
         })
+        
+        // arr.forEach(user => {
+        //     const li = document.createElement('li');
+        //     li.setAttribute('data-testid', 'online-user');            
+        //     const btn = document.createElement('button');
+        //     btn.setAttribute('data-testid', 'private');
+        //     socket.id !== user.id ?
+        //     btn.addEventListener('click', () => {
+        //         receiver = user.id;
+        //         privateChat.style.display = 'block';
+        //         chat.style.display = 'none';
+        //     }) : btn.disabled = true
+        //     btn.innerText = user.nickname;
+        //     li.appendChild(btn)
+        //     userList.appendChild(li)
+        // })
     });
 
 </script>

@@ -35,13 +35,18 @@ io.on('connection', async (socket) => {
     nickname: faker.name.firstName(),
   };
 
+  // NEW ERA
+
+  const privateHistory = await Model.getPrivateMessages();
+  socket.emit('private-history', privateHistory);
+
+  // END NEW ERA
+
   io.emit('onlineUsers', [...users, user]);
   users.push(user);
 
   const history = await Model.getMessages();
   socket.emit('history', history);
-
-  // socket.broadcast.emit('message', 'New user logged');
 
   socket.on('changeNick', (nickname) => {
     user.nickname = nickname;
@@ -52,23 +57,20 @@ io.on('connection', async (socket) => {
   socket.on('message', async ({ chatMessage, nickname, receiver }) => {
     const date = Date.now();
     const time = moment(date).format('DD-MM-YYYY h:mm:ss a');
-
     if (!receiver) {
-      io.emit('message', formatMessage(nickname, chatMessage, time));
+      io.emit('message', formatMessage(nickname, chatMessage, time), 'public');
       // save in BD
       await Model.saveMessage(chatMessage, nickname, time);
     } else {
       socket
         .to(receiver)
-        .emit('message', formatMessagePrivate(nickname, chatMessage, time));
-      socket.emit('message', formatMessagePrivate(nickname, chatMessage, time));
-      await Model.saveMessage(chatMessage, nickname, time);
+        .emit('message', formatMessagePrivate(nickname, chatMessage, time), 'private');
+      socket.emit('message', formatMessagePrivate(nickname, chatMessage, time), 'private');
+     // await Model.savePrivateMessage(chatMessage, nickname, time, receiver);
     }
   });
 
-  // socket.on('private', (data) => {
-  //   socket.to(data.to).emit('message', data.msg)
-  // })
+  // alterado aqui em cima para private-message
 
   socket.on('disconnect', () => {
     users = users.filter((person) => socket.id !== person.id);
