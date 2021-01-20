@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
-let users = [];
+const users = [];
 
 io.on('connection', async (socket) => {
   const allMessage = await getAllMessages();
