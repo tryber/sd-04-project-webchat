@@ -6,13 +6,12 @@
   <title>Web chat</title>
 </head>
 <body>
-  <!-- <form id="nickname-form">
+  <form id="nicknameForm">
     <input type="text" id="nickname" placeholder="Type your nickname" data-testid="nickname-box">
     <button class="nickname-save" data-testid="nickname-save">Save</button>
-  </form> -->
-  <div class="chat-messages"></div>
-  <form id="chat-form">
-    <input type="text" id="nickname" placeholder="Type your nickname" data-testid="nickname-box">
+  </form>
+  <div id="chatMessagesView"></div>
+  <form id="chatForm">
     <input type="text" id="message" placeholder="Enter message" required data-testid="message-box">
     <button class="send-btn" data-testid="send-button">Send</button>
   </form>
@@ -20,18 +19,23 @@
 
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script>
-    const chatForm = document.querySelector('#chat-form');
-    const chatMessages = document.querySelector('.chat-messages');
-    const nicknameForm = document.querySelector('#nickname-form');
+    const chatForm = document.querySelector('#chatForm');
+    const chatMessages = document.querySelector('#chatMessagesView');
+    const nicknameForm = document.querySelector('#nicknameForm');
 
     const socket = io();
+    let nickname;
 
     const outputMessage = (message) => {
       const div = document.createElement('div');
       div.classList.add('message');
       div.innerHTML = `<p class="meta" data-testid="message">${message}</p>`;
-      document.querySelector('.chat-messages').appendChild(div);
+      chatMessages.appendChild(div);
     };
+
+    socket.on('connect', () => {
+      nickname = `Guest_${socket.id}`;
+    })
 
     socket.on('message', (message) => {
       outputMessage(message);
@@ -40,14 +44,16 @@
 
     chatForm.addEventListener('submit', (event) => {
       event.preventDefault();
-
-
       const chatMessage = event.target.elements.message.value;
-      const nickname = event.target.elements.nickname.value;
       socket.emit('message', { chatMessage, nickname });
-
       event.target.elements.message.value = '';
       event.target.elements.message.focus();
+    });
+    
+    nicknameForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      nickname = event.target.elements.nickname.value;
+      socket.emit('updateNick', nickname);
     });
   </script>
 </body>

@@ -37,6 +37,9 @@ io.on('connection', (socket) => {
       `${moment(new Date()).format('DD-MM-yyyy hh:mm:ss A')} - ${nickname}: ${chatMessage}`,
     );
   });
+  socket.on('updateNick', (nickname) => {
+    console.log(nickname);
+  });
 });
 
 server.listen(PORT, () => {
