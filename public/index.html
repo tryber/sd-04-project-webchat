@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>    
+  </head>
+  <body>
+    <header>
+      <h2>Chat!</h2>
+    </header>
+    <main>
+      <div class="users">usuarios</div>
+      <div class="chatMessages">chat message </div>       
+      <form id="chatForm">
+        <input
+          id="inputMessage"
+          type="text"
+          data-testid="message-box"
+          placeholder="Enter Message"
+        />
+        <button
+          type="submit"
+          id="sendBtn"
+          data-testid="send-button"
+        >Enviar</button>
+      </form>
+    </main>
+  </body>
+    <script>
+
+      const socket = io('http://localhost:3000');
+      const inputMessage = document.getElementById('inputMessage');
+      const usersList = document.querySelector('.users');
+      const chatMessages = document.querySelector('.chatMessages');
+      const sendBtn = document.getElementById('sendBtn');
+      const randon = Math.round(Math.random() * 100);
+      const nickname = `User${randon}`
+
+      sendBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        const chatMessage = inputMessage.value;
+        console.log('chatMessage', chatMessage);
+        socket.emit('message', { chatMessage, nickname });
+        inputMessage.value = '';
+        inputMessage.focus();
+      })
+
+      socket.on('allMessage', (data) => {
+        console.log('data', data);
+        const allMessages = data.map((msg) => {
+         const message = document.createElement("p");
+         message.innerText = `${msg.timestamp} - ${msg.nickname}: ${msg.chatMessage}`
+         const div = document.createElement("div");
+         div.appendChild(message);
+         chatMessages.appendChild(div);
+        })
+      });
+
+      socket.on('message', (msgData) => {
+        console.log('msgData', msgData);
+        const message = document.createElement("p");
+         message.innerText = `${msgData}`
+         const div = document.createElement("div");
+         div.appendChild(message);
+         chatMessages.appendChild(div);
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      })
+    </script>   
+</html>
+<!-- Cada mensagem deve ter o data-testid="message". -->
