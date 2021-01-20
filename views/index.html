@@ -76,6 +76,7 @@
   <script>
     // talvez colocar esse código no assets/js/script.js
     let receiver;
+    let privateMsgs = [];
     function pvChat(event) {
       // console.log('private-chat');
       // console.log('Id do client: ', event.target.previousSibling.id);
@@ -92,8 +93,14 @@
         })
         .append($('<ul></ul>').attr({ id: "messages" }));
       $('#chat').append(privateChat);
+      // mensagens anteriores do chat privado
+      if (privateMsgs.length > 0) {
+        privateMsgs.forEach((msg) => {
+          $('#messages').append($('<li data-testid="message">').text(msg));
+        });
+      }
     }
-
+        
     $(function () {
       const socket = io('http://localhost:3000');
 
@@ -151,8 +158,6 @@
         clients.forEach((client) => {
           const listed = $(`#${client.userId}`);
           if (listed.length === 0) {
-            // li - contem informações do cliente
-            // const li = `<li id=${client.userId} data-testid="online-user">${client.nickname}</li>`;
             const li = $('<li></li>')
               .attr({
                 id: client.userId,
@@ -161,8 +166,6 @@
               .text(client.nickname);
 
             // btn - private chat
-            // const btnPrivate = '<button type="button" id="btn-private-chat" data-testid="private">Private</button>';
-
             const btnPrivate = $('<button></button')
               .attr({
                 type: "button",
@@ -172,28 +175,7 @@
               })
               .text('Private');
 
-            // Botão do chat privado
-            /*
-            $('button#btn-private-chat').click(function(event) {
-              console.log('private-chat');
-              console.log('Id do client: ', event.target.previousSibling.id);
-
-              // fecha o chat público
-              $('#public-chat').remove();
-              $('#chat').empty();
-              // abre o chat publico
-              const privateChat = $('<div></div>')
-                .attr({
-                  class: "box-messages",
-                  id: "private-chat",
-                })
-                .append($('<ul></ul>').attr({ id: "messages" }));
-              $('#chat').append(privateChat);
-            });
-            */
-
             // boxLi - que será composta pela li e btnPrivate 
-            // const boxLi = `<div id="box-${client.userId}" class="box-user">${li}${btnPrivate}</div>`;
             const boxLi = $('<div></div>')
               .attr({
                 id: `box-${client.userId}`,
@@ -202,7 +184,6 @@
               .append(li);
 
             if (socket.id === client.userId) {
-              // const boxLi = `<div id="box-${client.userId}" class="box-user">${li}</div>`;
               $('#online-user').prepend(boxLi);
             } else {
               boxLi.append(btnPrivate);
@@ -233,6 +214,7 @@
 
       // Recebe as mensagens privadas do servidor e coloca na tela
       socket.on('privateMessage', function (message) {
+        privateMsgs.push(message);
         $('#messages').append($('<li data-testid="message">').text(message));
       });
       // Recebe o nickname do servidor

@@ -99,6 +99,9 @@ io.on('connect', async (socket) => {
     // socket.to(receiver).emit('privateMessage', socket.id, formatedMessage);
     socket.to(receiver).emit('privateMessage', formatedMessage);
     socket.emit('privateMessage', formatedMessage);
+
+    // Funciona, mas acho que está errado.
+    io.emit('privateMessage', formatedMessage);
   });
   // --- private message ---
 
