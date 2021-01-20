@@ -22,6 +22,20 @@ app.post('/chat',
   messagesController.sendPublicMensage(io),
 );
 
+io.on('connection', (socket) => {
+  
+  console.log(socket.id);
+
+  const msg = 'teste do servidor';
+  
+  socket.on('messageClient', (message) => {
+    socket.broadcast.emit('dataServer', message);
+  });
+});
+
+
+
+
 const PORT = process.env.PORT || 3000;
 
-httpServer.listen(PORT, () => console.log('Escutando na porta 4555'));
+httpServer.listen(PORT, () => console.log(`Escutando na porta ${PORT}`));
