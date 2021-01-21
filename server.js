@@ -1,30 +1,23 @@
-require('dotenv').config();
-
 const express = require('express');
-
-const app = express();
 const http = require('http');
 const cors = require('cors')();
 const socketIo = require('socket.io');
 const path = require('path');
+require('dotenv').config();
 
+const app = express();
+const PORT = process.env.PORT || 3000
 let guestId = 0;
 
 const socketIoServer = http.createServer(app);
-const io = socketIo(socketIoServer,
-  {
-    cors: {
-      origin: 'http://localhost:3000/',
-      methods: ['GET', 'POST'],
-    },
-  });
+const io = socketIo(socketIoServer);
 
 const sockets = [];
 
+app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors);
-app.use('/', express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
   guestId += 1;
@@ -51,6 +44,6 @@ io.on('connection', (socket) => {
   });
 });
 
-socketIoServer.listen(3000, () => {
-  console.log('Servidor ouvindo a porta 3000');
+socketIoServer.listen(PORT, () => {
+  console.log(`Servidor ouvindo a porta ${PORT}`);
 });
