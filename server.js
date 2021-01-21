@@ -51,6 +51,6 @@ io.on('connection', (socket) => {
   });
 });
 
-socketIoServer.listen(process.env.PORT, () => {
-  console.log(`Servidor ouvindo a porta ${process.env.PORT}`);
+socketIoServer.listen(3000, () => {
+  console.log('Servidor ouvindo a porta 3000');
 });
