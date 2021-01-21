@@ -22,19 +22,31 @@
     const chatForm = document.querySelector('#chatForm');
     const chatMessages = document.querySelector('#chatMessagesView');
     const nicknameForm = document.querySelector('#nicknameForm');
+    const userList = document.querySelector('#users-list');
 
     const socket = io();
     let nickname;
 
     const addMessage = (message) => {
       const div = document.createElement('div');
-      div.classList.add('message');
       div.innerHTML = `<p class="meta" data-testid="message">${message}</p>`;
       chatMessages.appendChild(div);
     };
 
     socket.on('connect', () => {
       nickname = `Guest_${socket.id}`;
+      addMessage(`${nickname} entrou na sala`);
+      socket.emit('userConection', nickname);
+    })
+
+    socket.on('displayUsers', (users) => {
+      userList.innerHTML = '';
+      Object.values(users).map((user) => {
+        const li = document.createElement('li');
+        li.innerText = user;
+        li.setAttribute('data-testid', 'online-user');
+        userList.appendChild(li);
+      });
     })
 
     socket.on('message', (message) => {

@@ -23,21 +23,36 @@ app.use(cors());
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
+const users = {};
+
 io.on('connection', async (socket) => {
+  // Load Message History
   const msgs = await getMsgs();
   msgs.map(({ timestamp, nickname, message }) =>
     io.emit(
       'message',
       `${timestamp} - ${nickname}: ${message}`,
     ));
-  console.log(
-    'Conectado',
-  );
-  socket.on('disconnect', () => {
-    console.log(
-      'Desconectado',
-    );
+
+  socket.on('userConection', (currentUser) => {
+    users[socket.id] = currentUser;
+    console.log('newusers', users);
+    io.emit('displayUsers', users);
   });
+
+  socket.on('updateNick', (nickname) => {
+    users[socket.id] = nickname;
+    console.log('updateusers', users);
+    io.emit('displayUsers', users);
+  });
+
+  socket.on('disconnect', () => {
+    delete users[socket.id];
+    console.log('delusers', users);
+    io.emit('displayUsers', users);
+  });
+
+  // Single Message Emitter
   socket.on('message', async ({ nickname, chatMessage }) => {
     const msg = await insertMsg({
       nickname,
@@ -48,9 +63,6 @@ io.on('connection', async (socket) => {
       'message',
       `${msg.timestamp} - ${nickname}: ${chatMessage}`,
     );
-  });
-  socket.on('updateNick', (nickname) => {
-    console.log(nickname);
   });
 });
 
