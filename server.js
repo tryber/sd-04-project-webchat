@@ -5,7 +5,7 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const cors = require('cors')();
-const socketIo = require('socket.io')
+const socketIo = require('socket.io');
 const path = require('path');
 
 let guestId = 0;
@@ -40,7 +40,6 @@ io.on('connection', (socket) => {
     sockets.splice(sockets.indexOf(socket), 1);
     console.log('Adeus');
   });
-
 
   socket.on('mensagem', (message) => {
     io.emit('menssage', `${socket.user} disse: ${message}`);
