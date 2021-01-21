@@ -131,16 +131,18 @@
           while(usersList.firstChild) {
             usersList.removeChild(usersList.firstChild);
           };
-          
+
           const filter1 = users.filter((user) => user.nickname === nickname);
           const guest1 = document.createElement('li');
           guest1.innerHTML = filter1[0].nickname;
+          guest1.setAttribute('data-testid', 'online-user');
           usersList.appendChild(guest1);
           
           const filter2 = users.filter((user) => user.nickname !== nickname);
           const allUsers = filter2.map((user) => {
             const guest = document.createElement('li');
             guest.innerHTML = user.nickname;
+            guest.setAttribute('data-testid', 'online-user');
             usersList.appendChild(guest);
           })
         });
