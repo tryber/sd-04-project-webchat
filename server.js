@@ -64,9 +64,17 @@ io.on('connection', async (socket) => {
     } else {
       socket
         .to(receiver)
-        .emit('message', formatMessagePrivate(nickname, chatMessage, time), 'private');
-      socket.emit('message', formatMessagePrivate(nickname, chatMessage, time), 'private');
-     // await Model.savePrivateMessage(chatMessage, nickname, time, receiver);
+        .emit(
+          'message',
+          formatMessagePrivate(nickname, chatMessage, time),
+          'private',
+        );
+      socket.emit(
+        'message',
+        formatMessagePrivate(nickname, chatMessage, time),
+        'private',
+      );
+      // await Model.savePrivateMessage(chatMessage, nickname, time, receiver);
     }
   });
 
