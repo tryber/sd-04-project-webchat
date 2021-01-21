@@ -26,26 +26,26 @@ io.on('connection', async (socket) => {
   // chama as msg no banco e transmite pro usuario
   const allMessage = await getAllMessages();
   socket.emit('allMessage', allMessage);
-  
+
   // escuta a 'message' vinda do usuario
   socket.on('message', async ({ chatMessage, nickname }) => {
     // formata a msg
     const timestamp = moment().format('MM-DD-YYYY h:mm a');
     const newMsg = `${timestamp} - ${nickname}: ${chatMessage}`;
     // transmite a msg pra todos os usuarios
-    oi.emit('message', newMsg);
-    
+    io.emit('message', newMsg);
+
     // salva a msg no banco de dados
     await addMessage(chatMessage, nickname, timestamp);
   });
 
   // escuta o 'Nickname' vindo do usuario responsavel pela troca de nome
-  socket.on('Nickname', ({newNick}) => {
-    const { old, newN} = newNick;
-    const newList = users.filter((user) => user.nickname !== old)
+  socket.on('Nickname', ({ newNick }) => {
+    const { old, newN } = newNick;
+    const newList = users.filter((user) => user.nickname !== old);
     const newUser = {
       nickname: newN,
-      id: socket.id
+      id: socket.id,
     };
     newList.push(newUser);
     users = newList;
@@ -54,10 +54,10 @@ io.on('connection', async (socket) => {
 
   // escuta o 'initialUser' do usuario que 'seta' o nome randon
   socket.on('initialUser', (nickname) => {
-    const id = socket.id;
+    const { id } = socket;
     const userObj = {
       nickname,
-      id
+      id,
     };
     users.push(userObj);
 
@@ -68,9 +68,8 @@ io.on('connection', async (socket) => {
   socket.on('disconnect', () => {
     const newList = users.filter((user) => user.id !== socket.id);
     users = newList;
-    io.emit('users',users);
+    io.emit('users', users);
   });
 });
-
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
