@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
 
     socket.broadcast.emit(
       'message',
-      `<strong>${dados.date} - ${dados.nickname}</strong>: ${dados.chatMessage}`
+      `<strong>${dados.date} - ${dados.nickname}</strong>: ${dados.chatMessage}`,
     );
   });
 });
