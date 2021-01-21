@@ -19,30 +19,58 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
-const users = [];
+let users = [];
 
+// comeca uma coneccao
 io.on('connection', async (socket) => {
+  // chama as msg no banco e transmite pro usuario
   const allMessage = await getAllMessages();
-  console.log('conected');
-  console.log('allMessages', allMessage);
   socket.emit('allMessage', allMessage);
-  socket.emit('users', users);
-
+  
+  // escuta a 'message' vinda do usuario
   socket.on('message', async ({ chatMessage, nickname }) => {
-    console.log('chatMessage', chatMessage);
-    console.log('nick', nickname);
+    // formata a msg
     const timestamp = moment().format('MM-DD-YYYY h:mm a');
-    console.log('time', timestamp);
     const newMsg = `${timestamp} - ${nickname}: ${chatMessage}`;
-    socket.emit('message', newMsg);
-
-    socket.broadcast.emit('message', newMsg);
+    // transmite a msg pra todos os usuarios
+    oi.emit('message', newMsg);
+    
+    // salva a msg no banco de dados
     await addMessage(chatMessage, nickname, timestamp);
   });
 
-  socket.on('changeName', () => {});
-  socket.on('users', () => {});
-  socket.on('disconect', () => {});
+  // escuta o 'Nickname' vindo do usuario responsavel pela troca de nome
+  socket.on('Nickname', ({newNick}) => {
+    const { old, newN} = newNick;
+    const newList = users.filter((user) => user.nickname !== old)
+    const newUser = {
+      nickname: newN,
+      id: socket.id
+    };
+    newList.push(newUser);
+    users = newList;
+    io.emit('users', users);
+  });
+
+  // escuta o 'initialUser' do usuario que 'seta' o nome randon
+  socket.on('initialUser', (nickname) => {
+    const id = socket.id;
+    const userObj = {
+      nickname,
+      id
+    };
+    users.push(userObj);
+
+    io.emit('users', users);
+  });
+
+  // desconecta o usuario e tira o nome da lista de usuarios
+  socket.on('disconnect', () => {
+    const newList = users.filter((user) => user.id !== socket.id);
+    users = newList;
+    io.emit('users',users);
+  });
 });
+
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

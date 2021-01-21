@@ -8,8 +8,13 @@
       <h2>Chat!</h2>
     </header>
     <main>
-      <ul class="users">usuarios</ul>
-      <div class="chatMessages">chat message </div>       
+      <div>
+        <h3>Users</h3>
+        <ul class="users"></ul>
+      </div>
+      <div class="chatMessages">
+        <strong>Messages</strong>
+      </div>       
       <form id="chatForm">
         <label><strong>Message</strong>
           <input
@@ -43,73 +48,103 @@
     </main>
   </body>
     <script>
+      window.onload = () => {
+        
+        const socket = io('http://localhost:3000');
+        const inputMessage = document.getElementById('inputMessage');
+        const inputNick = document.getElementById('inputNickname');
+        const usersList = document.querySelector('ul.users');
+        const chatMessages = document.querySelector('.chatMessages');
+        const sendBtn = document.getElementById('sendBtn');
+        const sendNick = document.getElementById('sendNick');
+        const randon = Math.round(Math.random() * 100);
+        let nickname = `User${randon}`;
+        const id = socket.id;
+        
+        // enviar nome do usuario
+        socket.emit('initialUser', nickname);
 
-      const socket = io('http://localhost:3000');
-      const inputMessage = document.getElementById('inputMessage');
-      const inputNick = document.getElementById('inputNickname');
-      const usersList = document.querySelector('.users');
-      const chatMessages = document.querySelector('.chatMessages');
-      const sendBtn = document.getElementById('sendBtn');
-      const sendNick = document.getElementById('sendNick');
-      const randon = Math.round(Math.random() * 100);
-      let nickname = `User${randon}`;
-
-      // botao de enviar msg
-      sendBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        const chatMessage = inputMessage.value;
-        console.log('chatMessage', chatMessage);
-        socket.emit('message', { chatMessage, nickname });
-
-        // apaga o campo depois do envio
-        inputMessage.value = '';
-        // mantem o campo selecionado depois do envio
-        inputMessage.focus();
-      });
-
-      // botao de salvar nick
-      sendNick.addEventListener('click', (event) => {
-        event.preventDefault();
-        nickname = inputNick.value;
-        inputNick.value= '';
-      })
-
-      // recebe as msg do banco
-      socket.on('allMessage', (data) => {
-        console.log('data', data);
-        //map maroto pra renderizar as msg na tela
-        const allMessages = data.map((msg) => {
-         const message = document.createElement("p");
-         message.innerText = `${msg.timestamp} - ${msg.nickname}: ${msg.chatMessage}`
-         const div = document.createElement("div");
-         div.appendChild(message);
-         div.setAttribute('data-testid', 'message');
-         chatMessages.appendChild(div);
-        })
-      });
-
-      // escuta a msg
-      socket.on('message', (msgData) => {
-        console.log('msgData', msgData);
-        const message = document.createElement("p");
-         message.innerText = `${msgData}`
-         const div = document.createElement("div");
-         div.setAttribute('data-testid', 'message');
-
-         div.appendChild(message);
-         chatMessages.appendChild(div);
-
-        // concrola barra de rolagem
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      });
-
-      socket.on('users', (users) => {
-        const allUsers = users.map((user) => {
-          const guest = document.createElement('li');
-          guest.innerHTML = user;
-          usersList.appendChild(guest);
-        })
-      });
+        // // botao de enviar msg
+        sendBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          const chatMessage = inputMessage.value;
+          console.log('chatMessage', chatMessage);
+          socket.emit('message', { chatMessage, nickname });
+  
+          // apaga o campo depois do envio
+          inputMessage.value = '';
+          // mantem o campo selecionado depois do envio
+          inputMessage.focus();
+        });
+  
+        // botao de salvar nick
+        sendNick.addEventListener('click', (event) => {
+          event.preventDefault();
+          console.log('socketid', id)
+          const oldName = nickname;
+          const newName = inputNick.value;
+          nickname = inputNick.value;
+          inputNick.value= '';
+          const newNick = {
+            old: oldName,
+            newN: newName          
+          };
+          socket.emit('Nickname',  {newNick} );
+  
+        });
+      
+        // recebe as msg do banco
+        socket.on('allMessage', (data) => {
+          const initialUser = document.createElement('li');
+          initialUser.textContent = nickname;
+          usersList.appendChild(initialUser);
+  
+          chatMessages.innerHTML = '';
+          //map maroto pra renderizar as msg na tela
+          const allMessages = data.map((msg) => {
+           const message = document.createElement("p");
+           message.innerText = `${msg.timestamp} - ${msg.nickname}: ${msg.chatMessage}`
+           const div = document.createElement("div");
+           div.appendChild(message);
+           div.setAttribute('data-testid', 'message');
+           chatMessages.appendChild(div);
+          })
+        });
+  
+        // escuta a msg
+        socket.on('message', (msgData) => {
+          console.log('msgData', msgData);
+          const message = document.createElement("p");
+           message.innerText = `${msgData}`
+           const div = document.createElement("div");
+           div.setAttribute('data-testid', 'message');
+  
+           div.appendChild(message);
+           chatMessages.appendChild(div);
+  
+          // concrola barra de rolagem
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+  
+        socket.on('users', (users) => {
+          console.log('novousers', users)
+          while(usersList.firstChild) {
+            usersList.removeChild(usersList.firstChild);
+          };
+          
+          const filter1 = users.filter((user) => user.nickname === nickname);
+          const guest1 = document.createElement('li');
+          guest1.innerHTML = filter1[0].nickname;
+          usersList.appendChild(guest1);
+          
+          const filter2 = users.filter((user) => user.nickname !== nickname);
+          const allUsers = filter2.map((user) => {
+            const guest = document.createElement('li');
+            guest.innerHTML = user.nickname;
+            usersList.appendChild(guest);
+          })
+        });
+      } 
 
     </script>   
 </html>
