@@ -25,7 +25,7 @@
         placeholder="Digite sua mensagem"
       />
       <button type="submit" data-testid="send-button">Enviar</button>
-      <button type="submit" data-testid="nickname-save">Salvar</button>
+      <button type="button" id="buttonSalvar" data-testid="nickname-save">Salvar</button>
       <ul id="usersOnline"></ul>
     </form>
 
@@ -59,10 +59,15 @@
       });
 
       socket.on('offline', (user) => {
-        console.log(user);
+        Object.entries(user).forEach(([key, value]) => renderUser(value));
       });
-      // $(`li:contains(${user})`).remove()
-      // );
+
+      
+      $('#buttonSalvar').click(function () {
+        let nickname = $('input[name=username]').val();
+        console.log(nickname);
+        socket.emit('saveNickname', nickname);
+      })
 
       $('.chat').submit(function (event) {
         event.preventDefault();

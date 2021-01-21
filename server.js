@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
 const moment = require('moment');
-const {} = require('unique-names-generator');
 
 const app = express();
 
@@ -20,44 +19,39 @@ app.use('/', (req, res) => {
   res.render('index.html');
 });
 
-// const addCart = () => {
-//   if (!cart[name]) cart[name] = { ...product, quantidade: 1 };
-
-// };
-
-// const removeCart = () => {
-//   delete cart[name];
-// };
-
 const usersOnline = {};
 
 io.on('connection', (socket) => {
   console.log('Socket connectado', socket.id);
+
   const { id } = socket;
 
   webChatModel
     .getAll()
     .then((messages) => socket.emit('historicMessages', messages));
 
-  socket.emit('userConnect', usersOnline);
-
   socket.on('disconnect', () => {
-    console.log('Aqwui')
-    socket.emit('offline', usersOnline[socket.id])
+    delete usersOnline[id];
+    socket.emit('offline', usersOnline);
+  });
+
+  socket.on('saveNickname', (nickname) => {
+    if (nickname.length) {
+      usersOnline[id] = nickname;
+
+      io.emit('userConnect', usersOnline);
+    }
   });
 
   socket.on('message', async (data) => {
     const date = moment(new Date()).format('DD-MM-yyyy hh:mm:ss A');
     const dados = { date, ...data };
-    const { nickname } = data;
-
-    if (usersOnline[id] != data.nickname) usersOnline[id] = nickname;
 
     await webChatModel.add(dados);
 
     socket.broadcast.emit(
       'message',
-      `<strong>${dados.date} - ${dados.nickname}</strong>: ${dados.chatMessage}`,
+      `<strong>${dados.date} - ${dados.nickname}</strong>: ${dados.chatMessage}`
     );
   });
 });
