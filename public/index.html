@@ -35,7 +35,6 @@
 
     socket.on('connect', () => {
       nickname = `Guest_${socket.id}`;
-      addMessage(`${nickname} entrou na sala`);
       socket.emit('userConection', nickname);
     })
 
