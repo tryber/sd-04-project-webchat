@@ -41,158 +41,226 @@
     </div>
     <script>
       const socket = io('http://localhost:3000');
-      const inputNick = document.getElementById('input-name');
-      const inputMsg = document.getElementById('msg-input');
-      const sendButton = document.getElementById('send-msg');
-      const saveNameButton = document.getElementById('save-name');
-      const chatContainer = document.getElementsByClassName('chat-container')[0];
-      const nickName = document.getElementById('title-nickname');
-      const onlineUsersList = document.getElementById('online-users')
-      const userPrivate = document.getElementsByClassName('private');
-      const privateChat = document.getElementById('private-chat');
-      const publicChat = document.getElementById('public-chat');
 
-      // Trabalha com o Nick name do usuario
-      nickName.innerText = chance.name(); // Nome inicial atribuido ao Usuário
-      privateChat.style.display = 'none';
-      socket.emit('newUser', nickName.innerText);
-    
-      saveNameButton.addEventListener('click', () => {
-        const newNickName = inputNick.value;
-        nickName.innerText = newNickName;
-        socket.emit('newNickName', newNickName);
-        inputNick.value = '';
+      const nickName = document.querySelector('#nickname');
+      const nickBtn = document.querySelector('#nickBtn');
+      const chosenNick = document.querySelector('#chosenNick');
+      const messageBox = document.querySelector('#messageBox');
+      const msgBtn = document.querySelector('#msgBtn');
+      const msgList = document.querySelector('#messagesList');
+      const privateMsgList = document.querySelector('#privateMessages');
+      const publicChatBtn = document.querySelector('#public');
+      const privateChatBtn = document.querySelector('#private');
+      const firstUser = document.querySelector('#firstUser');
+      let privateMessage = false;
+      let privateReceiver = '';
+
+      function renderUsers(data) {
+        let element;
+        let onlineUser;
+        let publicChat;
+        for (user of data) {
+          onlineUser = document.createElement('button');
+          onlineUser.setAttribute('type', 'button');
+          onlineUser.setAttribute('id', 'private');
+          onlineUser.setAttribute('data-testid', 'private');
+          onlineUser.setAttribute('class', 'onlineUserButton');
+          onlineUser.setAttribute('onClick', 'privateAction(this.innerText)');
+          onlineUser.innerText = user;
+
+          if (user === chosenNick.innerText) {
+            onlineUser.setAttribute('disabled', 'disabled');
+          }
+
+          element = document.createElement('li');
+          element.setAttribute('data-testid', 'online-user');
+          element.setAttribute('class', 'online');
+          element.appendChild(onlineUser);
+          if (user === chosenNick.innerText) {
+            firstUser.appendChild(element);
+            if (firstUser.innerText.length > 25) {
+              firstUser.removeChild(onlineUser);
+            }
+          } else {
+            document.querySelector('#onlineUser').appendChild(element);
+          }
+        }
+
+        publicChatBtn.addEventListener('click', () => {
+          privateReceiver = '';
+          privateMessage = false;
+          if (document.querySelectorAll('.privateLi').length > 0) {
+            const privateList = document.querySelectorAll('.privateLi');
+            for (li of privateList) {
+              li.remove();
+            }
+          }
+          socket.emit('newHistory', '');
+          socket.on('renderNewHistory', (data) => {
+            const reversedData = Object.values(data).reverse();
+            const date = moment(reversedData.timestamp).format(
+              'DD-MM-yyyy h:mm:ss A'
+            );
+            let li = '';
+            if (document.querySelectorAll('.publicLi')) {
+              li = document.querySelectorAll('.publicLi');
+              for (list of li) {
+                list.remove();
+              }
+            }
+            for (dt of reversedData) {
+              li = document.createElement('li');
+              li.setAttribute('data-testid', 'message');
+              li.setAttribute('class', 'publicLi');
+              li.innerText = `${date} - ${dt.nickname}: ${dt.chatMessage}`;
+              msgList.appendChild(li);
+            }
+          });
+        });
+      }
+
+      function privateAction(data) {
+        privateReceiver = data;
+        privateMessage = true;
+        if (document.querySelectorAll('.publicLi').length > 0) {
+          const publicList = document.querySelectorAll('.publicLi');
+          for (li of publicList) {
+            li.remove();
+          }
+        }
+        socket.emit('privateHistory', privateReceiver);
+        socket.on('renderPrivateHistory', (data) => {
+          for (nick of data.newPrivateHistory) {
+            if (
+              nick.nickname === chosenNick.innerText ||
+              privateReceiver === chosenNick.innerText
+            ) {
+            const reversedData = Object.values(
+              data.newPrivateHistory
+            ).reverse();
+            let li = '';
+            if (document.querySelectorAll('.privateLi')) {
+              li = document.querySelectorAll('.privateLi');
+              for (list of li) {
+                list.remove();
+              }
+            }
+            for (dt of reversedData) {
+              li = document.createElement('li');
+              li.setAttribute('data-testid', 'message');
+              li.setAttribute('class', 'privateLi');
+              li.innerText = `${dt.dateTime} (private) - ${dt.nickname}: ${dt.chatMessage}`;
+              privateMsgList.appendChild(li);
+            }
+            }
+          }
+        });
+      }
+
+      socket.on('updateUsers', (data) => {
+        const users = Object.values(data);
+        let list = document.querySelectorAll('.online');
+        for (let i = 0; i < list.length; i++) {
+          list[i].remove();
+        }
+        renderUsers(users);
       });
 
-      // Coleta as mensagens
-      sendButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        const privPubMsg = (privateChat.style.display === 'block') ? true : false;
-        if (privPubMsg) {
-          console.log('emit privado')
-          const chatValue = document.getElementById('private-chat').getAttribute('data-value');
-          socket.emit('privateMessage', {
-            anotherSocketId: chatValue,
-            msg: inputMsg.value,
-            nickname: nickName.textContent,
-          });
+      socket.on('history', (data) => {
+        const reversedData = Object.values(data).reverse();
+        const date = moment(reversedData.timestamp).format(
+          'DD-MM-yyyy h:mm:ss A'
+        );
+        let li = '';
+        if (document.querySelectorAll('.publicLi')) {
+          li = document.querySelectorAll('.publicLi');
+          for (list of li) {
+            list.remove();
+          }
+        }
+        for (dt of reversedData) {
+          li = document.createElement('li');
+          li.setAttribute('data-testid', 'message');
+          li.setAttribute('class', 'publicLi');
+          li.innerText = `${date} - ${dt.nickname}: ${dt.chatMessage}`;
+          msgList.appendChild(li);
+        }
+      });
+
+      socket.on('newUser', (data) => {
+        chosenNick.innerText = data;
+      });
+
+      nickBtn.addEventListener('click', () => {
+        chosenNick.innerHTML = nickName.value;
+        socket.emit('chosenNick', nickName.value);
+      });
+
+      msgBtn.addEventListener('click', () => {
+        if (privateReceiver === '') {
+          if (document.querySelectorAll('.privateLi').length > 0) {
+            const privateList = document.querySelectorAll('.privateLi');
+            for (li of privateList) {
+              li.remove();
+            }
+          }
+          const chatMessage = messageBox.value;
+          const nickname = chosenNick.innerText;
+          socket.emit('message', { chatMessage, nickname });
+          messageBox.value = '';
         } else {
-          console.log('emit publico')
-          socket.emit('message', {
-            nickname: nickName.textContent,
-            chatMessage: inputMsg.value,
+          if (document.querySelectorAll('.publicLi').length > 0) {
+            const publicList = document.querySelectorAll('.publicLi');
+            for (li of publicList) {
+              li.remove();
+            }
+          }
+          const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
+          const chatMessage = messageBox.value;
+          const nickname = chosenNick.innerText;
+          socket.emit('privateMessage', {
+            chatMessage,
+            nickname,
+            privateReceiver,
           });
-          socket.on('message', (fullMsgString) => {
-            return renderMessage(fullMsgString);
-          });
+          messageBox.value = '';
         }
       });
 
-      // função renderiza a mensagem
-      function renderMessage(msg) {
-        const p = document.createElement('p');
-        p.innerText = msg;
-        p.setAttribute('data-testid', 'message');
-        inputMsg.value = '';
-        chatContainer.appendChild(p);
-      };
-
-      // pega o historico de mensagens
-      socket.on('history', (msgHistoric) => {
-        msgHistoric.forEach((msg) => {
-          renderMessage(msg);
-        });
-      });
-
-      socket.on('privateMessage', (privateMsgSend) => {
-        const p = document.createElement('p');
-        p.innerText = privateMsgSend;
-        p.setAttribute('data-testid', 'message');
-        p.setAttribute('classname', 'privateMsg');
-        inputMsg.value = '';
-        privateChat.appendChild(p);
-      });
-
-      socket.on('privateMessageReceiver', (privateMsgSend) => {
-        const p = document.createElement('p');
-        p.innerText = privateMsgSend;
-        p.setAttribute('data-testid', 'message');
-        p.setAttribute('classname', 'privateMsg');
-        privateChat.appendChild(p);
-        inputMsg.value = '';
-      });
-
-      const ListOnlineUsers = (onlineUsers) => {
-        onlineUsersList.innerHTML = '';
-        // cria o primeiro elemento da lista, sempre sendo o usuario atual
+      socket.on('message', (data) => {
+        // if (document.querySelectorAll('.privateLi').length > 0) {
+        //   const privateList = document.querySelectorAll('.privateLi');
+        //   for (list of privateList) {
+        //     list.remove();
+        //   }
+        // }
         const li = document.createElement('li');
-        li.setAttribute('data-testid', 'online-user');
-        li.innerText = nickName.innerText;
-        onlineUsersList.appendChild(li);
-        // retira o usuario atual da lista
-        onlineUserWithOutActual = onlineUsers.filter((user) => user.nick !== nickName.innerText);
-        // imprimi a lista dos outros usuarios
-        onlineUserWithOutActual.forEach((user) => {
-          const li = document.createElement('li');
-          li.setAttribute('data-testid', 'online-user');
-          li.innerText = user.nick;
-          // configora o button
-          const btn = document.createElement('button');
-          btn.setAttribute('data-testid', 'private');
-          btn.setAttribute('onClick', `privateClick(${user})`);
-          btn.type = 'button';
-          btn.innerText = 'chat';
-          btn.addEventListener('click', () => {
-            chatContainer.style.display = "none";
-            privateChat.style.display = "block";
-            privateChat.setAttribute('data-value', user.id)
-            chatContainer.innerHTML.remove();
-            socket.on('privateHistory', (allMsgPrivate) => {
-              allMsgPrivate.forEach((msg) => {
-                const p = document.createElement('p');
-                p.innerText = privateMsgSend;
-                p.setAttribute('data-testid', 'message');
-                p.setAttribute('classname', 'privateMsg');
-                inputMsg.value = '';
-                privateChat.appendChild(p);
-              });
-            });
-          });
-          // determina o append child
-          onlineUsersList.appendChild(li);
-          onlineUsersList.appendChild(btn);
-        });
-      };
-
-      socket.on('onlineUsers', (onlineUsers) => {
-        onlineUsersList.innerHTML = '';
-        ListOnlineUsers(onlineUsers);
+        li.setAttribute('data-testid', 'message');
+        li.setAttribute('class', 'publicLi');
+        li.innerText = data;
+        msgList.appendChild(li);
       });
 
-      socket.on('newNickName', (onlineUsers) => {
-        onlineUsersList.innerHTML = '';
-        ListOnlineUsers(onlineUsers);
+      socket.on('new privateMessageSender', (data) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'message');
+        li.setAttribute('class', 'privateLi');
+        li.innerText = data;
+        privateMsgList.appendChild(li);
       });
 
-      socket.on('newUser', (onlineUsers) => {
-        onlineUsersList.innerHTML = '';
-        ListOnlineUsers(onlineUsers);
-      });
-
-      socket.on('disconnect', (onlineUsers) => {
-        onlineUsersList.innerHTML = '';
-        ListOnlineUsers(onlineUsers)
-        // renderMessage(`usuário saiu do chat...`);
-      });
-
-      publicChat.addEventListener('click', () => {
-        chatContainer.style.display = "block";
-        privateChat.style.display = "none";
-        const privateMsg = document.querySelectorAll('.privateMsg');
-        console.log(privateMsg)
-        for (p in privateMsg) {
-          p.remove();
-        }
+      socket.on('new privateMessage', (data) => {
+        // if (document.querySelectorAll('.publicLi').length > 0) {
+        //   const publicList = document.querySelectorAll('.publicLi');
+        //   for (list of publicList) {
+        //     list.remove();
+        //   }
+        // }
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'message');
+        li.setAttribute('class', 'privateLi');
+        li.innerText = data;
+        privateMsgList.appendChild(li);
       });
     </script>
   </body>
