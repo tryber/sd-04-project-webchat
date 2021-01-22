@@ -23,21 +23,20 @@ app.use(cors);
 
 io.on('connection', (socket) => {
   guestId += 1;
-  socket.emit('Seja bem vindo');
-  socket.broadcast.emit('mensagemServer');
-
+  
   let user = `Guest${guestId}`;
-
+  
   sockets.push(socket);
-
+  
   io.emit('getName', { user });
-
+  
   socket.on('setName', (userParam) => {
     user = userParam;
   });
-
+  socket.broadcast.emit('connectMessage', `${user} está online!`);
+  
   socket.on('disconnect', () => {
-    io.emit('adeus', { mensagem: 'Poxa, fica mais, vai ter bolo :)' });
+    socket.broadcast.emit('disconnectMessage', `${user} saiu!`);
     sockets.splice(sockets.indexOf(socket), 1);
   });
 

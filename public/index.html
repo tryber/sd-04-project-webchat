@@ -85,7 +85,15 @@
       socket.on('menssage', function (message) {
         console.log(message);
         setMessage(message)
-      })
+      });
+      socket.on('connectMessage', function (message) {
+        console.log(message);
+        setMessage(message);
+      }) ;
+        socket.on('disconnectMessage', function (message) {
+        console.log(message);
+        setMessage(message);
+      });
     });
   </script>
 </head>
