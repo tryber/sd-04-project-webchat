@@ -42,6 +42,7 @@
   </body>
   <script>
     const addMsg = (pai, msg) => {
+      console.log('msg', msg);
       const li = document.createElement('li');
       li.setAttribute('data-testid', 'message');
       li.classList = 'message';
@@ -60,7 +61,8 @@
 
       const socket = io('http://localhost:3000');
 
-      name.innerHTML = 'Guest';
+      let nickname = 'Guest';
+      name.innerHTML = nickname;
 
       socket.on('nickname', async (nickname) => {
         name.innerHTML = nickname;
@@ -84,6 +86,7 @@
         event.preventDefault();
         const date = new Date().toLocaleString();
         const chatMessage = inputMsg.value;
+        console.log('nick', nickname);
         socket.emit('message', { chatMessage, nickname });
         inputMsg.value = '';
       });

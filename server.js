@@ -39,7 +39,6 @@ io.on('connection', async (socket) => {
     const date = moment(newDate).format('DD-MM-yyyy HH:mm:ss');
     const msg = `${date} - ${nickname}: ${chatMessage}`;
     io.emit('message', msg);
-    console.log(msg);
     const obj = {
       chatMessage,
       nickname,
