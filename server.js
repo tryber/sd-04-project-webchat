@@ -77,3 +77,7 @@ io.on('connection', async (socket) => {
     io.emit('updateUsers', onlineUsers);
   });
 });
+
+socketIoServer.listen(3000, () => {
+  console.log('Ouvindo!');
+});
