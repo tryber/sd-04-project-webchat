@@ -16,7 +16,7 @@ function editNickname() {
     socket.id = inputNickname.value;
     inputNickname.value = '';
   });
-};
+}
 
 editNickname();
 
@@ -34,7 +34,7 @@ function emitMessage() {
     socket.emit('message', data);
     inputChatMessage.value = '';
   });
-};
+}
 
 emitMessage();
 

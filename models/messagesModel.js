@@ -8,7 +8,7 @@ const getAll = async () => {
   } catch (e) {
     return e.message;
   }
-}
+};
 
 const add = async (nickname, chatMessage) => {
   try {
@@ -21,7 +21,7 @@ const add = async (nickname, chatMessage) => {
       hour: 'numeric',
       minute: 'numeric',
       second: 'numeric',
-      hour12: true
+      hour12: true,
     });
     const addMessage = await db.collection('messages').insertOne({
       nickname,
@@ -32,7 +32,7 @@ const add = async (nickname, chatMessage) => {
   } catch (err) {
     return err;
   }
-}
+};
 
 module.exports = {
   getAll,
