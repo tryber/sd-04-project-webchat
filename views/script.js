@@ -38,11 +38,15 @@ function emitMessage() {
 
 emitMessage();
 
-socket.on('dataServer', (message) => {
+function createItensList(message) {
   const li = document.createElement('li');
   const pMessage = document.createElement('p');
   pMessage.setAttribute('data-testid', 'message');
   pMessage.textContent = message;
   li.appendChild(pMessage);
   document.getElementById('list').appendChild(li);
+}
+
+socket.on('dataServer', (message) => {
+  createItensList(message);
 });

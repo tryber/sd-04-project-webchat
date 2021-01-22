@@ -17,7 +17,7 @@ app.use(express.json());
 
 app.use('/', express.static(path.join(__dirname, 'views')));
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   let message;
   socket.on('message', async (data) => {
     try {
@@ -29,6 +29,15 @@ io.on('connection', (socket) => {
       console.log(e.message);
     }
   });
+  try {
+    const messages = await messagesModels.getAll();
+    messages.forEach((item) => {
+      message = `${item.dateMessage} ${item.chatMessage} ${item.nickname}`;
+      socket.emit('dataServer', message);
+    });
+  } catch(e) {
+    console.log(e.message);
+  }
 });
 
 const PORT = process.env.PORT || 3000;
