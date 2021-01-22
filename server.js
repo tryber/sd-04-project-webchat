@@ -24,19 +24,24 @@ io.on('connection', (socket) => {
   console.log('Conectado');
   socket.emit('Seja bem vindo');
   socket.broadcast.emit('mensagemServer');
-  const user = `Guest${guestId}`;
+
+  let user = `Guest${guestId}`;
+
   sockets.push(socket);
-  io.emit('listing', { user });
+
+  io.emit('getName', { user });
+
+  socket.on('setName', (userParam) => {
+    user = userParam
+  })
 
   socket.on('disconnect', () => {
     io.emit('adeus', { mensagem: 'Poxa, fica mais, vai ter bolo :)' });
     sockets.splice(sockets.indexOf(socket), 1);
-    console.log('Adeus');
   });
 
   socket.on('mensagem', (message) => {
-    io.emit('menssage', `${socket.user} disse: ${message}`);
-    console.log(`Mensagem: ${message}`);
+    io.emit('menssage', `${user} disse: ${message}`);
   });
 
   socket.on('error', (error) => {
