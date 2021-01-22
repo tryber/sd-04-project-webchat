@@ -7,25 +7,12 @@ const getAllMsg = async () =>
 const createMsg = async (chatMessage, nickname, timestamp) =>
   connection()
     .then((db) =>
-      db.collection('messages').insertOne({ chatMessage, nickname, timestamp }))
-    .then(({ insertedId }) => ({
-      _id: insertedId,
-      chatMessage,
-      nickname,
-      timestamp,
-    }));
+      db.collection('messages').insertOne({ chatMessage, nickname, timestamp }));
 
 const createPrivateMsg = async (chatMessage, nickname, timestamp, ReceiverNick) =>
   connection()
     .then((db) =>
-      db.collection('PrivateMessages').insertOne({ chatMessage, nickname, timestamp, ReceiverNick }))
-    .then(({ insertedId }) => ({
-      _id: insertedId,
-      chatMessage,
-      nickname,
-      timestamp,
-      ReceiverNick,
-    }));
+      db.collection('privateMessages').insertOne({ chatMessage, nickname, timestamp, ReceiverNick }));
 
 const getPrivateMessages = async () =>
   connection()
