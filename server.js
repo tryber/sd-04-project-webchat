@@ -3,6 +3,8 @@ const http = require('http');
 const cors = require('cors')();
 const socketIo = require('socket.io');
 const path = require('path');
+const { now } = require('moment');
+const formatMessage = require('./utils/formatMessage');
 require('dotenv').config();
 
 const app = express();
@@ -21,7 +23,6 @@ app.use(cors);
 
 io.on('connection', (socket) => {
   guestId += 1;
-  console.log('Conectado');
   socket.emit('Seja bem vindo');
   socket.broadcast.emit('mensagemServer');
 
@@ -41,7 +42,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('mensagem', (message) => {
-    io.emit('menssage', `${user} disse: ${message}`);
+    io.emit('menssage', formatMessage(user, message));
   });
 
   socket.on('error', (error) => {
