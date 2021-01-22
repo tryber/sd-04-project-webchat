@@ -146,6 +146,7 @@
             chatContainer.style.display = "none";
             privateChat.style.display = "block";
             privateChat.setAttribute('data-value', user.id)
+            chatContainer.innerHTML.remove();
             socket.on('privateHistory', (allMsgPrivate) => {
               allMsgPrivate.forEach((msg) => {
                 const p = document.createElement('p');
@@ -164,19 +165,21 @@
       };
 
       socket.on('onlineUsers', (onlineUsers) => {
+        onlineUsersList.innerHTML = '';
         ListOnlineUsers(onlineUsers);
       });
 
       socket.on('newNickName', (onlineUsers) => {
+        onlineUsersList.innerHTML = '';
         ListOnlineUsers(onlineUsers);
       });
 
       socket.on('newUser', (onlineUsers) => {
+        onlineUsersList.innerHTML = '';
         ListOnlineUsers(onlineUsers);
       });
 
-      socket.on('disconnect', (users) => {
-        console.log('MSG EMITIDA PELO BACK', users);
+      socket.on('disconnect', (onlineUsers) => {
         onlineUsersList.innerHTML = '';
         ListOnlineUsers(onlineUsers)
         renderMessage(`usuário saiu do chat...`);
