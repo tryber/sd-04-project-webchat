@@ -6,5 +6,4 @@ const time = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digi
 
 const formatMessage = (user, message) => `${day}-${month}-${year} ${time} ${user}: ${message}`;
 
-
 module.exports = formatMessage;
