@@ -15,7 +15,7 @@
   <body>
     <div class="container-sm d-flex flex-column-reverse">
       <div class="input-group mb-3">
-        <input type="text" id="input-msg" class="form-control" />
+        <input type="text" id="input-msg" data-testid="message-box" class="form-control" />
         <div class="input-group-append">
           <button class="btn btn-primary input-group-text" data-testid="send-button" id="btn-send">
             Send
@@ -26,7 +26,7 @@
         <ol id="message"></ol>
       </div>
       <div class="input-group mb-3">
-        <input type="text" id="nickname" class="form-control" />
+        <input type="text" id="nickname" data-testid="nickname-box" class="form-control" />
         <div class="input-group-append">
           <button
             class="btn btn-primary input-group-text"
@@ -37,6 +37,7 @@
           </button>
         </div>
       </div>
+      <h3 id="name"></h3>
     </div>
   </body>
   <script>
@@ -52,17 +53,21 @@
       const message = document.querySelector('#message');
       const btnSend = document.querySelector('#btn-send');
       const btnNickname = document.querySelector('#btn-nickname-save');
+      const name = document.querySelector('#name');
 
       const inputMsg = document.querySelector('#input-msg');
       const inputNickname = document.querySelector('#nickname');
 
       const socket = io('http://localhost:3000');
 
-      const nickname = inputNickname.value === '' ? 'Guest' : inputNickname.value;
+      name.innerHTML = 'Guest';
 
-      socket.emit('nickname', nickname);
+      socket.on('nickname', async (nickname) => {
+        name.innerHTML = nickname;
+      });
 
       socket.on('history', async (data) => {
+        console.log(data);
         message.innerHTML = await data
           .map(
             (msg) =>
@@ -85,8 +90,8 @@
 
       btnNickname.addEventListener('click', (event) => {
         event.preventDefault();
-        console.log('mudo nick');
-        const nickname = inputNickname.value;
+        nickname = inputNickname.value;
+        console.log('mudo nick', nickname);
         socket.emit('nickname', nickname);
       });
     };

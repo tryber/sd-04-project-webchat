@@ -28,24 +28,30 @@ io.on('connection', async (socket) => {
 
   // Escuta a entrada do nickname assim que inicia a conexão
   socket.on('nickname', (nickname) => {
-    clients.push(nickname);
+    socket.user = nickname;
+    clients.push(socket);
+    io.emit('nickname', nickname);
   });
 
-  // socket.emit('Bem vindo ao chat!\n');
-  // console.log(clients);
-
+  // Escuta a mensagem vinda do FRONT e armazena no banco de dados, e retorna para o FRONT a msg formatada.
   socket.on('message', async ({ chatMessage, nickname }) => {
     const newDate = new Date();
     const date = moment(newDate).format('DD-MM-yyyy HH:mm:ss');
     const msg = `${date} - ${nickname}: ${chatMessage}`;
     io.emit('message', msg);
     console.log(msg);
-    await save(msg);
+    const obj = {
+      chatMessage,
+      nickname,
+      timestamp: date,
+    };
+    await save(obj);
   });
 
-  socket.on('disconnect', (client) => {
-    clients.splice(clients.indexOf(client), 1);
-    io.emit('message', `${socket.user} deixou chat :'(`);
+  // Usuario foi desconectado
+  socket.on('disconnect', (nickname) => {
+    clients.splice(clients.indexOf(nickname), 1);
+    io.emit('message', `${nickname} deixou chat :'(`);
   });
 });
 
