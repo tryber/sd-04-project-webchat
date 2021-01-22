@@ -3,7 +3,6 @@ const http = require('http');
 const cors = require('cors')();
 const socketIo = require('socket.io');
 const path = require('path');
-const { now } = require('moment');
 const formatMessage = require('./utils/formatMessage');
 require('dotenv').config();
 
