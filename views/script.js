@@ -1,26 +1,40 @@
 const socket = io('http://localhost:3000');
 
-socket.on('connect', () => {
-  
-  console.log(socket.id);
+const listNameRandom = ['Bane', 'Bruce Wayne', 'Batman', 'Alfred', 'Robin', 'Coringa', 'Espantalho', 'Batgirl', 'Hera Venenosa', 'Mulher-Gato', 'Ras al Ghul', 'Asa Noturna', 'Lucius Fox'];
 
+socket.on('connect', () => {
+  socket.id = sessionStorage.getItem('nickname') || listNameRandom[Math.round(Math.random() * 13)];
+  sessionStorage.setItem('nickname', socket.id);
 });
 
+function editNickname() {
+  const nicknameSaveBtn = document.querySelector('.nicknameSaveBtn');
+  const inputNickname = document.querySelector('.nickname');
 
-const nicknameSaveBtn = document.querySelector('.nicknameSaveBtn');
+  nicknameSaveBtn.addEventListener('click', () => {
+    sessionStorage.setItem('nickname', inputNickname.value);
+    socket.id = inputNickname.value;
+    inputNickname.value = '';
+  });
+};
+
+editNickname();
 
 function emitMessage() {
   const inputChatMessage = document.querySelector('.chatMessage');
-  const inputNickname = document.querySelector('.nickname');
   const chatMessageBtn = document.querySelector('.chatMessageBtn');
 
-  chatMessageBtn.addEventListener('click', () => {
-    console.log(inputChatMessage.value)
-    socket.emit('messageClient', inputChatMessage.value);
-  })
+  let data;
 
-  
-}
+  chatMessageBtn.addEventListener('click', () => {
+    data = {
+      chatMessage: inputChatMessage.value,
+      nickname: socket.id,
+    };
+    socket.emit('message', data);
+    inputChatMessage.value = '';
+  });
+};
 
 emitMessage();
 
@@ -32,7 +46,3 @@ socket.on('dataServer', (message) => {
   li.appendChild(pMessage);
   document.getElementById('list').appendChild(li);
 });
-
-
-
-

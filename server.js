@@ -9,32 +9,28 @@ require('dotenv').config();
 
 const io = socketIo(httpServer)
 
-const {
-  messagesController,
-} = require('./controllers');
+const messagesModels = require('./models/messagesModel');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use('/', express.static(path.join(__dirname, 'views')));
 
-app.post('/chat',
-  messagesController.sendPublicMensage(io),
-);
-
 io.on('connection', (socket) => {
-  
-  console.log(socket.id);
 
-  const msg = 'teste do servidor';
-  
-  socket.on('messageClient', (message) => {
-    socket.broadcast.emit('dataServer', message);
+  let message;
+
+  socket.on('message', async (data) => {
+    try {
+      const addMessage = await messagesModels.add(data.nickname, data.chatMessage);
+      message = `${addMessage.dateMessage} ${addMessage.chatMessage} ${addMessage.nickname}`;
+      socket.emit('dataServer', message);
+      socket.broadcast.emit('dataServer', message);
+    } catch (e) {
+      console.log(e.message);
+    }
   });
 });
-
-
-
 
 const PORT = process.env.PORT || 3000;
 
