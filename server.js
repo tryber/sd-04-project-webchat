@@ -35,7 +35,7 @@ io.on('connection', async (socket) => {
       message = `${item.dateMessage} ${item.chatMessage} ${item.nickname}`;
       socket.emit('dataServer', message);
     });
-  } catch(e) {
+  } catch (e) {
     console.log(e.message);
   }
 });
