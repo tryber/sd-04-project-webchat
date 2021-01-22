@@ -22,18 +22,18 @@ app.use(cors);
 
 io.on('connection', (socket) => {
   guestId += 1;
-  
+
   let user = `Guest${guestId}`;
-  
+
   sockets.push(socket);
-  
+
   io.emit('getName', { user });
-  
+
   socket.on('setName', (userParam) => {
     user = userParam;
   });
   socket.broadcast.emit('connectMessage', `${user} está online!`);
-  
+
   socket.on('disconnect', () => {
     socket.broadcast.emit('disconnectMessage', `${user} saiu!`);
     sockets.splice(sockets.indexOf(socket), 1);
