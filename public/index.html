@@ -14,29 +14,32 @@
     <header id="header">
       <h1>Bem vindo ao Bate-papo da Jeh</h1>
       <p>O seu bate papo uol com uma cara diferente!</p>
+      <span id="chosenNick"></span>
     </header>
     <div id="main">
       <div id="chat">
         <div class="chat-container">
-          <p>Bem vindo <span id="title-nickname"></span></p>
+          <ul id="messagesList" style="list-style: none"></ul>
         </div>
-        <button type="button" id="public-chat" data-testid="public">Public Chat</button>
-        <div class="chat-container" id="private-chat">
+        <button type="button" id="public" data-testid="public">Public Chat</button>
+        <div>
+          <ul id="privateMessages" class="chat-container"></ul>
+        </div>
         </div>
         <form>
-          <textarea type='text' id="msg-input" data-testid="message-box" rows='3'></textarea>
-          <button type='button' id="send-msg" data-testid="send-button">Enviar</button>
+          <textarea type='text' id="messageBox" data-testid="message-box" rows='3'></textarea>
+          <button type='button' id="msgBtn" data-testid="send-button">Enviar</button>
         </form>
       </div>
       <div id="users">
         <div>
           <h4>Usuários Online</h4>
-          <ul id="online-users">
-          </ul>
+          <ul id="firstUser"></ul>
+          <ul id="onlineUser"></ul>
         </div>
         <label>Nickname</label><br>
-        <input type="text" data-testid="nickname-box" id="input-name"/>
-        <button type="button" id="save-name" data-testid="nickname-save">Salvar</button>
+        <input type="text" data-testid="nickname-box" id="nickname"/>
+        <button type="button" id="nickBtn" data-testid="nickname-save">Salvar</button>
       </div>
     </div>
     <script>
@@ -228,12 +231,6 @@
       });
 
       socket.on('message', (data) => {
-        // if (document.querySelectorAll('.privateLi').length > 0) {
-        //   const privateList = document.querySelectorAll('.privateLi');
-        //   for (list of privateList) {
-        //     list.remove();
-        //   }
-        // }
         const li = document.createElement('li');
         li.setAttribute('data-testid', 'message');
         li.setAttribute('class', 'publicLi');
@@ -250,12 +247,6 @@
       });
 
       socket.on('new privateMessage', (data) => {
-        // if (document.querySelectorAll('.publicLi').length > 0) {
-        //   const publicList = document.querySelectorAll('.publicLi');
-        //   for (list of publicList) {
-        //     list.remove();
-        //   }
-        // }
         const li = document.createElement('li');
         li.setAttribute('data-testid', 'message');
         li.setAttribute('class', 'privateLi');
