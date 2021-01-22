@@ -14,7 +14,7 @@
       font: 13px Helvetica, Arial;
     }
 
-    form {
+    form#chatForm{
       background: #000;
       padding: 3px;
       position: fixed;
@@ -22,19 +22,26 @@
       width: 100%;
     }
 
-    form input {
+    form input{
       border: 0;
       padding: 10px;
       width: 90%;
       margin-right: 0.5%;
     }
 
-    form button {
+    form button{
       width: 9%;
       background: rgb(130, 224, 255);
       border: none;
       padding: 10px;
       cursor: pointer;
+    }
+
+    form#nicknameForm {
+      background: #000;
+      padding: 3px;
+      
+      width: 100%;
     }
 
     #messagens {
@@ -52,39 +59,48 @@
     }
 
   </style>
-  <script src="http://localhost:3000/socket.io/socket.io.js"></script>    
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script>
     $(() => {
       const socket = io('http://localhost:3000');
       const setMessage = (message) => $('#messagens').append($('<li>').text(message).attr('data-testid', 'message'))
-        socket.on('listing', (socket) => {
-  $('#nicknameInput').val((socket.user))
-})
-      $('form').submit((e) => {
-        
+      socket.on('getName', (socket) => {
+        $('#nicknameInput').val((socket.user))
+      })
+      $('#nicknameForm').submit((e) => {
         e.preventDefault();
-        if($('#mensagemInput').val()){
+        if ($('#nicknameInput').val()) {
+          socket.emit('setName',$('#nicknameInput').val() )
+        }
+      })
+      $('#chatForm').submit((e) => {
+
+        e.preventDefault();
+        if ($('#mensagemInput').val()) {
           socket.emit('mensagem', $('#mensagemInput').val());
           $('#mensagemInput').val('')
         }
       });
-      socket.on('menssage', function(message){
+      socket.on('menssage', function (message) {
         console.log(message);
-        setMessage(message)      })
+        setMessage(message)
+      })
     });
   </script>
 </head>
 
 <body>
-  <nav action="">
-    <input id=nicknameInput data-testid="nickname-box" type="text">
-    <button id="nicknameSend" data-testid="nickname-save">Salvar</button>
+  <nav>
+    <form id="nicknameForm">
+      <input id=nicknameInput data-testid="nickname-box" type="text">
+      <button type="submit" data-testid="nickname-save">Salvar</button>
+    </form>
   </nav>
   <ul id="messagens"></ul>
-  <form action="">
+  <form id="chatForm">
     <input id="mensagemInput" data-testid="message-box" autocomplete="on" />
-    <button data-testid="send-button">Enviar</button>
+    <button type="submit" data-testid="send-button">Enviar</button>
   </form>
 </body>
 
