@@ -182,7 +182,7 @@
       socket.on('disconnect', (onlineUsers) => {
         onlineUsersList.innerHTML = '';
         ListOnlineUsers(onlineUsers)
-        renderMessage(`usuário saiu do chat...`);
+        // renderMessage(`usuário saiu do chat...`);
       });
 
       publicChat.addEventListener('click', () => {
