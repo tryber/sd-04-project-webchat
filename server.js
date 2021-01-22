@@ -32,8 +32,8 @@ io.on('connection', (socket) => {
   io.emit('getName', { user });
 
   socket.on('setName', (userParam) => {
-    user = userParam
-  })
+    user = userParam;
+  });
 
   socket.on('disconnect', () => {
     io.emit('adeus', { mensagem: 'Poxa, fica mais, vai ter bolo :)' });
