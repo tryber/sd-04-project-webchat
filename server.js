@@ -14,11 +14,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 io.on('connection', async (socket) => {
-  const allMessages = await Messages.getMessages() || [];
+  const allMessages = (await Messages.getMessages()) || [];
 
   allMessages.forEach(({ chatMessage, nickname, messageDate }) =>
-    socket.emit('message', `${messageDate} ${nickname} ${chatMessage}`),
-  );
+    socket.emit('message', `${messageDate} ${nickname} ${chatMessage}`));
 
   socket.on('message', async ({ chatMessage, nickname }) => {
     const storedResult = await Messages.saveUserMessage(chatMessage, nickname);
