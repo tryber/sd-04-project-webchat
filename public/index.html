@@ -77,16 +77,16 @@
         nickname = $('#userName').val();
       });
 
-      function renderMessages({ messageDate, nickname, chatMessage }) {
+      function renderMessages(message) {
         $('#mensagens')
-          .append(`<li>${messageDate} ${nickname} ${chatMessage}</li>`);
+          .append(`<li>${message}</li>`);
       }
 
       // socket.on('previousMessages', function (messages) {
       //   messages.forEach((message) => renderMessages(message));
       // });
 
-      socket.on('receivedMessage', function (message) {
+      socket.on('message', function (message) {
         renderMessages(message);
       });
 

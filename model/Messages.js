@@ -15,7 +15,7 @@ const getMessages = async () => {
   }
 };
 
-const saveUserMessage = async ({ chatMessage, nickname }) => {
+const saveUserMessage = async (chatMessage, nickname) => {
   const messageDate = moment(new Date()).format('DD-MM-yyyy HH:mm:ss');
   try {
     const db = await connect();
@@ -23,11 +23,7 @@ const saveUserMessage = async ({ chatMessage, nickname }) => {
       .collection('messages')
       .insertOne({ chatMessage, nickname, messageDate });
 
-    return {
-      chatMessage,
-      nickname,
-      messageDate,
-    };
+    return `${messageDate} ${nickname} ${chatMessage}`;
   } catch (error) {
     console.error(error.message);
   }
