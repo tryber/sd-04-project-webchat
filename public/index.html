@@ -82,10 +82,6 @@
           .append(`<li>${message}</li>`);
       }
 
-      // socket.on('previousMessages', function (messages) {
-      //   messages.forEach((message) => renderMessages(message));
-      // });
-
       socket.on('message', function (message) {
         renderMessages(message);
       });
@@ -93,7 +89,6 @@
       $('#formChat').submit(function(e) {
         e.preventDefault();
         const chatMessage = $('#mensagemInput').val();
-        // const nickname = $('#userName').val();
         if (chatMessage.length) {
           const userMessageInfo = { chatMessage, nickname };
           socket.emit('message', userMessageInfo);
