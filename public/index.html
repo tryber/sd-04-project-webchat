@@ -11,6 +11,10 @@
         padding: 0;
       }
 
+      #chat-container {
+        display: flex;
+      }
+
       #mensagens {
         background-color: rgb(202, 202, 202);
         color: black;
@@ -19,6 +23,14 @@
         list-style-type: none;
         overflow-y: scroll;
         padding: 50px;
+        width: 70%;
+      }
+
+      #friends-status {
+        background-color: rgb(66, 18, 64);
+        color: white;
+        padding: 15px;
+        width: 30%;
       }
 
       form {
@@ -59,28 +71,66 @@
   </head>
   <body>
     <div style="display: flex;">
-      <input autocomplete="off" data-testid="nickname-box" id="userName" placeholder="Type your user name" />
-      <button id="btn-save-nick" data-testid="nickname-save">Enter nickname</button>
+      <input
+        autocomplete="off"
+        data-testid="nickname-box"
+        id="userName"
+        placeholder="Type your user name"
+      />
+      <button
+        id="btn-save-nick"
+        data-testid="nickname-save"
+      >
+        Enter nickname
+      </button>
     </div>
-    <ul id="mensagens"></ul>
+
+    <div id="chat-container">
+      <ul id="mensagens"></ul>
+      <div id="friends-status"></div>
+    </div>
+
     <form id="formChat">
-      <input autocomplete="off" data-testid="message-box" id="mensagemInput" placeholder="Type a message here" />
+      <input
+        autocomplete="off"
+        data-testid="message-box"
+        id="mensagemInput"
+        placeholder="Type a message here"
+      />
       <button data-testid="send-button">Send</button>
     </form>
+
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
       const socket = io('http://localhost:3000');
       let nickname = `${Math.random()}`;
 
+      // socket.emit('status', { nickname });
+
       $('#btn-save-nick').click(function() {
         nickname = $('#userName').val();
+        socket.emit('status', { nickname });
       });
 
       function renderMessages(message) {
         $('#mensagens')
           .append(`<li data-testid="message">${message}</li>`);
       }
+
+      function insertUserStatus(usersStatus) {
+        console.log(usersStatus);
+        $('#friends-status').empty();
+        usersStatus.forEach((user) => {
+          $('#friends-status').append(
+            `<p data-testid="online-user">${user.nickname}</p>`
+          );
+        });
+      }
+
+      socket.on('userStatus', function (usersStatus) {
+        insertUserStatus(usersStatus);
+      });
 
       socket.on('message', function (message) {
         renderMessages(message);

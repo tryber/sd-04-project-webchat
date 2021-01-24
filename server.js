@@ -13,6 +13,8 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+let usersStatus = [];
+
 io.on('connection', async (socket) => {
   const allMessages = (await Messages.getMessages()) || [];
 
@@ -23,6 +25,17 @@ io.on('connection', async (socket) => {
     const storedResult = await Messages.saveUserMessage(chatMessage, nickname);
     socket.emit('message', storedResult);
     socket.broadcast.emit('message', storedResult);
+  });
+
+  socket.on('status', async ({ nickname }) => {
+    console.log('Nickname: ', nickname); //
+    usersStatus.push({ socketId: socket.id, nickname });
+    io.emit('userStatus', usersStatus);
+  });
+
+  socket.on('disconnect', async () => {
+    usersStatus = usersStatus.filter(({ socketId }) => socketId !== socket.id);
+    io.emit('userStatus', usersStatus);
   });
 });
 
