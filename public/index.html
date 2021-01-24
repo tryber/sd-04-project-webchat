@@ -13,31 +13,43 @@
     />
   </head>
   <body>
-    <div class="container-sm d-flex flex-column-reverse">
-      <div class="input-group mb-3">
-        <input type="text" id="input-msg" data-testid="message-box" class="form-control" />
-        <div class="input-group-append">
-          <button class="btn btn-primary input-group-text" data-testid="send-button" id="btn-send">
-            Send
-          </button>
-        </div>
-      </div>
+    <div class="d-flex justify-content-around">
       <div>
-        <ol id="message"></ol>
-      </div>
-      <div class="input-group mb-3">
-        <input type="text" id="nickname" data-testid="nickname-box" class="form-control" />
-        <div class="input-group-append">
-          <button
-            class="btn btn-primary input-group-text"
-            data-testid="nickname-save"
-            id="btn-nickname-save"
-          >
-            Send
-          </button>
+        <ul class="list-group" id="users-online">
+          <li class="list-group-item">Cras justo odio</li>
+        </ul>
+        <div class="input-group mb-3">
+          <input type="text" id="nickname" data-testid="nickname-box" class="form-control" />
+          <div class="input-group-append">
+            <button
+              class="btn btn-primary input-group-text"
+              data-testid="nickname-save"
+              id="btn-nickname-save"
+            >
+              Send
+            </button>
+          </div>
         </div>
       </div>
-      <h3 id="name"></h3>
+      <div class="container-sm d-flex flex-column-reverse">
+        <div class="input-group mb-3">
+          <input type="text" id="input-msg" data-testid="message-box" class="form-control" />
+          <div class="input-group-append">
+            <button
+              class="btn btn-primary input-group-text"
+              data-testid="send-button"
+              id="btn-send"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+        <div>
+          <ol id="message"></ol>
+        </div>
+
+        <h3 id="name"></h3>
+      </div>
     </div>
   </body>
   <script>
@@ -50,7 +62,7 @@
       return pai.appendChild(li);
     };
 
-    window.onload = () => {
+    window.onload = async () => {
       const message = document.querySelector('#message');
       const btnSend = document.querySelector('#btn-send');
       const btnNickname = document.querySelector('#btn-nickname-save');
@@ -58,13 +70,15 @@
 
       const inputMsg = document.querySelector('#input-msg');
       const inputNickname = document.querySelector('#nickname');
+      const usersOnline = document.querySelector('#users-online');
 
       const socket = io('http://localhost:3000');
 
       let nickname = 'Guest';
-      name.innerHTML = nickname;
+      socket.emit('logged', { nickname });
 
       socket.on('nickname', async (nickname) => {
+        console.log();
         name.innerHTML = nickname;
       });
 
@@ -82,11 +96,20 @@
         addMsg(message, msg);
       });
 
+      socket.on('online-users', (users) => {
+        users.forEach((user) => {
+          const li = document.createElement('li');
+          li.innerText = user.nickname;
+          li.classList = 'list-group-item';
+          li.setAttribute('data-testid', 'online-user');
+          usersOnline.appendChild(li);
+        });
+      });
+
       btnSend.addEventListener('click', (event) => {
         event.preventDefault();
         const date = new Date().toLocaleString();
         const chatMessage = inputMsg.value;
-        console.log('nick', nickname);
         socket.emit('message', { chatMessage, nickname });
         inputMsg.value = '';
       });
@@ -94,7 +117,6 @@
       btnNickname.addEventListener('click', (event) => {
         event.preventDefault();
         nickname = inputNickname.value;
-        console.log('mudo nick', nickname);
         socket.emit('nickname', nickname);
       });
     };

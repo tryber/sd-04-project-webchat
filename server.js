@@ -18,8 +18,7 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
 
-let guestId = 0;
-const clients = [];
+let clients = [];
 
 io.on('connection', async (socket) => {
   // Traz todas mensagens do banco de dados e envia para o front
@@ -29,11 +28,14 @@ io.on('connection', async (socket) => {
   // Escuta a entrada do nickname assim que inicia a conexão
   socket.on('nickname', (nickname) => {
     socket.user = nickname;
-    clients.push(socket);
-    io.emit('nickname', nickname);
+    clients.filter((client) => socket.id !== client.id);
+    clients.push({ id: socket.id, nickname });
+    socket.emit('nickname', nickname);
+    io.emit('online-users', clients);
   });
 
-  // Escuta a mensagem vinda do FRONT e armazena no banco de dados, e retorna para o FRONT a msg formatada.
+  // Escuta a mensagem vinda do FRONT e armazena no banco de dados,
+  //  e retorna para o FRONT a msg formatada.
   socket.on('message', async ({ chatMessage, nickname }) => {
     const newDate = new Date();
     const date = moment(newDate).format('DD-MM-yyyy HH:mm:ss');
@@ -47,10 +49,18 @@ io.on('connection', async (socket) => {
     await save(obj);
   });
 
+  socket.on('logged', ({ nickname }) => {
+    const obj = { id: socket.id, nickname };
+    clients.push(obj);
+    io.emit('online-users', clients);
+  });
+
   // Usuario foi desconectado
   socket.on('disconnect', (nickname) => {
-    clients.splice(clients.indexOf(nickname), 1);
-    io.emit('message', `${nickname} deixou chat :'(`);
+    console.log('clients', clients);
+    clients.filter((client) => client !== nickname);
+    clients = [];
+    io.emit('online-users', clients);
   });
 });
 
