@@ -40,7 +40,11 @@
     form#nicknameForm {
       background: #000;
       padding: 3px;
+      width: 100%;
+    }
 
+    #onlineUsers {
+      padding: 3px;
       width: 100%;
     }
 
@@ -65,31 +69,47 @@
     $(() => {
       const socket = io('http://localhost:3000');
       const setMessage = (message, dataTestid) => $('#messagens').append($('<li>').text(message).attr('data-testid', dataTestid))
-      socket.on('getName', (socket) => {
-        $('#nicknameInput').val((socket.user))
-      })
-      $('#nicknameForm').submit((e) => {
-        e.preventDefault();
-        if ($('#nicknameInput').val()) {
-          socket.emit('setName', $('#nicknameInput').val())
-        }
-      })
-      $('#chatForm').submit((e) => {
+      $('document').ready(() => {
+        socket.on('setHistory', (history) => {
+          history.forEach(message => {
+            setMessage(message, 'message')
+          });
+        });
 
+      })
+      socket.on('getName', (socketParam) => {
+        $('#nicknameForm').submit((e) => {
+          e.preventDefault();
+          if ($('#nicknameInput').val()) {
+            socket.emit('setName', $('#nicknameInput').val())
+          }
+          console.log(socketParam);
+        })
+
+      })
+
+      $('#chatForm').submit((e) => {
         e.preventDefault();
         if ($('#mensagemInput').val()) {
           socket.emit('mensagem', $('#mensagemInput').val());
           $('#mensagemInput').val('')
         }
       });
-      socket.on('menssage', function (message) {
+      socket.on('menssage', (message) => {
         setMessage(message, 'message')
       });
-      socket.on('connectMessage', function (message) {
+      socket.on('connectMessage', (message) => {
         setMessage(message, 'online-user');
       });
-      socket.on('disconnectMessage', function (message) {
+      socket.on('disconnectMessage', (message) => {
         setMessage(message, 'online-user');
+      });
+      socket.on('onlineUsers', async (users) => {
+        await $('#userList').remove()
+        $('#onlineUsers').append($('<ul>').attr('id', 'userList'))
+        Object.values(users).map(value => $('#userList').append($('<li>').text(value)))
+
+        console.log(Object.values(users));
       });
     });
   </script>
@@ -101,6 +121,9 @@
       <input id=nicknameInput data-testid="nickname-box" type="text">
       <button type="submit" data-testid="nickname-save">Salvar</button>
     </form>
+    <div>
+      <ul id="onlineUsers"></ul>
+    </div>
   </nav>
   <ul id="messagens"></ul>
   <form id="chatForm">
