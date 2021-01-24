@@ -15,7 +15,7 @@ const io = socketIo(socketIoServer);
 
 const sockets = [];
 const history = [];
-const onlineUsers = {}
+const onlineUsers = {};
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
