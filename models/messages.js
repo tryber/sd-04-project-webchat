@@ -1,7 +1,7 @@
 const connection = require('./connection');
 
-const save = async ({ nickname, chatMessage }) =>
-  await connection().then((db) =>
+const save = ({ nickname, chatMessage }) =>
+  connection().then((db) =>
     db
       .collection('messages')
       .insertOne({ nickname, chatMessage, timestamp: new Date().toLocaleString() }),

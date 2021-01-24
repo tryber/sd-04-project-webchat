@@ -27,7 +27,6 @@ io.on('connection', async (socket) => {
 
   // Escuta a entrada do nickname assim que inicia a conexão
   socket.on('nickname', (nickname) => {
-    socket.user = nickname;
     clients.filter((client) => socket.id !== client.id);
     clients.push({ id: socket.id, nickname });
     socket.emit('nickname', nickname);
@@ -57,7 +56,6 @@ io.on('connection', async (socket) => {
 
   // Usuario foi desconectado
   socket.on('disconnect', (nickname) => {
-    console.log('clients', clients);
     clients.filter((client) => client !== nickname);
     clients = [];
     io.emit('online-users', clients);
