@@ -4,8 +4,7 @@ const save = ({ nickname, chatMessage }) =>
   connection().then((db) =>
     db
       .collection('messages')
-      .insertOne({ nickname, chatMessage, timestamp: new Date().toLocaleString() }),
-  );
+      .insertOne({ nickname, chatMessage, timestamp: new Date().toLocaleString() }));
 
 const getAll = async () => {
   const db = await connection();
