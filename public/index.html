@@ -79,7 +79,7 @@
 
       function renderMessages(message) {
         $('#mensagens')
-          .append(`<li>${message}</li>`);
+          .append(`<li data-testid="message">${message}</li>`);
       }
 
       socket.on('message', function (message) {
