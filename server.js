@@ -14,6 +14,8 @@ const socketIoServer = http.createServer(app);
 const io = socketIo(socketIoServer);
 
 const sockets = [];
+const history = [];
+const onlineUsers = {}
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
@@ -22,25 +24,29 @@ app.use(cors);
 
 io.on('connection', (socket) => {
   guestId += 1;
-
   let user = `Guest${guestId}`;
-
-  sockets.push(socket);
 
   io.emit('getName', { user });
 
   socket.on('setName', (userParam) => {
     user = userParam;
   });
+
+  onlineUsers[socket.id] = user;
   socket.broadcast.emit('connectMessage', `${user} está online!`);
+
+  io.emit('setHistory', history);
 
   socket.on('disconnect', () => {
     socket.broadcast.emit('disconnectMessage', `${user} saiu!`);
     sockets.splice(sockets.indexOf(socket), 1);
+    delete onlineUsers[socket.id];
   });
+  io.emit('onlineUsers', onlineUsers);
 
   socket.on('mensagem', (message) => {
     io.emit('menssage', formatMessage(user, message));
+    history.push(message);
   });
 
   socket.on('error', (error) => {
