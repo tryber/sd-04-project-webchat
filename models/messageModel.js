@@ -1,6 +1,6 @@
 const connection = require('./connection');
 
-findAllMessages = async (collection) =>
+const findAllMessages = async (collection) =>
   connection()
     .then((db) => db.collection(collection).findAll())
     .catch((err) => {
@@ -8,7 +8,7 @@ findAllMessages = async (collection) =>
       return process.exit();
     });
 
-insertMessage = async (collection, message) =>
+const insertMessage = async (collection, message) =>
   connection()
     .then((db) => db.collection(collection).insertOne({ message }))
     .catch((err) => {

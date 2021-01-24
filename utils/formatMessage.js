@@ -1,4 +1,4 @@
-const { insertMessage } = require(''../models/messageModel');
+const { insertMessage } = require('../models/messageModel');
 
 const date = new Date();
 const day = date.getDate();
