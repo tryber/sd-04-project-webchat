@@ -91,6 +91,7 @@
       userList.innerHTML = '';
       Object.entries(users).map(([key, val]) => {
         const li = document.createElement('li');
+        const div = document.createElement('div');
         const btn = document.createElement('button');
         btn.innerText = 'Private';
         btn.id = key;
@@ -101,8 +102,9 @@
           receiver = event.target.id;
           localHistory['private'].map(m => addMessage(m));
         });
-        li.innerText = `${val} `;
-        li.setAttribute('data-testid', 'online-user');
+        div.innerText = `${val}`;
+        div.setAttribute('data-testid', 'online-user');
+        li.appendChild(div);
         li.appendChild(btn);
         userList.appendChild(li);
       });

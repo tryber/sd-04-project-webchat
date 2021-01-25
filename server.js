@@ -33,7 +33,6 @@ io.on('connection', async (socket) => {
   io.to(socket.id).emit('displayHistory', pvtMsgs, 'private');
 
   socket.on('userConection', (currentUser) => {
-    console.log(users);
     users[socket.id] = currentUser;
     io.emit('displayUsers', users);
   });
