@@ -3,7 +3,6 @@ const http = require('http');
 const cors = require('cors')();
 const socketIo = require('socket.io');
 const path = require('path');
-const formatMessage = require('./utils/formatMessage');
 const { insertMessage, findAllMessages } = require('./models/messageModel');
 require('dotenv').config();
 
@@ -26,7 +25,8 @@ io.on('connection', async (socket) => {
   guestId += 1;
   let user = `Guest${guestId}`;
   const history = await findAllMessages();
-  io.emit('getName', { user });
+  console.log(history);
+  io.emit('getName', user);
   io.emit('setHistory', history);
 
   socket.on('setName', (userParam) => {
@@ -44,9 +44,9 @@ io.on('connection', async (socket) => {
   io.emit('onlineUsers', onlineUsers);
 
   socket.on('mensagem', async (message) => {
-    const formatedMessage = formatMessage(user, message);
+    const formatedMessage = await insertMessage(message, user);
     io.emit('menssage', formatedMessage);
-    await insertMessage(formatMessage);
+    console.log(formatedMessage);
   });
 });
 
