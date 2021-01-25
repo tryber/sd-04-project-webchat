@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
 const moment = require('moment');
-const { insertMsg, getMsgs } = require('./models/messages');
+const { insertMsg, insertPvtMsg, getMsgs, getPvtMsgs } = require('./models/messages');
 
 const app = express();
 const PORT = 3000;
@@ -28,41 +28,50 @@ const users = {};
 io.on('connection', async (socket) => {
   // Load Message History
   const msgs = await getMsgs();
-  msgs.map(({ timestamp, nickname, message }) =>
-    io.emit(
-      'message',
-      `${timestamp} - ${nickname}: ${message}`,
-    ));
+  const pvtMsgs = await getPvtMsgs();
+  io.emit('displayHistory', msgs, 'public');
+  io.emit('displayHistory', pvtMsgs, 'private');
 
   socket.on('userConection', (currentUser) => {
     users[socket.id] = currentUser;
-    console.log('newusers', users);
     io.emit('displayUsers', users);
   });
 
   socket.on('updateNick', (nickname) => {
     users[socket.id] = nickname;
-    console.log('updateusers', users);
     io.emit('displayUsers', users);
   });
 
   socket.on('disconnect', () => {
     delete users[socket.id];
-    console.log('delusers', users);
     io.emit('displayUsers', users);
   });
 
   // Single Message Emitter
-  socket.on('message', async ({ nickname, chatMessage }) => {
-    const msg = await insertMsg({
-      nickname,
-      message: chatMessage,
-      timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
-    });
-    io.emit(
-      'message',
-      `${msg.timestamp} - ${nickname}: ${chatMessage}`,
-    );
+  socket.on('message', async ({ nickname, chatMessage, receiver }) => {
+    let msg;
+    if (!receiver) {
+      msg = await insertMsg({
+        nickname,
+        message: chatMessage,
+        timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
+      });
+      io.emit(
+        'message',
+        `${msg.timestamp} - ${nickname}: ${chatMessage}`,
+      );
+    } else {
+      msg = await insertPvtMsg({
+        nickname,
+        message: chatMessage,
+        timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
+        receiver,
+      });
+      io.to(socket.id).to(receiver).emit(
+        'message',
+        `${msg.timestamp} (private) - ${nickname}: ${chatMessage}`,
+      );
+    }
   });
 });
 
