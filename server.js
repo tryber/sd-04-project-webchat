@@ -1,5 +1,3 @@
-// Server.js será como o index.js dos projetos anteriores
-
 const express = require('express');
 
 const app = express();
@@ -32,19 +30,17 @@ app.get('/', (req, res) => {
 });
 
 let clients = [];
-const ls = require('local-storage');
 
 io.on('connect', async (socket) => {
   console.log('Conectado');
   console.log('id', socket.id);
-  
+
   const previousMessage = await messagesModel.all();
   io.emit('previousMessage', previousMessage);
 
   const randomNick = `Guest_${socket.id}`;
 
   clients.push({ userId: socket.id, nickname: randomNick });
-
 
   io.emit('join', clients, randomNick, socket.id);
   io.emit('listNicknameServer', randomNick, socket.id);
@@ -61,7 +57,7 @@ io.on('connect', async (socket) => {
     const timeMessage = `${timestamp.getHours()}:${timestamp.getMinutes()}:${timestamp.getSeconds()}`;
     const formatedMessage = `${dateMessage} ${timeMessage} - ${nickname}: ${chatMessage}`;
 
-    const add = await messagesModel.create(nickname, formatedMessage, timeMessage);
+    await messagesModel.create(nickname, formatedMessage, timeMessage);
     io.emit('message', formatedMessage);
   });
 
