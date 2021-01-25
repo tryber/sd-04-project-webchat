@@ -20,7 +20,6 @@ app.use('/', express.static(path.join(__dirname, 'views')));
 let listNamesConverted = [];
 
 io.on('connection', async (socket) => {
-
   socket.on('dateUser', (dateUser) => {
     listNamesConverted = [...listNamesConverted, {
       id: socket.id,
