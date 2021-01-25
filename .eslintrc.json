@@ -7,6 +7,14 @@
         "node": true,
         "jest": true
     },
+    "settings": {
+      "import/resolver": {
+        "node": {
+          "paths": ["src"],
+          "extensions": [".js", ".jsx"]
+        }
+      }
+    },
     "extends": "airbnb-base",
     "parserOptions": { "ecmaVersion": 11 },
     "rules": {
@@ -14,6 +22,7 @@
       "no-alert": "off",
       "arrow-parens": [2, "always"],
       "jsx-a11y/label-has-associated-control": 0,
+      "import/no-unresolved": "off",
       "quotes": [2, "single"],
       "implicit-arrow-linebreak": "off",
       "consistent-return": "off",
