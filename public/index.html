@@ -15,8 +15,7 @@
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
       crossorigin="anonymous"
-    ></script>
-    <link rel="stylesheet" href="style.css">
+    ></script>   
   </head>
   <body>
     <main">
@@ -136,24 +135,17 @@
         renderExist(message);
       });
 
-      socket.on('publicMessage', function (allMessages) {
-        $('#btnPublic').click(function(){
-          event.preventDefault();
-          $('.message-box').children('div').remove()
-          for (const iterator of allMessages) {
-           renderMessage(
+      socket.on('previousMessage', function (allMessages) {
+        for (const iterator of allMessages) {
+          renderMessage(
             `${iterator.dateTime} - ${iterator.nickname}: ${iterator.chatMessage}!`
-           );
-          }
-       })
+          );
+        }
       });
-  
-    
-      socket.on('message', function (message) {       
+
+      socket.on('message', function (message) {
         renderMessage(message);
-        $('input[id=nickname]').val('');
-        $('input[id=chatMessage]').val('');
-      });  
+      });
 
       // Mensagens privadas      
       // id do usuario 
@@ -163,24 +155,25 @@
         // console.log('clicado')
         // obten o id do usuário que vai receber a mensagem
         toPrivateId = $(event.target)[0].id;
-        // idMessage = $(this).attr('id')
+        let chatMessage = $('input[id=chatMessage]').val();
+        
         console.log('Id Message', toPrivateId)
 
         // carrega as mensagens salvas do chat private 
-        socket.emit('findMessagePrivate', toPrivateId)
+        // socket.emit('findMessagePrivate', toPrivateId)
       })
-      
-      // Envia mensagem privada
-      $(document).on('click', '#send-button', function(event){      
+            
+     // Envia mensagem privada
+      $(document).on('click', '#send-button', function(event){  
       // console.log('fora da função', toPrivateId)
       event.preventDefault();       
-      
-      // Obten a mensagem digitada
+      console.log('teste')
+      // // Obten a mensagem digitada
       let chatMessage = $('input[id=chatMessage]').val();
       let nickname = $('input[id=nickname]').val();
       
-      // console.log('Mensage', messageSend)
-      // console.log('ID', idMessage)
+      // // console.log('Mensage', messageSend)
+      // // console.log('ID', idMessage)
 
       if(!toPrivateId && !nickname && chatMessage ){
         console.log('aqui-2')      
@@ -201,23 +194,36 @@
         toPrivateId="" 
       }
      
-      if(nickname && chatMessage){
-        console.log('aqui-3')
-        console.log('aqui')
-        socket.emit('message', {nickname, chatMessage})
+      if(!toPrivateId && nickname && chatMessage){
+      console.log('aqui-3')        
+      socket.emit('message', {nickname, chatMessage})     
+     
       }
-         
+      toPrivateId=""  
     })
 
-    // Carrega mensagens privadas do banco
+    socket.on('findMessagePrivate', function (allMessages) {
+      $('.message-box').children('div').remove()
+      console.log('Todas mensagens', allMessages)
+      console.log('tamanho', allMessages[0].length)
+      let i;
+      for (i=0; i<allMessages[0].length; i+=1) {                      
+        $('.message-box').append(
+          '<div data-testid="online-user">'+ allMessages[0][i] +'</div>');            
+        }
+    })
+   
+
+    //Carrega mensagens privadas do banco
     $(document).on('click', '.chatPrivate', function(event){
       event.preventDefault();
-      const inputMessage = $('#chatMessage').val();
+      const inputMessage = $('#chatMessage').text();
         console.log('valor', inputMessage)
-        if(inputMessage == ""){
+        if(inputMessage !== ""){
           console.log('entrei')          
+          const teste = $('.message-box').children('div')
+          console.log('vamos ver', teste)
           socket.on('findMessagePrivate', (allMessages) => {
-            $('.message-box').children('div').remove()
             console.log('Todas mensagens', allMessages)
             console.log('tamanho', allMessages[0].length)
             let i;
@@ -230,28 +236,29 @@
     });
 
     socket.on('privateMessage',function(private) {
+      $('.message-box').children('div').remove()
       console.log('front', private)
       $('.message-box').append('<div data-testid="message">' + private + '</div>')
         // console.log('minhas mensagens', $('.message-box div').last().text())            
     })    
     
 
-    // $('#chat').submit(function (event) {
-    //   event.preventDefault();
+    $('#chat').submit(function (event) {
+      event.preventDefault();
+      console.log('fui clicado')
+      // $('.message-box').children('div').remove();
 
-    //   // $('.message-box').children('div').remove();
+      let nickname = $('input[id=nickname]').val();
+      let chatMessage = $('input[id=chatMessage]').val();
 
-    //   let nickname = $('input[id=nickname]').val();
-    //   let chatMessage = $('input[id=chatMessage]').val();
+      if (nickname.length && chatMessage.length) {
+        //const messageObject = { nickname, chatMessage };
+        // renderMessage(messageObject);
+        socket.emit('message', { nickname, chatMessage });
+      }
 
-    //   if (nickname.length && chatMessage.length) {
-    //     //const messageObject = { nickname, chatMessage };
-    //     // renderMessage(messageObject);
-    //     socket.emit('message', { nickname, chatMessage });
-    //   }
-
-    //   $('input[id=chatMessage]').text('');
-    // });     
+      $('input[id=chatMessage]').text('');
+    });     
 
     $(window).on('beforeunload', function () {
       socket.emit('disconnect');        

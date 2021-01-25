@@ -60,7 +60,7 @@ io.on('connect', async (socket) => {
       const update = { newName, id };
       io.emit('userUpdate', update);
     } else {
-      // Seo nome já existe mostra mensagem
+      // Se o nome já existe mostra mensagem
       const userExist = 'Usuário já existe!';
       socket.emit('userExist', userExist);
     }
@@ -71,7 +71,8 @@ io.on('connect', async (socket) => {
    *  carrega todas as mensagens que estão salvas no banco.
    */
   const Messages = await modelChat.getAllMessages();
-  socket.emit('publicMessage', Messages);
+  console.log(Messages);
+  socket.emit('previousMessage', Messages);
 
   /**
    * Salva todas as mensagens do cliente no banco
@@ -110,12 +111,12 @@ io.on('connect', async (socket) => {
 
     socket.emit(
       'privateMessage',
-      `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`,
+      `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
     );
 
     io.to(messagePrivate.idPrivate).emit(
       'privateMessage',
-      `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`,
+      `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
     );
 
     // Salva mensagem privada
@@ -123,13 +124,13 @@ io.on('connect', async (socket) => {
       saveMessage(
         fromPrivateId,
         messagePrivate.idPrivate,
-        `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`,
+        `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
       );
 
       saveMessage(
         messagePrivate.idPrivate,
         fromPrivateId,
-        `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`,
+        `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
       );
     } catch (error) {
       console.log(error);
