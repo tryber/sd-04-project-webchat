@@ -18,9 +18,8 @@ app.use(express.json());
 app.use('/', express.static(path.join(__dirname, 'views')));
 
 io.on('connection', async (socket) => {
-
   socket.on('dateUser', (dateUser) => {
-    socket.server.eio.clients[socket.id].id = dateUser.nickname
+    socket.server.eio.clients[socket.id].id = dateUser.nickname;
     const listIdsUsers = Object.keys(socket.server.eio.clients);
     let listNamesConverted = [];
     listIdsUsers.forEach((userId) => {

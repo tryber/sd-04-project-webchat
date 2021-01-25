@@ -5,25 +5,17 @@ const listNameRandom = ['Bane', 'Bruce Wayne', 'Batman', 'Alfred', 'Robin', 'Cor
 socket.on('connect', () => {
   const sessionStorageNickname = sessionStorage.getItem('nickname');
   const nameRandom = listNameRandom[Math.round(Math.random() * 13)];
-  console.log(sessionStorageNickname)
   socket.id = {
     idRandom: socket.id,
     nickname: sessionStorageNickname || nameRandom,
   };
-   
   sessionStorage.setItem('nickname', socket.id.nickname);
-  
   socket.emit('dateUser', socket.id);
-
-  
 });
-
-
 
 function editNickname() {
   const nicknameSaveBtn = document.querySelector('.nicknameSaveBtn');
   const inputNickname = document.querySelector('.nickname');
-
   nicknameSaveBtn.addEventListener('click', () => {
     sessionStorage.setItem('nickname', inputNickname.value);
     socket.id.nickname = inputNickname.value;
@@ -36,9 +28,7 @@ editNickname();
 function emitMessage() {
   const inputChatMessage = document.querySelector('.chatMessage');
   const chatMessageBtn = document.querySelector('.chatMessageBtn');
-
   let data;
-
   chatMessageBtn.addEventListener('click', () => {
     data = {
       chatMessage: inputChatMessage.value,
@@ -50,7 +40,6 @@ function emitMessage() {
 }
 
 emitMessage();
-
 
 function createItensList(data, list, dataTestid) {
   const li = document.createElement('li');
@@ -67,15 +56,14 @@ socket.on('dataServer', (message) => {
   createItensList(message, listMessages, 'message');
 });
 
-
 const listUsers = document.getElementById('listUsers');
 
 socket.on('listNamesConverted', (listNamesConverted) => {
   const userSession = listNamesConverted.filter((user) => user.id === socket.id.idRandom);
   const othersUsers = listNamesConverted.filter((user) => user.id !== socket.id.idRandom);
-    listUsers.innerText = '';
-    createItensList(userSession[0].nickname, listUsers, 'online-user');
-    othersUsers.forEach((user) => {
+  listUsers.innerText = '';
+  createItensList(userSession[0].nickname, listUsers, 'online-user');
+  othersUsers.forEach((user) => {
     createItensList(user.nickname, listUsers, 'online-user');
   });
 });
