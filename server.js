@@ -5,6 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const faker = require('faker'); // Gera dados fakes no browser, Ex.: nome, cidade
 const modelChat = require('./model/modelChat');
+const saveMessage = require('./service/saveMessagePrivate');
 const createOn = require('./service/timeNow');
 
 const app = express();
@@ -95,6 +96,58 @@ io.on('connect', async (socket) => {
      */
     socket.broadcast.emit('message', message);
     socket.emit('message', message);
+  });
+
+  // mensagem privada
+  socket.on('privateMessage', (messagePrivate) => {
+    const fromPrivateId = socket.id;
+    console.log('id send', fromPrivateId);
+    const indexPrivate = allUsers
+      .map((idName) => idName.userId)
+      .indexOf(fromPrivateId);
+    console.log('enviando', indexPrivate);
+    console.log('hora', dateTime);
+
+    socket.emit(
+      'privateMessage',
+      `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
+    );
+
+    io.to(messagePrivate.idPrivate).emit(
+      'privateMessage',
+      `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
+    );
+
+    // Salva mensagem privada
+    try {
+      saveMessage(
+        fromPrivateId,
+        messagePrivate.idPrivate,
+        `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
+      );
+
+      saveMessage(
+        messagePrivate.idPrivate,
+        fromPrivateId,
+        `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  // Carrega as mensagens privadas
+  socket.on('findMessagePrivate', async (idMessage) => {
+    const userFrom = socket.id;
+    // console.log('Atual', userFrom);
+    const userTo = idMessage;
+    // console.log('Para', userTo);
+    // Recupera todas as mensagens salvas no private por Id
+    const message = await modelChat.getPrivateMessage(userFrom, userTo);
+    const allMessages = message.map((e) => e.message);
+    console.log('todas msn', allMessages);
+    socket.emit('findMessagePrivate', allMessages);
+    // console.log('Todas as msn ', allMessagesPrivate);
   });
 
   socket.on('disconnect', () => {

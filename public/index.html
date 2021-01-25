@@ -16,6 +16,7 @@
       integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
       crossorigin="anonymous"
     ></script>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <main">
@@ -37,9 +38,10 @@
             id="chatMessage"
             data-testid="message-box"
             placeholder="Digite sua mensagem"
-          /><button data-testid="send-button">Enviar</button>
+          /><button id="send-button" data-testid="send-button">Enviar</button>
         </form>
         <div >
+          <br>
           <h3 class="users">Usuários:</h3>
           <div>
             <ul id="online-user" data-testid="online-user"></ul>
@@ -47,11 +49,9 @@
         </div>
         <hr>
         <br>
-        <div>
-          <form method="GET" action="/privatChat.html">
-            <button data-testid="private" type="submit" >Chat privado</button>
-          </form>
-        </div>
+        <div>  
+          <button id="btnPublic" data-testid="public" >Chat publico</button>
+        </div>       
       </div>
     </main>
     <script type="text/javascript">
@@ -67,53 +67,57 @@
       }
 
       function renderUser(user) {
-        console.log('user', user);
+        console.log('user', user); 
 
-        $('#online-user').append(
-          '<li data-testid="online-user"' +
+        const lista = $('ul li').length
+        console.log('lista', lista)
+        if(lista >= 1){
+          $('#online-user').append(
+            '<li data-testid="online-user"' +
             'id=' +
             user.userId +
             '>' +
-            user.userName +
-            '</li>'
-        );
+            user.userName + '<input type="button" class="chatPrivate" id="'+user.userId+'" data-testid="private" value="chat private"></li>')
+        }else{
+          $('#online-user').append(
+            '<li data-testid="online-user"' +
+              'id=' +
+              user.userId +
+              '>' +
+              user.userName + '</li>'
+          )};            
       }
 
-      function renderAllUser(users) {
-        // clearList();
-        // const firstName = $('li:nth-child(1)').text();
-        // console.log('firstName', firstName);
+      function renderAllUser(users) {        
         users.forEach((item) => {
           $('#online-user').append(
             '<li data-testid="online-user"' +
               'id=' +
               item.userId +
-              '>' +
-              item.userName +
-              '</li>'
+              '>' + 
+              item.userName +'<input type="button" class="chatPrivate" id="'+item.userId+'"data-testid="private" value="chat private"></li>'            
           );
-        });
+        });       
+        $('#online-user input')[0].remove();
       }
 
       function clearList() {
         $('ul li').remove();
       }
 
-      // Atualiza o nome no do usuário
-      // let nickname = $('input[id=nickname]').val();
-      // const listUsers = [];
-      // listUsers.push($('ul li').text());
-      // if (jQuery.inArray('Tiago', listUsers) !== -1) {
       socket.on('userUpdate', function (data) {
         console.log('todos conectados', data);
         // console.log('dados', data.newName + data.id);
         $('#' + data.id).text(data.newName);
       });
-      // }
+      
 
       socket.on('disconnect', function (data) {
         console.log('disconnect', data);
-        $('#' + data).remove();
+        const testeId = $('#' + data);
+        console.log('Testeid', testeId)
+        $('#' + data).remove()       
+        $('#online-user-private li#' + data).remove();
       });
 
       // socket.emit('disconected');
@@ -142,36 +146,105 @@
 
       socket.on('message', function (message) {
         renderMessage(message);
-      });
+      });      
 
-      $('#chat').submit(function (event) {
-        event.preventDefault();
+      // Mensagens privadas      
+      // id do usuario 
+      let toPrivateId = "";
+      $(document).on('click', '.chatPrivate',function(event){
+        event.preventDefault();            
+        // console.log('clicado')
+        // obten o id do usuário que vai receber a mensagem
+        toPrivateId = $(event.target)[0].id;
+        // idMessage = $(this).attr('id')
+        console.log('Id Message', toPrivateId)
 
-        let nickname = $('input[id=nickname]').val();
-        let chatMessage = $('input[id=chatMessage]').val();
+        // carrega as mensagens salvas do chat private 
+        socket.emit('findMessagePrivate', toPrivateId)
+      })
+      
+      // Envia mensagem privada
+      $(document).on('click', '#send-button', function(event){      
+      // console.log('fora da função', toPrivateId)
+      event.preventDefault();       
+      
+      // Obten a mensagem digitada
+      let messageSend = $('#chatMessage').val();
+      
+      // console.log('Mensage', messageSend)
+      // console.log('ID', idMessage)
+      
+      // objeto mensagem privada
+      if(messageSend && toPrivateId){
+        const privateMessage = {"message":messageSend, "idPrivate":toPrivateId}
+        // Envia mensagem para o back-end
+        socket.emit('privateMessage', privateMessage)
+        toPrivateId = "";
+      }
+      // Limpar input mensagem
+      $('#chatMessage').val('');
+      // Limpa a variável que recebe o id
+      idUser=""      
+    })
 
-        if (nickname.length && chatMessage.length) {
-          //const messageObject = { nickname, chatMessage };
-          // renderMessage(messageObject);
-          socket.emit('message', { nickname, chatMessage });
+    // Carrega mensagens privadas do banco
+    $(document).on('click', '.chatPrivate', function(event){
+      event.preventDefault();
+      const inputMessage = $('#chatMessage').val();
+        console.log('valor', inputMessage)
+        if(inputMessage == ""){
+          console.log('entrei')          
+          socket.on('findMessagePrivate', (allMessages) => {
+            $('.message-box').children('div').remove()
+            console.log('Todas mensagens', allMessages)
+            console.log('tamanho', allMessages[0].length)
+            let i;
+            for (i=0; i<allMessages[0].length; i+=1) {                      
+              $('div.message-box').append(
+                '<div data-testid="online-user">'+ allMessages[0][i] +'</div>');            
+              }
+          })        
         }
-      });
+    });
 
-      $(window).on('beforeunload', function () {
-        socket.emit('disconnect');
-        console.log('closedddddd');
-      });
+    socket.on('privateMessage',function(private) {
+      console.log('front', private)
+      $('.message-box').append('<div data-testid="message">' + private + '</div>')
+        // console.log('minhas mensagens', $('.message-box div').last().text())            
+    })    
+    
 
-      $('#nickname-save').click(function (event) {
-        event.preventDefault();
-        let userName = $('input[id=nickname]').val();
-        // Altera o nome o usuário conectado
-        // $('ul li').eq(0).html(userName);
-        // Obtên o id do usuário
-        let indice = $('ul li').attr('id');
+    $('#chat').click(function (event) {
+      event.preventDefault();
 
-        socket.emit('userConected', { userName, indice });
-      });
+      $('.message-box').children('div').remove();
+
+      let nickname = $('input[id=nickname]').val();
+      let chatMessage = $('input[id=chatMessage]').val();
+
+      if (nickname.length && chatMessage.length) {
+        //const messageObject = { nickname, chatMessage };
+        // renderMessage(messageObject);
+        socket.emit('message', { nickname, chatMessage });
+      }
+
+      $('input[id=chatMessage]').text('');
+    });     
+
+    $(window).on('beforeunload', function () {
+      socket.emit('disconnect');        
+    });
+
+    $('#nickname-save').click(function (event) {
+      event.preventDefault();
+      let userName = $('input[id=nickname]').val();
+      // Altera o nome o usuário conectado
+      // $('ul li').eq(0).html(userName);
+      // Obtên o id do usuário
+      let indice = $('ul li').attr('id');
+
+      socket.emit('userConected', { userName, indice });
+    });
     </script>
   </body>
 </html>
