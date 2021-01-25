@@ -28,8 +28,13 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('status', async ({ nickname }) => {
-    console.log('Nickname: ', nickname); //
-    usersStatus.push({ socketId: socket.id, nickname });
+    // console.log('Nickname: ', nickname); //
+    const userPositon = usersStatus.findIndex((user) => user.socketId === socket.id);
+    if (userPositon === -1) {
+      usersStatus.push({ socketId: socket.id, nickname });
+    } else {
+      usersStatus[userPositon].nickname = nickname;
+    }
     io.emit('userStatus', usersStatus);
   });
 
