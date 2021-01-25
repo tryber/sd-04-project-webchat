@@ -71,22 +71,26 @@
       const setMessage = (message, dataTestid) => $('#messagens').append($('<li>').text(message).attr('data-testid', dataTestid))
       $('document').ready(() => {
         socket.on('setHistory', (history) => {
-          history.forEach(message => {
-            setMessage(message, 'message')
+          history.forEach((message) => {
+            const formatedMessage = `${message.messageDate} ${message.nickname}: ${message.chatMessage}`
+            console.log( formatedMessage );
+            setMessage(formatedMessage, 'message');
           });
         });
 
       })
-      socket.on('getName', (socketParam) => {
+      socket.on('getName', (user) => {
         $('#nicknameForm').submit((e) => {
           e.preventDefault();
           if ($('#nicknameInput').val()) {
-            socket.emit('setName', $('#nicknameInput').val())
+            $('#nicknameInput').val(user)
           }
-          console.log(socketParam);
+          console.log(user);
         })
-
+        
       })
+      console.log($('#nicknameInput').val());
+      socket.emit('setName', $('#nicknameInput').val())
 
       $('#chatForm').submit((e) => {
         e.preventDefault();
@@ -127,6 +131,7 @@
   </nav>
   <ul id="messagens"></ul>
   <form id="chatForm">
+    <select name="chatSelect" id="chatSelect"></select>
     <input id="mensagemInput" data-testid="message-box" autocomplete="on" />
     <button type="submit" data-testid="send-button">Enviar</button>
   </form>
