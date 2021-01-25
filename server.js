@@ -17,19 +17,16 @@ app.use(express.json());
 
 app.use('/', express.static(path.join(__dirname, 'views')));
 
+let listNamesConverted = [];
+
 io.on('connection', async (socket) => {
-  let listNamesConverted = [];
 
   socket.on('dateUser', (dateUser) => {
-    socket.server.eio.clients[socket.id].id = dateUser.nickname;
-    const listIdsUsers = Object.keys(socket.server.eio.clients);
+    listNamesConverted = [...listNamesConverted, {
+      id: socket.id,
+      nickname: dateUser.nickname,
+    }];
 
-    listIdsUsers.forEach((userId) => {
-      listNamesConverted = [...listNamesConverted, {
-        id: userId,
-        nickname: socket.server.eio.clients[userId].id,
-      }];
-    });
     socket.emit('listNamesConverted', listNamesConverted);
     socket.broadcast.emit('listNamesConverted', listNamesConverted);
   });
