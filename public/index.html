@@ -68,53 +68,57 @@
   <script>
     $(() => {
       const socket = io('http://localhost:3000');
-      const setMessage = (message, dataTestid) => $('#messagens').append($('<li>').text(message).attr('data-testid', dataTestid))
-      $('document').ready(() => {
-        socket.on('setHistory', (history) => {
-          history.forEach((message) => {
-            const formatedMessage = `${message.messageDate} ${message.nickname}: ${message.chatMessage}`
-            console.log( formatedMessage );
-            setMessage(formatedMessage, 'message');
+      const setMessage = (message, dataTestid) => $('#messagens').append($('<li>').text(message).attr('data-testid', dataTestid));
+      try {
+        $('document').ready(() => {
+          socket.on('setHistory', (history) => {
+            history.forEach((message) => {
+              const formatedMessage = `${message.messageDate} ${message.nickname}: ${message.chatMessage}`;
+              setMessage(formatedMessage, 'message');
+            });
           });
         });
 
-      })
-      socket.on('getName', (user) => {
-        $('#nicknameForm').submit((e) => {
-          e.preventDefault();
-          if ($('#nicknameInput').val()) {
-            $('#nicknameInput').val(user)
-          }
+        socket.on('setName', (user) => {
           console.log(user);
-        })
+          $('#nicknameInput').val(user)
+          $('#nicknameForm').submit((e) => {
+            e.preventDefault();
+            if ($('#nicknameInput').val()) {
+              socket.emit('setName', $('#nicknameInput').val())
+            }
+          });
+        });
+
+        $('#chatForm').submit((e) => {
+          e.preventDefault();
+          if ($('#mensagemInput').val()) {
+            socket.emit('mensagem', $('#mensagemInput').val());
+            $('#mensagemInput').val('');
+          }
+        });
+
+        socket.on('menssage', (message) => {
+          setMessage(message, 'message');
+        });
+
+        socket.on('connectMessage', (message) => {
+          setMessage(message, 'online-user');
+        });
+
+        socket.on('disconnectMessage', (message) => {
+          setMessage(message, 'online-user');
+        });
+
+        socket.on('onlineUsers', async (users) => {
+          await $('#userList').remove()
+          $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
+          Object.values(users).map(value => $('#userList').append($('<li>').text(value)));
+        });
         
-      })
-      console.log($('#nicknameInput').val());
-      socket.emit('setName', $('#nicknameInput').val())
-
-      $('#chatForm').submit((e) => {
-        e.preventDefault();
-        if ($('#mensagemInput').val()) {
-          socket.emit('mensagem', $('#mensagemInput').val());
-          $('#mensagemInput').val('')
-        }
-      });
-      socket.on('menssage', (message) => {
-        setMessage(message, 'message')
-      });
-      socket.on('connectMessage', (message) => {
-        setMessage(message, 'online-user');
-      });
-      socket.on('disconnectMessage', (message) => {
-        setMessage(message, 'online-user');
-      });
-      socket.on('onlineUsers', async (users) => {
-        await $('#userList').remove()
-        $('#onlineUsers').append($('<ul>').attr('id', 'userList'))
-        Object.values(users).map(value => $('#userList').append($('<li>').text(value)))
-
-        console.log(Object.values(users));
-      });
+      } catch (error) {
+        io.emit('error', error);
+      };
     });
   </script>
 </head>
