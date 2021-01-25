@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Web chat</title>
 </head>
+
 <body>
   <form id="nicknameForm">
     <input type="text" id="nickname" placeholder="Type your nickname" data-testid="nickname-box">
@@ -86,7 +88,8 @@
           localHistory[type].push(msg);
           if (type === chatType) addMessage(msg);
         });
-      }});
+      }
+    });
 
     socket.on('displayUsers', (users) => {
       userList.innerHTML = '';
@@ -117,9 +120,10 @@
     socket.on('message', (message, type) => {
       localHistory[type].push(message);
       console.log(localHistory);
-      if(type === chatType) addMessage(message);
+      if (type === chatType) addMessage(message);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     });
   </script>
 </body>
-</html> 
+
+</html>
