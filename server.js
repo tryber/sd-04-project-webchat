@@ -25,7 +25,7 @@ app.use(cors);
 io.on('connection', async (socket) => {
   guestId += 1;
   let user = `Guest${guestId}`;
-  const history = await findAllMessages()
+  const history = await findAllMessages();
   io.emit('getName', { user });
   io.emit('setHistory', history);
 
@@ -35,7 +35,6 @@ io.on('connection', async (socket) => {
 
   onlineUsers[socket.id] = user;
   socket.broadcast.emit('connectMessage', `${user} está online!`);
-
 
   socket.on('disconnect', () => {
     socket.broadcast.emit('disconnectMessage', `${user} saiu!`);
