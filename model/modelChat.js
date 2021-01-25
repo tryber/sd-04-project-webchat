@@ -38,7 +38,7 @@ const saveMessagePrivate = async (from, to, message) => {
     .updateOne(
       { $and: [{ from }, { to }] },
       { $push: { message } },
-      { upsert: true }
+      { upsert: true },
     );
   // return result.ops[0];
 };
