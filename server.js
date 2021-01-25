@@ -21,11 +21,8 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 const users = {};
 
 io.on('connection', async (socket) => {
-  // Load Message History
-  const msgs = await getMessages();
-  // const pvtMsgs = await getPvtMsgs();
-  io.to(socket.id).emit('displayHistory', msgs, 'public');
-  // io.to(socket.id).emit('displayHistory', pvtMsgs, 'private');
+  const messages = await getMessages();
+  io.to(socket.id).emit('displayHistory', messages, 'public');
 
   socket.on('userConection', (currentUser) => {
     users[socket.id] = currentUser;
