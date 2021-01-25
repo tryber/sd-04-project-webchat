@@ -1,34 +1,32 @@
-require('dotenv').config();
-const moment = require('moment');
-const connection = require('../tests/helpers/db');
+const connection = require('./connection');
 
-const getMessages = async () => {
-  try {
-    const db = await connection();
-    const messages = await db.collection('messages').find({}).toArray();
-    return messages;
-  } catch (err) {
-    console.error(err.message);
-  }
+const createMessage = async (messageObj) => {
+  const conn = await connection();
+  const message = await conn.collection('messages').insertOne(messageObj);
+  return message.ops[0];
 };
 
-const createMessage = async ({ nickname, chatMessage }) => {
-  try {
-    const createdAt = moment(new Date()).format('DD-MM-YYYY hh:mm:ss');
-    const db = await connection();
-    await db.collection('messages').insertOne({
-      nickname,
-      chatMessage,
-      createdAt,
-    });
-    const messageToSend = `${createdAt} - ${nickname}: ${chatMessage}`;
-    return messageToSend;
-  } catch (err) {
-    console.log('Error', err);
-  }
+const createPrivateMessage = async (messageObj) => {
+  const conn = await connection();
+  const message = await conn.collection('private').insertOne(messageObj);
+  return message.ops[0];
+};
+
+const getMessages = async () => {
+  const conn = await connection();
+  const messages = await conn.collection('messages').find({}).toArray();
+  return messages;
+};
+
+const getPrivateMessages = async () => {
+  const conn = await connection();
+  const messages = await conn.collection('private').find({}).toArray();
+  return messages;
 };
 
 module.exports = {
-  getMessages,
   createMessage,
+  createPrivateMessage,
+  getMessages,
+  getPrivateMessages,
 };

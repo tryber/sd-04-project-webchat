@@ -81,7 +81,7 @@
 
     socket.on('connect', () => {
       if (!nickname) nickname = `Guest_${socket.id}`;
-      socket.emit('userConection', nickname);
+      socket.emit('userConnection', nickname);
     })
 
     socket.on('displayHistory', (history, type) => {

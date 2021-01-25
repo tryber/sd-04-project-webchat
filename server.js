@@ -3,7 +3,8 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
-const { getMessages, createMessage } = require('./models/messagesModel');
+const moment = require('moment');
+const { createMessage, createPrivateMessage, getMessages } = require('./models/messagesModel');
 
 const app = express();
 const PORT = 3000;
@@ -25,10 +26,13 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 const users = {};
 
 io.on('connection', async (socket) => {
-  const messages = await getMessages();
-  io.to(socket.id).emit('displayHistory', messages, 'public');
+  // Load Message History
+  const msgs = await getMessages();
+  // const pvtMsgs = await getPvtMsgs();
+  io.to(socket.id).emit('displayHistory', msgs, 'public');
+  // io.to(socket.id).emit('displayHistory', pvtMsgs, 'private');
 
-  socket.on('userConnection', (currentUser) => {
+  socket.on('userConection', (currentUser) => {
     users[socket.id] = currentUser;
     io.emit('displayUsers', users);
   });
@@ -44,14 +48,31 @@ io.on('connection', async (socket) => {
   });
 
   // Single Message Emitter
-  socket.on('message', async ({ nickname, chatMessage }) => {
-    let message;
-    if (!!nickname && !!chatMessage) {
-      message = await createMessage({
+  socket.on('message', async ({ nickname, chatMessage, receiver }) => {
+    let msg;
+    if (!receiver) {
+      msg = await createMessage({
         nickname,
-        chatMessage,
+        message: chatMessage,
+        timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
       });
-      io.emit(message);
+      io.emit(
+        'message',
+        `${msg.timestamp} - ${nickname}: ${chatMessage}`,
+        'public',
+      );
+    } else {
+      msg = await createPrivateMessage({
+        nickname,
+        message: chatMessage,
+        timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
+        receiver,
+      });
+      io.to(socket.id).to(receiver).emit(
+        'message',
+        `${msg.timestamp} (private) - ${nickname}: ${chatMessage}`,
+        'private',
+      );
     }
   });
 });
