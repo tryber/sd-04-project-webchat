@@ -71,7 +71,7 @@ io.on('connect', async (socket) => {
    *  carrega todas as mensagens que estão salvas no banco.
    */
   const Messages = await modelChat.getAllMessages();
-  socket.emit('previousMessage', Messages);
+  socket.emit('publicMessage', Messages);
 
   /**
    * Salva todas as mensagens do cliente no banco
@@ -89,7 +89,7 @@ io.on('connect', async (socket) => {
     }
     const message = `${dateTime} - ${data.nickname}: ${data.chatMessage}`;
     // users.add(name);
-    // console.log('vamos ver', message);
+    console.log('vamos ver', message);
     /**
      * Envia a mensagem digitada para todos clientes,
      * utilizando a variável message.
