@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- CSS only -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+      crossorigin="anonymous"
+    />
+    <!-- JavaScript Bundle with Popper -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+      crossorigin="anonymous"
+    ></script>   
+  </head>
+  <body>
+    <main">
+      <div>
+        <h1>Chat Trybe</h1>
+        <form  id="chat">
+          <input
+            type="text"
+            id="nickname"
+            placeholder="Digite seu nome"
+            data-testid="nickname-box"
+          /><button id="nickname-save" data-testid="nickname-save">
+            Salvar usuário
+          </button>
+          <p id="userExist"></p>
+          <div class="message-box"></div>
+          <input
+            type="text"
+            id="chatMessage"
+            data-testid="message-box"
+            placeholder="Digite sua mensagem"
+          /><button id="send-button" data-testid="send-button">Enviar</button>
+        </form>
+        <div >
+          <br>
+          <h3 class="users">Usuários:</h3>
+          <div>
+            <ul id="online-user" data-testid="online-user"></ul>
+          </div>
+        </div>
+        <hr>
+        <br>
+        <div>  
+          <button id="btnPublic" data-testid="public" >Chat publico</button>
+        </div>       
+      </div>
+    </main>
+    <script type="text/javascript">
+      const socket = io('http://localhost:3000');
+
+      function renderExist(message) {
+        $('#userExist').append(message);
+      }
+      function renderMessage(message) {
+        $('.message-box').append(
+          '<div data-testid="message">' + message + '</div>'
+        );
+      }
+
+      function renderUser(user) {
+        console.log('user', user); 
+
+        const lista = $('ul li').length
+        console.log('lista', lista)
+        if(lista >= 1){
+          $('#online-user').append(
+            '<li data-testid="online-user"' +
+            'id=' +
+            user.userId +
+            '>' +
+            user.userName + '<input type="button" class="chatPrivate" id="'+user.userId+'" data-testid="private" value="chat private"></li>')
+        }else{
+          $('#online-user').append(
+            '<li data-testid="online-user"' +
+              'id=' +
+              user.userId +
+              '>' +
+              user.userName + '</li>'
+          )};            
+      }
+
+      function renderAllUser(users) {        
+        users.forEach((item) => {
+          $('#online-user').append(
+            '<li data-testid="online-user"' +
+              'id=' +
+              item.userId +
+              '>' + 
+              item.userName +'<input type="button" class="chatPrivate" id="'+item.userId+'"data-testid="private" value="chat private"></li>'            
+          );
+        });       
+        $('#online-user input')[0].remove();
+      }
+
+      function clearList() {
+        $('ul li').remove();
+      }
+
+      socket.on('userUpdate', function (data) {
+        console.log('todos conectados', data);
+        // console.log('dados', data.newName + data.id);
+        $('#' + data.id).text(data.newName);
+      });
+      
+
+      socket.on('disconnect', function (data) {
+        console.log('disconnect', data);
+        const testeId = $('#' + data);
+        console.log('Testeid', testeId)
+        $('#' + data).remove()       
+        $('#online-user-private li#' + data).remove();
+      });
+
+      // socket.emit('disconected');
+
+      socket.on('userConected', function (user) {
+        // console.log('conectado', users);
+        renderUser(user);
+      });
+
+      socket.on('allUserConected', function (users) {
+        console.log('conectados', users);
+        renderAllUser(users);
+      });
+
+      socket.on('userExist', function (message) {
+        renderExist(message);
+      });
+
+      socket.on('previousMessage', function (allMessages) {
+        for (const iterator of allMessages) {
+          renderMessage(
+            `${iterator.dateTime} - ${iterator.nickname}: ${iterator.chatMessage}!`
+          );
+        }
+      });
+
+      socket.on('message', function (message) {
+        renderMessage(message);
+      });
+
+      // Mensagens privadas      
+      // id do usuario 
+      let toPrivateId = "";
+      $(document).on('click', '.chatPrivate',function(event){
+        event.preventDefault();            
+        // console.log('clicado')
+        // obten o id do usuário que vai receber a mensagem
+        toPrivateId = $(event.target)[0].id;
+        let chatMessage = $('input[id=chatMessage]').val();
+        
+        console.log('Id Message', toPrivateId)
+
+        // carrega as mensagens salvas do chat private 
+        // socket.emit('findMessagePrivate', toPrivateId)
+      })
+            
+     // Envia mensagem privada
+      $(document).on('click', '#send-button', function(event){  
+      // console.log('fora da função', toPrivateId)
+      event.preventDefault();       
+      console.log('teste')
+      // // Obten a mensagem digitada
+      let chatMessage = $('input[id=chatMessage]').val();
+      let nickname = $('input[id=nickname]').val();
+      
+      // // console.log('Mensage', messageSend)
+      // // console.log('ID', idMessage)
+
+      if(!toPrivateId && !nickname && chatMessage ){
+        console.log('aqui-2')      
+        let nickname = $('#online-user').children(':first').text();
+        console.log(nickname)
+        socket.emit('message', {nickname, chatMessage})
+      }
+      
+      // objeto mensagem privada
+      if(chatMessage && toPrivateId){
+        console.log('aqui-1')
+        const privateMessage = {"message":chatMessage, "idPrivate":toPrivateId}
+        // Envia mensagem para o back-end
+        socket.emit('privateMessage', privateMessage)        
+        // Limpar input mensagem
+        $('#chatMessage').val('');
+        // Limpa a variável que recebe o id
+        toPrivateId="" 
+      }
+     
+      if(!toPrivateId && nickname && chatMessage){
+      console.log('aqui-3')        
+      socket.emit('message', {nickname, chatMessage})     
+     
+      }
+      toPrivateId=""  
+    })
+
+    socket.on('findMessagePrivate', function (allMessages) {
+      $('.message-box').children('div').remove()
+      console.log('Todas mensagens', allMessages)
+      console.log('tamanho', allMessages[0].length)
+      let i;
+      for (i=0; i<allMessages[0].length; i+=1) {                      
+        $('.message-box').append(
+          '<div data-testid="online-user">'+ allMessages[0][i] +'</div>');            
+        }
+    })
+   
+
+    //Carrega mensagens privadas do banco
+    $(document).on('click', '.chatPrivate', function(event){
+      event.preventDefault();
+      const inputMessage = $('#chatMessage').text();
+        console.log('valor', inputMessage)
+        if(inputMessage !== ""){
+          console.log('entrei')          
+          const teste = $('.message-box').children('div')
+          console.log('vamos ver', teste)
+          socket.on('findMessagePrivate', (allMessages) => {
+            console.log('Todas mensagens', allMessages)
+            console.log('tamanho', allMessages[0].length)
+            let i;
+            for (i=0; i<allMessages[0].length; i+=1) {                      
+              $('div.message-box').append(
+                '<div data-testid="online-user">'+ allMessages[0][i] +'</div>');            
+              }
+          })        
+        }
+    });
+
+    socket.on('privateMessage',function(private) {
+      $('.message-box').children('div').remove()
+      console.log('front', private)
+      $('.message-box').append('<div data-testid="message">' + private + '</div>')
+        // console.log('minhas mensagens', $('.message-box div').last().text())            
+    })    
+    
+
+    $('#chat').submit(function (event) {
+      event.preventDefault();
+      console.log('fui clicado')
+      // $('.message-box').children('div').remove();
+
+      let nickname = $('input[id=nickname]').val();
+      let chatMessage = $('input[id=chatMessage]').val();
+
+      if (nickname.length && chatMessage.length) {
+        //const messageObject = { nickname, chatMessage };
+        // renderMessage(messageObject);
+        socket.emit('message', { nickname, chatMessage });
+      }
+
+      $('input[id=chatMessage]').text('');
+    });     
+
+    $(window).on('beforeunload', function () {
+      socket.emit('disconnect');        
+    });
+
+    $('#nickname-save').click(function (event) {
+      event.preventDefault();
+      let userName = $('input[id=nickname]').val();
+      // Altera o nome o usuário conectado
+      // $('ul li').eq(0).html(userName);
+      // Obtên o id do usuário
+      let indice = $('ul li').attr('id');
+
+      socket.emit('userConected', { userName, indice });
+    });
+    </script>
+  </body>
+</html>
