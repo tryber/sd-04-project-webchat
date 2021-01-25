@@ -18,15 +18,12 @@ app.use(express.json());
 app.use('/', express.static(path.join(__dirname, 'views')));
 
 io.on('connection', async (socket) => {
-
-  
-
   let listNamesConverted = [];
 
   socket.on('dateUser', (dateUser) => {
     socket.server.eio.clients[socket.id].id = dateUser.nickname;
     const listIdsUsers = Object.keys(socket.server.eio.clients);
-    
+
     listIdsUsers.forEach((userId) => {
       listNamesConverted = [...listNamesConverted, {
         id: userId,
@@ -37,7 +34,7 @@ io.on('connection', async (socket) => {
     socket.broadcast.emit('listNamesConverted', listNamesConverted);
   });
 
-  socket.on('disconnect', (reason) => {
+  socket.on('disconnect', () => {
     listNamesConverted = listNamesConverted.filter((user) => user.id !== socket.id);
     socket.broadcast.emit('listNamesConverted', listNamesConverted);
   });
