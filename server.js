@@ -4,6 +4,7 @@ const cors = require('cors')();
 const socketIo = require('socket.io');
 const path = require('path');
 const formatMessage = require('./utils/formatMessage');
+const { insertMessage } = require('./models/messageModel');
 require('dotenv').config();
 
 const app = express();
@@ -45,8 +46,11 @@ io.on('connection', (socket) => {
   io.emit('onlineUsers', onlineUsers);
 
   socket.on('mensagem', (message) => {
-    io.emit('menssage', formatMessage(user, message));
-    history.push(message);
+    const formatedMessage = formatMessage(user, message)
+    io.emit('menssage', formatedMessage);
+    insertMessage('messages', formatMessage)
+    console.log(formatedMessage);
+    history.push(formatedMessage);
   });
 
   socket.on('error', (error) => {
