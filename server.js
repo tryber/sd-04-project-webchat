@@ -4,7 +4,7 @@ const cors = require('cors')();
 const socketIo = require('socket.io');
 const path = require('path');
 const formatMessage = require('./utils/formatMessage');
-const { insertMessage } = require('./models/messageModel');
+const { insertMessage, findAllMessages } = require('./models/messageModel');
 require('dotenv').config();
 
 const app = express();
@@ -15,7 +15,6 @@ const socketIoServer = http.createServer(app);
 const io = socketIo(socketIoServer);
 
 const sockets = [];
-const history = [];
 const onlineUsers = {};
 
 app.use('/', express.static(path.join(__dirname, 'public')));
@@ -23,11 +22,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors);
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   guestId += 1;
   let user = `Guest${guestId}`;
-
+  const history = await findAllMessages()
   io.emit('getName', { user });
+  io.emit('setHistory', history);
 
   socket.on('setName', (userParam) => {
     user = userParam;
@@ -36,7 +36,6 @@ io.on('connection', (socket) => {
   onlineUsers[socket.id] = user;
   socket.broadcast.emit('connectMessage', `${user} está online!`);
 
-  io.emit('setHistory', history);
 
   socket.on('disconnect', () => {
     socket.broadcast.emit('disconnectMessage', `${user} saiu!`);
@@ -48,9 +47,8 @@ io.on('connection', (socket) => {
   socket.on('mensagem', (message) => {
     const formatedMessage = formatMessage(user, message);
     io.emit('menssage', formatedMessage);
-    insertMessage('messages', formatMessage);
+    insertMessage(formatMessage);
     console.log(formatedMessage);
-    history.push(formatedMessage);
   });
 
   socket.on('error', (error) => {
