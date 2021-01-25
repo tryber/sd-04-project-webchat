@@ -43,15 +43,10 @@ io.on('connection', async (socket) => {
   });
   io.emit('onlineUsers', onlineUsers);
 
-  socket.on('mensagem', (message) => {
+  socket.on('mensagem', async (message) => {
     const formatedMessage = formatMessage(user, message);
     io.emit('menssage', formatedMessage);
-    insertMessage(formatMessage);
-    console.log(formatedMessage);
-  });
-
-  socket.on('error', (error) => {
-    console.error('Erro no socket: ', error.message);
+    await insertMessage(formatMessage);
   });
 });
 
