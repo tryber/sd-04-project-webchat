@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
 const moment = require('moment');
-const { insertMsg, insertPvtMsg, getMsgs, getPvtMsgs } = require('./models/messages');
+const { insertMsg, insertPvtMsg, getMsgs /* getPvtMsgs */ } = require('./models/messages');
 
 const app = express();
 const PORT = 3000;
@@ -28,9 +28,9 @@ const users = {};
 io.on('connection', async (socket) => {
   // Load Message History
   const msgs = await getMsgs();
-  const pvtMsgs = await getPvtMsgs();
+  // const pvtMsgs = await getPvtMsgs();
   io.to(socket.id).emit('displayHistory', msgs, 'public');
-  io.to(socket.id).emit('displayHistory', pvtMsgs, 'private');
+  // io.to(socket.id).emit('displayHistory', pvtMsgs, 'private');
 
   socket.on('userConection', (currentUser) => {
     users[socket.id] = currentUser;
@@ -59,6 +59,7 @@ io.on('connection', async (socket) => {
       io.emit(
         'message',
         `${msg.timestamp} - ${nickname}: ${chatMessage}`,
+        'public',
       );
     } else {
       msg = await insertPvtMsg({
@@ -70,6 +71,7 @@ io.on('connection', async (socket) => {
       io.to(socket.id).to(receiver).emit(
         'message',
         `${msg.timestamp} (private) - ${nickname}: ${chatMessage}`,
+        'private',
       );
     }
   });

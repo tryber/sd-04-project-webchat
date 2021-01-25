@@ -15,7 +15,7 @@
     <input type="text" id="message" placeholder="Enter message" required data-testid="message-box">
     <button class="send-btn" data-testid="send-button">Send</button>
   </form>
-  <button id="publicBtn" data-testid="public">Public</button>
+  <button id="publicBtn" data-testid="public" disabled>Public</button>
   <ul id="users-list"></ul>
 
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
@@ -60,6 +60,7 @@
     });
 
     btnPublic.addEventListener('click', (_event) => {
+      btnPublic.disabled = true;
       clearChat();
       chatType = 'public'
       receiver = '';
@@ -92,27 +93,31 @@
       Object.entries(users).map(([key, val]) => {
         const li = document.createElement('li');
         const div = document.createElement('div');
-        const btn = document.createElement('button');
-        btn.innerText = 'Private';
-        btn.id = key;
-        btn.setAttribute("data-testid", "private")
-        btn.addEventListener('click', (event) => {
-          clearChat();
-          chatType = 'private'
-          receiver = event.target.id;
-          localHistory['private'].map(m => addMessage(m));
-        });
         div.innerText = `${val}`;
         div.setAttribute('data-testid', 'online-user');
         li.appendChild(div);
-        li.appendChild(btn);
+        if (key !== socket.id) {
+          const btn = document.createElement('button');
+          btn.innerText = 'Private';
+          btn.id = key;
+          btn.setAttribute("data-testid", "private")
+          btn.addEventListener('click', (event) => {
+            clearChat();
+            btnPublic.disabled = false;
+            chatType = 'private'
+            receiver = event.target.id;
+            localHistory['private'].map(m => addMessage(m));
+          });
+          li.appendChild(btn);
+        }
         userList.appendChild(li);
       });
     })
 
-    socket.on('message', (message) => {
-      localHistory[chatType].push(message);
-      addMessage(message);
+    socket.on('message', (message, type) => {
+      localHistory[type].push(message);
+      console.log(localHistory);
+      if(type === chatType) addMessage(message);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     });
   </script>
