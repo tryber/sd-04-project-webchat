@@ -31,11 +31,11 @@ io.on('connection', async (socket) => {
       onlineUsers[socket.id] = user;
     }
     io.emit('onlineUsers', onlineUsers);
-  }
-  setUsers(user, onlineUsers)
+  };
+  setUsers(user, onlineUsers);
   socket.on('setName', (userParam) => {
     user = userParam;
-    setUsers(user, onlineUsers)
+    setUsers(user, onlineUsers);
   });
 
   socket.broadcast.emit('connectMessage', `${user} está online!`);
@@ -43,15 +43,15 @@ io.on('connection', async (socket) => {
   socket.on('disconnect', () => {
     socket.broadcast.emit('disconnectMessage', `${user} saiu!`);
     delete onlineUsers[socket.id];
-    setUsers(null, onlineUsers, true)
+    setUsers(null, onlineUsers, true);
   });
 
   socket.on('mensagem', async (message) => {
     const formatedMessage = await insertMessage(message, user);
     io.emit('menssage', formatedMessage);
   });
-  
-  socket.on('error', (error) => console.error(error))
+
+  socket.on('error', (error) => console.error(error));
 });
 
 socketIoServer.listen(PORT, () => {
