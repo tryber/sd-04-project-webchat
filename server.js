@@ -26,16 +26,16 @@ io.on('connection', async (socket) => {
   let user = `Guest-${socket.id}`;
 
   socket.emit('setName', user);
-  const setUsers = (user, onlineUsers, deleteUser) => {
+  const setUsers = (newNickname, deleteUser) => {
     if (!deleteUser) {
-      onlineUsers[socket.id] = user;
+      onlineUsers[socket.id] = newNickname;
     }
     io.emit('onlineUsers', onlineUsers);
   };
   setUsers(user, onlineUsers);
   socket.on('setName', (userParam) => {
     user = userParam;
-    setUsers(user, onlineUsers);
+    setUsers(user);
   });
 
   socket.broadcast.emit('connectMessage', `${user} está online!`);
@@ -43,7 +43,7 @@ io.on('connection', async (socket) => {
   socket.on('disconnect', () => {
     socket.broadcast.emit('disconnectMessage', `${user} saiu!`);
     delete onlineUsers[socket.id];
-    setUsers(null, onlineUsers, true);
+    setUsers(null, true);
   });
 
   socket.on('mensagem', async (message) => {
