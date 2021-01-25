@@ -81,7 +81,7 @@
         });
       } else {
         return history.map(({ timestamp, nickname, message, receiver }) => {
-          msg = `${timestamp} - ${nickname}: ${message}`;
+          msg = `${timestamp} (private) - ${nickname}: ${message}`;
           localHistory[type].push(msg);
           addMessage(msg);
         });
@@ -109,7 +109,7 @@
     })
 
     socket.on('message', (message) => {
-      localHistory[type].push(msg);
+      localHistory[chatType].push(msg);
       addMessage(message);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     });
