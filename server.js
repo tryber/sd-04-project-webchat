@@ -46,9 +46,9 @@ io.on('connection', (socket) => {
   io.emit('onlineUsers', onlineUsers);
 
   socket.on('mensagem', (message) => {
-    const formatedMessage = formatMessage(user, message)
+    const formatedMessage = formatMessage(user, message);
     io.emit('menssage', formatedMessage);
-    insertMessage('messages', formatMessage)
+    insertMessage('messages', formatMessage);
     console.log(formatedMessage);
     history.push(formatedMessage);
   });
