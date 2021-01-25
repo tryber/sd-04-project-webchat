@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Webchat</title>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script>
+    localStorage.setItem('token', JSON.stringify({fdfd: "felipe"}));
+    let receiver;
+    let privateMsgs = [];
+    function pvChat(event) {
+      receiver = event.target.previousSibling.id;
+
+      $('#public-chat').remove();
+      $('#chat').empty();
+      const privateChat = $('<div></div>')
+        .attr({
+          class: "box-messages",
+          id: "private-chat",
+        })
+        .append($('<ul></ul>').attr({ id: "messages" }));
+      $('#chat').append(privateChat);
+      if (privateMsgs.length > 0) {
+        privateMsgs.forEach((msg) => {
+          $('#messages').append($('<li data-testid="message">').text(msg));
+        });
+      }
+    }
+        
+    $(function () {
+      const socket = io('http://localhost:3000');
+
+      $('#nickname-save').click((function() {
+        const nickname = $('#nickname-box').val();
+        socket.emit('changeNickname', nickname);
+      }));
+
+      $('form').submit(function(e) {
+        e.preventDefault();
+        const message = {
+          nickname: $('#nickname-box').val(),
+          chatMessage: $('#mensagemInput').val(),
+          receiver,
+        };
+
+        if($('#public-chat').length === 1) {
+          socket.emit('message', message);
+        }
+
+        if($('#private-chat').length === 1) {
+          socket.emit('privateMessage', message);
+        }
+        $('#mensagemInput').val('');
+        return false;
+      });
+
+      $('#btn-public-chat').click(function() {
+        $('#private-chat').remove();
+        $('#chat').empty();
+        const publicChat = $('<div></div>')
+          .attr({
+            class: "box-messages",
+            id: "public-chat",
+          })
+          .append($('<ul></ul>').attr({ id: "messages" }));
+        $('#chat').append(publicChat);
+        socket.emit('publicChat');
+      });
+
+      socket.on('join', function(clients, randomNick, userId) {
+        if (socket.id === userId) $('#nickname-user').val(randomNick);
+
+        clients.forEach((client) => {
+          const listed = $(`#${client.userId}`);
+          if (listed.length === 0) {
+            const li = $('<li></li>')
+              .attr({
+                id: client.userId,
+                "data-testid": "online-user",
+              })
+              .text(client.nickname);
+
+            // btn - private chat
+            const btnPrivate = $('<button></button')
+              .attr({
+                type: "button",
+                id: "btn-private-chat",
+                "data-testid": "private",
+                onclick: "pvChat(event)",
+              })
+              .text('Private');
+
+            const boxLi = $('<div></div>')
+              .attr({
+                id: `box-${client.userId}`,
+                class: "box-user",
+              })
+              .append(li);
+
+            if (socket.id === client.userId) {
+              $('#online-user').prepend(boxLi);
+            } else {
+              boxLi.append(btnPrivate);
+              $('#online-user').append(boxLi);
+            }
+          }
+
+          if (socket.id === client.userId) {
+            $('#nickname-user').text(client.nickname);
+          }
+        });
+      });
+
+      socket.on('previousMessage', (previousMessage) => {
+        if (previousMessage) {
+          previousMessage.forEach(message => {
+            $('#messages').append($('<li data-testid="message">').text(message.chatMessage));
+          });
+        }
+      });
+
+      socket.on('message', function(message) {
+        $('#messages').append($('<li data-testid="message">').text(message));
+      });
+
+      socket.on('privateMessage', function (message) {
+        privateMsgs.push(message);
+        $('#messages').append($('<li data-testid="message">').text(message));
+      });
+      socket.on('listNicknameServer', function(nickname, userId) {
+        if (socket.id === userId) $('#nickname-user').text(nickname);
+        $(`#${userId}`).text(nickname);
+      });
+
+      socket.on('exit', function (userId) {
+        const client = $(`#${userId}`).text();
+        $(`#box-${userId}`).remove();
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Projeto Webchat</h1>
+  <button id="btn-public-chat" data-testid="public" type="button">Public Chat</button>
+
+  <div id=chat>
+    <div class="box-messages" id="public-chat">
+      <ul id="messages"></ul>
+    </div>
+  </div>
+
+  <div id="box-online-users">
+    Onlines Users:
+    <ul id="online-user"></ul>
+  </div>
+  <div>
+    <form action="">
+      <p id="nickname-user"></p>
+      <input type="text" id="nickname-box" data-testid="nickname-box"/><button type="button" id="nickname-save" data-testid="nickname-save">Save</button>
+      <input
+        id="mensagemInput"
+        autocomplete="off"
+        data-testid="message-box"
+      /><button type="submit" data-testid="send-button">Send</button>
+    </form>
+  </div>
+</body>
+</html>
