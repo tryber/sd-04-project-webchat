@@ -103,10 +103,10 @@
 
     socket.on('displayUsers', (users) => {
       usersList.innerHTML = '';
-      Object.entries(users).map(([key, val]) => {
+      Object.entries(users).map(([key, value]) => {
         const li = document.createElement('li');
         const div = document.createElement('div');
-        div.innerText = `${val}`;
+        div.innerText = `${value}`;
         div.setAttribute('data-testid', 'online-user');
         li.appendChild(div);
         if (key !== socket.id) {

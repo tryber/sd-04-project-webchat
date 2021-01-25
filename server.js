@@ -10,12 +10,7 @@ const app = express();
 const PORT = 3000;
 
 const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-  },
-});
+const io = socketIo(server);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -56,11 +51,7 @@ io.on('connection', async (socket) => {
         message: chatMessage,
         timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
       });
-      io.emit(
-        'message',
-        `${msg.timestamp} - ${nickname}: ${chatMessage}`,
-        'public',
-      );
+      io.emit('message', `${msg.timestamp} - ${nickname}: ${chatMessage}`, 'public');
     } else {
       msg = await createPrivateMessage({
         nickname,
@@ -68,11 +59,9 @@ io.on('connection', async (socket) => {
         timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
         receiver,
       });
-      io.to(socket.id).to(receiver).emit(
-        'message',
-        `${msg.timestamp} (private) - ${nickname}: ${chatMessage}`,
-        'private',
-      );
+      io.to(socket.id)
+        .to(receiver)
+        .emit('message', `${msg.timestamp} (private) - ${nickname}: ${chatMessage}`, 'private');
     }
   });
 });
