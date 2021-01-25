@@ -29,10 +29,11 @@ io.on('connection', async (socket) => {
   // Load Message History
   const msgs = await getMsgs();
   const pvtMsgs = await getPvtMsgs();
-  io.emit('displayHistory', msgs, 'public');
-  io.emit('displayHistory', pvtMsgs, 'private');
+  io.to(socket.id).emit('displayHistory', msgs, 'public');
+  io.to(socket.id).emit('displayHistory', pvtMsgs, 'private');
 
   socket.on('userConection', (currentUser) => {
+    console.log(users);
     users[socket.id] = currentUser;
     io.emit('displayUsers', users);
   });

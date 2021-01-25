@@ -67,23 +67,23 @@
     })
 
     socket.on('connect', () => {
-      nickname = `Guest_${socket.id}`;
+      if (!nickname) nickname = `Guest_${socket.id}`;
       socket.emit('userConection', nickname);
     })
 
     socket.on('displayHistory', (history, type) => {
       let msg;
       if (type === 'public') {
-        return history.map(({ timestamp, nickname, message }) => {
+        history.map(({ timestamp, nickname, message }) => {
           msg = `${timestamp} - ${nickname}: ${message}`;
           localHistory[type].push(msg);
-          addMessage(msg);
+          if (type === chatType) addMessage(msg);
         });
       } else {
-        return history.map(({ timestamp, nickname, message, receiver }) => {
+        history.map(({ timestamp, nickname, message, receiver }) => {
           msg = `${timestamp} (private) - ${nickname}: ${message}`;
           localHistory[type].push(msg);
-          addMessage(msg);
+          if (type === chatType) addMessage(msg);
         });
       }});
 
