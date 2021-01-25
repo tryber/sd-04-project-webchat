@@ -111,12 +111,12 @@ io.on('connect', async (socket) => {
 
     socket.emit(
       'privateMessage',
-      `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
+      `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`,
     );
 
     io.to(messagePrivate.idPrivate).emit(
       'privateMessage',
-      `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
+      `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`,
     );
 
     // Salva mensagem privada
@@ -124,13 +124,13 @@ io.on('connect', async (socket) => {
       saveMessage(
         fromPrivateId,
         messagePrivate.idPrivate,
-        `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
+        `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`,
       );
 
       saveMessage(
         messagePrivate.idPrivate,
         fromPrivateId,
-        `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`
+        `${dateTime} (private) - ${allUsers[indexPrivate].userName}:  ${messagePrivate.message}`,
       );
     } catch (error) {
       console.log(error);
