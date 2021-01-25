@@ -2,53 +2,14 @@
 <html>
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>webchat</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-    }
-
-    body {
-      font: 13px Helvetica, Arial;
-    }
-
-    form {
-      background: #000;
-      padding: 3px;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-    }
-
-    form input {
-      border: 0;
-      padding: 10px;
-      width: 90%;
-      margin-right: 0.5%;
-    }
-
-    form button {
-      width: 9%;
-      background: rgb(130, 224, 255);
-      border: none;
-      padding: 10px;
-      cursor: pointer;
-    }
-
-    #mensagens {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    #mensagens li {
-      padding: 5px 10px;
-    }
-
-    #mensagens li:nth-child(odd) {
-      background: #eee;
     }
   </style>
 </head>
@@ -60,23 +21,22 @@
   </form>
   <ul id="messages-list"></ul>
   <form id="chat-form" action="">
-    <input
-      data-testid="message-box"
-      type="text"
-    />
+    <input data-testid="message-box" id="message" type="text" />
     <button data-testid="send-button">
-      Send your message
+      Send
     </button>
   </form>
+  <button id="public-button" data-testid="public" disabled>Public</button>
   <ul id="users-list"></ul>
 
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="socket.io/socket.io.js"></script>
 
   <script>
     const chatForm = document.getElementById('chat-form');
     const chatMessages = document.getElementById('messages-list');
     const nicknameForm = document.getElementById('nickname-form');
     const usersList = document.getElementById('users-list');
+    const publicButton = document.getElementById('public-button')
 
     const socket = io();
     const localHistory = {
@@ -89,7 +49,7 @@
 
     const addMessage = (message) => {
       const div = document.createElement('div');
-      div.innerHTML = `<p class="meta" data-testid="message">${message}</p>`;
+      div.innerHTML = `<p data-testid="message">${message}</p>`;
       chatMessages.appendChild(div);
     };
 
@@ -111,8 +71,8 @@
       socket.emit('updateNick', nickname);
     });
 
-    btnPublic.addEventListener('click', (_event) => {
-      btnPublic.disabled = true;
+    publicButton.addEventListener('click', (_event) => {
+      publicButton.disabled = true;
       clearChat();
       chatType = 'public'
       receiver = '';
@@ -156,7 +116,7 @@
           btn.setAttribute("data-testid", "private")
           btn.addEventListener('click', (event) => {
             clearChat();
-            btnPublic.disabled = false;
+            publicButton.disabled = false;
             chatType = 'private'
             receiver = event.target.id;
             localHistory['private'].map(m => addMessage(m));

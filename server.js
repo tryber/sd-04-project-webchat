@@ -1,73 +1,61 @@
 const express = require('express');
-
-const app = express();
-const socketIoServer = require('http').createServer(app);
-const io = require('socket.io')(socketIoServer);
+const http = require('http');
+const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
-const moment = require('moment');
 const { getMessages, createMessage } = require('./models/messagesModel');
 
-const EXPRESS_PORT = process.env.EXPRESS_PORT || 3000;
-const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT || 3333;
+const app = express();
+const PORT = 3000;
 
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+  },
+});
+
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-const loggedUsers = {};
+const users = {};
 
 io.on('connection', async (socket) => {
-  loggedUsers[socket.id] = socket.id;
-
   const messages = await getMessages();
-
   io.to(socket.id).emit('displayHistory', messages, 'public');
 
-  io.emit('displayUsers', loggedUsers);
-
   socket.on('userConnection', (currentUser) => {
-    loggedUsers[socket.id] = currentUser;
-    io.emit('displayUsers', loggedUsers);
+    users[socket.id] = currentUser;
+    io.emit('displayUsers', users);
   });
 
   socket.on('updateNick', (nickname) => {
-    loggedUsers[socket.id] = nickname;
-    io.emit('displayUsers', loggedUsers);
+    users[socket.id] = nickname;
+    io.emit('displayUsers', users);
   });
 
   socket.on('disconnect', () => {
-    delete loggedUsers[socket.id];
-    io.emit('displayUsers', loggedUsers);
+    delete users[socket.id];
+    io.emit('displayUsers', users);
   });
 
-  socket.on('message', async ({ nickname, chatMessage, receiver }) => {
-    let msg;
-    if (!receiver) {
-      msg = await createMessage({
+  // Single Message Emitter
+  socket.on('message', async ({ nickname, chatMessage }) => {
+    let message;
+    if (!!nickname && !!chatMessage) {
+      message = await createMessage({
         nickname,
-        message: chatMessage,
-        timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
+        chatMessage,
       });
-      io.emit('message', `${msg.timestamp} - ${nickname}: ${chatMessage}`, 'public');
-    } else {
-      // msg = await insertPvtMsg({
-      //   nickname,
-      //   message: chatMessage,
-      //   timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
-      //   receiver,
-      // });
-      // io.to(socket.id)
-      //   .to(receiver)
-      //   .emit('message', `${msg.timestamp} (private) - ${nickname}: ${chatMessage}`, 'private');
+      io.emit(message);
     }
   });
 });
 
-app.listen(EXPRESS_PORT, console.log(`Express listening at port: ${EXPRESS_PORT}`));
-
-socketIoServer.listen(
-  SOCKET_IO_PORT,
-  console.log(`Socket.io listening at port: ${SOCKET_IO_PORT}`),
-);
+server.listen(PORT, () => {
+  console.log(`Server on port ${PORT}`);
+});
