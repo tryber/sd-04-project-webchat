@@ -18,42 +18,33 @@
     <h3>Online</h3>
     <ul id="onlineUsers"></ul>
   </aside>
-  <form>
-    <label htmlFor="nickname-box">Nickname</label>
-    <input type="text" data-testid="nickname-box" name="nickname-box" id="nickname-box" />
-    <button type="submit" data-testid="nickname-save" id="nickname-save">
+
+  <form id="chatForm">
+    <label htmlFor="nicknameBox">Nickname</label>
+    <input type="text" data-testid="nickname-box" id="nicknameBox" />
+    <button type="submit" data-testid="nickname-save" id="nicknameSave">
       Salvar Nickname
     </button>
 
-    <label htmlFor="message-box">Mensagem</label>
-    <input type="text" data-testid="message-box" id="message-box" name="message-box" />
-    <button type="submit" data-testid="send-button" id="send-button">
+    <label htmlFor="messageBox">Mensagem</label>
+    <input type="text" data-testid="message-box" id="messageBox" />
+    <button type="submit" data-testid="send-button" id="sendButton">
       Enviar
     </button>
 
   </form>
 </body>
+
 <script>
-  
   const socket = io('http://localhost:3000');
-  const nickInput = document.querySelector('#nickname-box');
-  const saveNickBtn = document.querySelector('#nickname-save');
-  const msgInput = document.querySelector('#message-box');
-  const sendMsgBtn = document.querySelector('#send-button');
+  const nicknameBox = document.querySelector('#nicknameBox');
+  const saveNickBtn = document.querySelector('#nicknameSave');
+  const msgInput = document.querySelector('#messageBox');
+  const sendMsgBtn = document.querySelector('#sendButton');
   const chat = document.querySelector('#conversation');
   const onlineUsers = document.querySelector('#onlineUsers');
 
   let randomNickName = chance.name();
-
-  sendMsgBtn.addEventListener('click', (event) => {
-    (event).preventDefault();
-    socket.emit(
-      'message', {
-        nickname: randomNickName,
-        chatMessage: msgInput.value,
-      });
-      msgInput.value = '';
-  });
 
   const sendMessage = (message) => {
     const newMessage = document.createElement('p');
@@ -62,31 +53,41 @@
     chat.appendChild(newMessage);
   }
 
+  // Envia mensagem e limpa o input
+  sendMsgBtn.addEventListener('click', (event) => {
+    (event).preventDefault();
+    const chatMessage = msgInput.value;
+    socket.emit(
+      'message', {
+        chatMessage,
+        nickname: randomNickName,
+      });
+    msgInput.value = '';
+  });
+
   saveNickBtn.addEventListener('click', (event) => {
     (event).preventDefault();
-    if (nickInput.value !== '') {
-      socket.emit('updateNickName', { newNickName: nickInput.value });
-      randomNickName = nickInput.value;
+    if (nicknameBox.value !== '') {
+      socket.emit('updateNickName', {
+        newNickName: nicknameBox.value
+      });
+      randomNickName = nicknameBox.value;
     }
   });
 
   socket.on('message', (message) => {
-  sendMessage(message);
-  });
-
-  socket.on('history', (message) => {
     sendMessage(message);
   });
 
-  socket.on('onlineUsersListUpdate', (arr) => {
-    onlineUsers.innerHTML = '';
-    arr.forEach((onlineUser) => {
-      const item = document.createElement('li');
-      item.setAttribute('data-testid', 'online-user');
-      onlineUsers.appendChild(item);
-    });
-
+  socket.on('history', (message) => {
+    console.log(nicknameBox);
+    sendMessage(message);
   });
+
+  // Limpar o chat
+  const clearChat = () => {
+    chat.innerHTML = ''
+  }
 </script>
 
 </html>

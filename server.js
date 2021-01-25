@@ -12,16 +12,16 @@ const users = [];
 const models = require('./models/messagesModel');
 
 app.use(express.json());
-app.use('/', express.static(path.join(__dirname, '/public')));
+app.use('/', express.static(path.join(__dirname, '/')));
 
 io.on('connection', async (socket) => {
   const callHistory = await models.getAllMessages();
-
+  const msgHistory = [];
   callHistory.map((msg) => {
     const { chatMessage, nickname, timestamp } = msg;
-    const msgHistory = `${timestamp} - ${nickname}: ${chatMessage}`;
-    return socket.emit('history', msgHistory);
+    return msgHistory.push(`${timestamp} - ${nickname}: ${chatMessage}`);
   });
+  io.emit('history', msgHistory);
 
   socket.on('message', async ({ chatMessage, nickname }) => {
     const newDate = new Date();
