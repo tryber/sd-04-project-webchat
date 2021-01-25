@@ -39,7 +39,6 @@ io.on('connection', async (socket) => {
     io.emit('displayUsers', users);
   });
 
-  // Single Message Emitter
   socket.on('message', async ({ nickname, chatMessage, receiver }) => {
     let msg;
     if (!receiver) {
