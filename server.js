@@ -8,12 +8,10 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-let guestId = 0;
 
 const socketIoServer = http.createServer(app);
 const io = socketIo(socketIoServer);
 
-const sockets = [];
 const onlineUsers = {};
 
 app.use('/', express.static(path.join(__dirname, 'public')));
@@ -22,32 +20,38 @@ app.use(express.json());
 app.use(cors);
 
 io.on('connection', async (socket) => {
-  guestId += 1;
-  let user = `Guest${guestId}`;
   const history = await findAllMessages();
-  console.log(history);
-  io.emit('getName', user);
-  io.emit('setHistory', history);
+  socket.emit('setHistory', history);
 
+  let user = `Guest-${socket.id}`;
+
+  socket.emit('setName', user);
+  const setUsers = (user, onlineUsers, deleteUser) => {
+    if (!deleteUser) {
+      onlineUsers[socket.id] = user;
+    }
+    io.emit('onlineUsers', onlineUsers);
+  }
+  setUsers(user, onlineUsers)
   socket.on('setName', (userParam) => {
     user = userParam;
+    setUsers(user, onlineUsers)
   });
 
-  onlineUsers[socket.id] = user;
   socket.broadcast.emit('connectMessage', `${user} está online!`);
 
   socket.on('disconnect', () => {
     socket.broadcast.emit('disconnectMessage', `${user} saiu!`);
-    sockets.splice(sockets.indexOf(socket), 1);
     delete onlineUsers[socket.id];
+    setUsers(null, onlineUsers, true)
   });
-  io.emit('onlineUsers', onlineUsers);
 
   socket.on('mensagem', async (message) => {
     const formatedMessage = await insertMessage(message, user);
     io.emit('menssage', formatedMessage);
-    console.log(formatedMessage);
   });
+  
+  socket.on('error', (error) => console.error(error))
 });
 
 socketIoServer.listen(PORT, () => {
