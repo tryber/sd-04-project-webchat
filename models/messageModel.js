@@ -8,7 +8,7 @@ const findAllMessages = async (collection) =>
       return process.exit();
     });
 
-const insertMessage = async (chatMessage, collection) => {
+const insertMessage = async (chatMessage, collection) =>
   connection()
     .then((db) => {
       db.collection(collection).insertOne(chatMessage);
@@ -18,4 +18,4 @@ const insertMessage = async (chatMessage, collection) => {
       return process.exit(1);
     });
 
-  module.exports = { findAllMessages, insertMessage };
+module.exports = { findAllMessages, insertMessage };
