@@ -23,7 +23,7 @@ let guestId = 0;
 
 io.on('connection', async (socket) => {
   guestId += 1;
-  let user = `Guest${guestId}`;
+  const user = `Guest${guestId}`;
   // Traz todas mensagens do banco de dados e envia para o front
   const historyInitial = await getAll();
   io.emit('history', historyInitial);
