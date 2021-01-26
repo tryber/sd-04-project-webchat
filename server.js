@@ -4,6 +4,7 @@ const cors = require('cors')();
 const socketIo = require('socket.io');
 const path = require('path');
 const { insertMessage, findAllMessages } = require('./models/messageModel');
+const moment = require('moment');
 require('dotenv').config();
 
 const app = express();
@@ -19,31 +20,26 @@ app.use(express.json());
 app.use(cors);
 
 const onlineUsers = {};
+const now = moment(new Date()).format('DD-MM-yyyy HH-mm-ss');
 
 io.on('connection', async (socket) => {
   const history = await findAllMessages();
   socket.emit('setHistory', history);
   io.to(socket.id).emit('setHistory', history, 'public');
 
-  let user = socket.id;
-
-  const setUsers = (newNickname, deleteUser) => {
-    if (!deleteUser) {
-      onlineUsers[socket.id] = newNickname;
-    }
+  socket.on('setNickname', (nickname) => {
+    onlineUsers[socket.id] = nickname;
     io.emit('setUsers', onlineUsers);
-  };
-  setUsers(user, onlineUsers);
-  socket.on('setName', (userParam) => {
-    user = userParam;
-    setUsers(user);
   });
 
-  socket.broadcast.emit('connectMessage', `${user} está online!`);
-
-
-  socket.on('message', async (message) => {
-    const formatedMessage = await insertMessage(message, user);
+  socket.on('message', async ({ nickname, message }) => {
+    const formatedMessage = await insertMessage({
+      nickname,
+      message,
+      timestamp: now,
+    },
+      'messages'
+    );
     io.emit('menssage', formatedMessage);
   });
 
