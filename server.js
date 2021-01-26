@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
 const moment = require('moment');
-const { createMessage, createPrivateMessage, getMessages } = require('./models/messagesModel');
+const { createMessage, createPrivateMessage, getMessages } = require('./models/messageModel');
 
 const app = express();
 const PORT = 3000;
