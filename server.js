@@ -26,7 +26,10 @@ io.on('connection', async (socket) => {
   // chama as msg no banco e transmite pro usuario
   const allMessage = await getAllMessages();
   socket.emit('allMessage', allMessage);
-
+  socket.on('publicMsg', async () => {
+    const newallMessage = await getAllMessages();
+    socket.emit('publicMsg', newallMessage);
+  })
   // escuta a 'message' vinda do usuario
   socket.on('message', async ({ chatMessage, nickname }) => {
     // formata a msg
@@ -76,7 +79,7 @@ io.on('connection', async (socket) => {
 
     socket.to(reciver).emit('privateMsg', newMsg);
     // socket.emit('privateMsg', newMsg);
-    // io.emit('privateMsg', newMsg);
+    io.emit('privateMsg', newMsg);
   });
 
   // desconecta o usuario e tira o nome da lista de usuarios

@@ -73,10 +73,9 @@
 
         publicBtn.addEventListener('click', () => {
           reciver = '';
-          socket.on('allMessage', (data) => {
-          const initialUser = document.createElement('li');
-          initialUser.textContent = nickname;
-          usersList.appendChild(initialUser);
+          socket.emit('publicMsg');
+          socket.on('publicMsg', (data) => {
+            console.log('datapublic', data);          
   
           chatMessages.innerHTML = '';
           //map maroto pra renderizar as msg na tela
@@ -88,7 +87,7 @@
            div.setAttribute('data-testid', 'message');
            chatMessages.appendChild(div);
           })
-        });
+          })
         })
 
         // botao de enviar msg
@@ -96,8 +95,12 @@
           event.preventDefault();
           const chatMessage = inputMessage.value;
           console.log('chatMessage', chatMessage);
+          console.log('reciver', reciver)
           if (reciver !== '') {
-            socket.emit('privateMsg', { chatMessage, nickname, reciver });
+           socket.emit('privateMsg', { chatMessage, nickname, reciver });
+           inputMessage.value = '';
+           inputMessage.focus();
+           return null;
           }
           socket.emit('message', { chatMessage, nickname });
 
@@ -125,6 +128,7 @@
       
         // recebe as msg do banco
         socket.on('allMessage', (data) => {
+          console.log('data', data);
           const initialUser = document.createElement('li');
           initialUser.textContent = nickname;
           usersList.appendChild(initialUser);
@@ -155,7 +159,17 @@
           // concrola barra de rolagem
           chatMessages.scrollTop = chatMessages.scrollHeight;
         });
+        
+        socket.on('privateMsg', (msgData) => {
+          console.log('privatedata', msgData);
+          const message = document.createElement("p");
+           message.innerText = `${msgData}`
+           const div = document.createElement("div");
+           div.setAttribute('data-testid', 'message');
   
+           div.appendChild(message);
+           chatMessages.appendChild(div);
+        } )
         socket.on('users', (users) => {
           console.log('novousers', users)
           while(usersList.firstChild) {
@@ -178,29 +192,29 @@
             guest.setAttribute('data-testid', 'online-user');
             usersList.appendChild(guest);
             usersList.appendChild(btn);            
+            const privateBtn = document.getElementById('privteBtn');
+    
+            privateBtn.addEventListener('click', (event) => {
+              event.preventDefault();
+              reciver = event.target.innerText;
+              socket.emit('allPrivate');
+    
+              socket.on('allPrivate', (allPrivate) => {
+              chatMessages.innerHTML = '';
+              //map maroto pra renderizar as msg na tela
+              const allPrivateMsg = allPrivate.map((msg) => {
+               const message = document.createElement("p");
+               message.innerText = `${msg.timestamp} (private) - ${msg.nickname}: ${msg.chatMessage}`
+               const div = document.createElement("div");
+               div.appendChild(message);
+               div.setAttribute('data-testid', 'message');
+               chatMessages.appendChild(div);
+              })
+            });
+            });
           })
         });
 
-        const privateBtn = document.getElementById('privteBtn');
-
-        privateBtn.addEventListener('click', (event) => {
-          event.preventDefault();
-          reciver = event.target.innerText;
-          socket.emit('allPrivate');
-
-          socket.on('allPrivate', (allPrivate) => {
-          chatMessages.innerHTML = '';
-          //map maroto pra renderizar as msg na tela
-          const allPrivate = allPrivate.map((msg) => {
-           const message = document.createElement("p");
-           message.innerText = `${msg.timestamp} (private) - ${msg.nickname}: ${msg.chatMessage}`
-           const div = document.createElement("div");
-           div.appendChild(message);
-           div.setAttribute('data-testid', 'message');
-           chatMessages.appendChild(div);
-          })
-        });
-        });
 
       } 
 
