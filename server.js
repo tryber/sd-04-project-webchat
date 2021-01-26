@@ -3,8 +3,8 @@ const http = require('http');
 const cors = require('cors')();
 const socketIo = require('socket.io');
 const path = require('path');
-const { insertMessage, findAllMessages } = require('./models/messageModel');
 const moment = require('moment');
+const { insertMessage, findAllMessages } = require('./models/messageModel');
 require('dotenv').config();
 
 const app = express();
@@ -12,7 +12,6 @@ const PORT = process.env.PORT || 3000;
 
 const socketIoServer = http.createServer(app);
 const io = socketIo(socketIoServer);
-
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
@@ -40,8 +39,7 @@ io.on('connection', async (socket) => {
         message,
         timestamp: now,
       },
-        'messages'
-      );
+        'messages');
       return io.emit('menssage', `${formatedMessage.timestamp} - ${nickname}: ${message}, public`);
     }
 
@@ -51,8 +49,8 @@ io.on('connection', async (socket) => {
       timestamp: now,
       receiver,
     },
-      'private'
-    );
+      'private');
+
     io.to(socket.id)
       .to(receiver)
       .emit('menssage', `${formatedMessage.timestamp} (private) - ${nickname}: ${message}, private`);
