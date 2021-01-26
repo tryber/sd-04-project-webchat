@@ -104,7 +104,7 @@
       <ul id="mensagens"></ul>
       <div id="friends-status"></div>
       <div class="public-btn">
-        <button data-testid="public" class="togglePrivacy">
+        <button data-testid="public" class="togglePrivacy" id="public-btn">
           Público
         </button>
       </div>
@@ -124,6 +124,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
       const socket = io('http://localhost:3000');
+      let chats = {
+        chatType: 1,
+        publicChat: [],
+        privateChat: [],
+      };
       let nickname = `${Math.random()}`;
 
       socket.emit('status', { nickname });
@@ -135,25 +140,59 @@
         }
       });
 
+      $('#public-btn').click(function() {
+        $('#mensagens').empty();
+        chats.publicChat.forEach((message) => renderMessages(message));
+      });
+
+      function privateChat() {
+        chats.chatType = 0;
+        $('#mensagens').empty();
+        chats.privateChat.forEach((message) => renderMessages(message));
+        // alert('Oi');
+      };
+
       function renderMessages(message) {
         $('#mensagens')
           .append(`<li data-testid="message">${message}</li>`);
       }
 
       function insertUserStatus(usersStatus) {
-        console.log(usersStatus);
+        // console.log(usersStatus);
         $('#friends-status').empty();
         usersStatus.forEach((user) => {
-          $('#friends-status').append(
-            `<div>
-              <p data-testid="online-user">
-                ${user.nickname}
-              </p>
-              <button data-testid="private" class="togglePrivacy">
-                Privado
-              </button>
-            </div>`
-          );
+          // const span = `<span style="display: none">${user.socketId}</span>`;
+          // const p = `<p data-testid="online-user">${user.nickname}</p>`;
+          // const div = `<div></div>`;
+          // div.append(span);
+          // div.append(p);
+          // if (user.nickname !== nickname) {
+          //   const btn = `<button data-testid="private" class="togglePrivacy" id="private-btn" onclick="privateChat()">Privado</button>`;
+          //   div.append(btn);
+          // }
+          $('#friends-status').append();
+          if (user.nickname !== nickname) {
+            $('#friends-status').append(
+              `<div>
+                <span style="display: none">${user.socketId}</span>
+                <p data-testid="online-user">
+                  ${user.nickname}
+                </p>
+                <button data-testid="private" class="togglePrivacy" id="private-btn" onclick="privateChat()">
+                  Privado
+                </button>
+              </div>`
+            );
+          } else {
+            $('#friends-status').prepend(
+              `<div>
+                <span style="display: none">${user.socketId}</span>
+                <p data-testid="online-user">
+                  ${user.nickname}
+                </p>
+              </div>`
+            );
+          }
         });
       }
 
@@ -162,7 +201,21 @@
       });
 
       socket.on('message', function (message) {
-        renderMessages(message);
+        $('#mensagens').empty();
+        if (chats.chatType) {
+          chats.publicChat.push(message);
+          chats.publicChat.forEach((message) => renderMessages(message));
+        } else {
+          chats.privateChat.push(message);
+          chats.privateChat.forEach((message) => renderMessages(message));
+        }
+      });
+
+      socket.on('private message', function (message) {
+        chats.chatType = 0;
+        $('#mensagens').empty();
+        chats.privateChat.push(message);
+        chats.privateChat.forEach((message) => renderMessages(message));
       });
 
       $('#formChat').submit(function(e) {
@@ -170,7 +223,19 @@
         const chatMessage = $('#mensagemInput').val();
         if (chatMessage.length) {
           const userMessageInfo = { chatMessage, nickname };
-          socket.emit('message', userMessageInfo);
+          if (chats.chatType) {
+            socket.emit('message', userMessageInfo);
+          }
+          else {
+            // const userSocketId = $('#private-btn').;
+            const userSocketId = $('#private-btn').parent().children()[0].innerHTML;
+            // const meubtn = $('button[data-testid=private]');
+            // alert(meubtn);
+            // console.log(meubtn);
+            // alert(userSocketId);
+            // console.log(userSocketId);
+            socket.emit('private message', { userSocketId, userMessageInfo, type: chats.chatType });
+          }
           $('#mensagemInput').val('');
         }
       });

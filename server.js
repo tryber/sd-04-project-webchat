@@ -27,8 +27,17 @@ io.on('connection', async (socket) => {
     socket.broadcast.emit('message', storedResult);
   });
 
+  // Private Mesages
+  socket.on('private message', async ({ userSocketId, userMessageInfo }) => {
+    const { chatMessage, nickname } = userMessageInfo;
+    const storedResult = await Messages.saveUserMessage(chatMessage, nickname);
+    socket.emit('private message', storedResult);
+    socket.to(userSocketId).emit('private message', storedResult);
+    io.emit('private message', storedResult);
+    // socket.broadcast.emit('message', storedResult);
+  });
+
   socket.on('status', async ({ nickname }) => {
-    // console.log('Nickname: ', nickname); //
     const userPositon = usersStatus.findIndex((user) => user.socketId === socket.id);
     if (userPositon === -1) {
       usersStatus.push({ socketId: socket.id, nickname });
