@@ -23,7 +23,6 @@ const now = moment(new Date()).format('DD-MM-yyyy HH-mm-ss');
 
 io.on('connection', async (socket) => {
   const history = await findAllMessages('messages');
-  socket.emit('setHistory', history);
   io.to(socket.id).emit('setHistory', history, 'public');
 
   socket.on('setNickname', (nickname) => {
@@ -58,7 +57,7 @@ io.on('connection', async (socket) => {
     delete onlineUsers[socket.id];
     io.emit('setUsers', onlineUsers);
   });
-
+  
   socket.on('error', (error) => console.error(error));
 });
 
