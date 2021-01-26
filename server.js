@@ -4,6 +4,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
 const moment = require('moment');
+const crudMessages = require('./models/crudMessages');
 
 const app = express();
 
@@ -16,8 +17,10 @@ app.use(cors());
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   console.log('Conectado');
+  const messages = await crudMessages.getAllMessages();
+  io.to(socket.id).emit('showMessageHistory', messages);
 
   const users = {};
 
@@ -31,13 +34,14 @@ io.on('connection', (socket) => {
     io.emit('displayUsers', users);
   });
 
-  socket.on('message', ({ nickname, chatMessage }) => {
+  socket.on('message', async ({ nickname, chatMessage }) => {
     const msg = {
       nickname,
       message: chatMessage,
       timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
     };
-    io.emit('message', `${msg.timestamp} - ${nickname}: ${chatMessage}`);
+    const message = await crudMessages.createMessage(msg);
+    io.emit('message', `${message.timestamp} - ${message.nickname}: ${message.message}`);
   });
   socket.on('disconnect', () => {
     console.log('Desconectado');

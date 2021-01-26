@@ -55,6 +55,12 @@
       console.log(message);
       addMessage(message)
     });
+//{ nickname, message, timestamp }
+    socket.on('showMessageHistory', (messages) => {
+      messages.forEach(({ nickname, message, timestamp }) => {
+        addMessage(`${timestamp} - ${nickname}: ${message}`)
+      });
+    });
 
 
   </script>
