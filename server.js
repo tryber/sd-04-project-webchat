@@ -66,11 +66,10 @@ io.on('connection', async (socket) => {
 
   socket.on('allPrivate', async () => {
     const allPrivate = await getallPrivateMessages();
-    socket.emit('allPrivate', allPrivate);    
-  })
+    socket.emit('allPrivate', allPrivate);
+  });
 
   socket.on('privateMsg', async ({ chatMessage, nickname, reciver }) => {
-
     const timestamp = moment().format('MM-DD-YYYY h:mm a');
     const newMsg = `${timestamp} (private) - ${nickname}: ${chatMessage}`;
     await addPrivateMessage(chatMessage, nickname, timestamp, reciver);
@@ -78,7 +77,7 @@ io.on('connection', async (socket) => {
     socket.to(reciver).emit('privateMsg', newMsg);
     // socket.emit('privateMsg', newMsg);
     // io.emit('privateMsg', newMsg);
-  })
+  });
 
   // desconecta o usuario e tira o nome da lista de usuarios
   socket.on('disconnect', () => {
