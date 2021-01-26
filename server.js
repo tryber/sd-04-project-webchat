@@ -29,7 +29,8 @@ io.on('connection', async (socket) => {
   socket.on('publicMsg', async () => {
     const newallMessage = await getAllMessages();
     socket.emit('publicMsg', newallMessage);
-  })
+  });
+
   // escuta a 'message' vinda do usuario
   socket.on('message', async ({ chatMessage, nickname }) => {
     // formata a msg
