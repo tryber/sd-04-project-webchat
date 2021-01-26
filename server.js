@@ -21,10 +21,17 @@ let listNamesConverted = [];
 
 io.on('connection', async (socket) => {
   socket.on('dateUser', (dateUser) => {
-    listNamesConverted = [...listNamesConverted, {
-      id: socket.id,
-      nickname: dateUser.nickname,
-    }];
+    listNamesConverted = [...listNamesConverted, dateUser];
+    socket.emit('listNamesConverted', listNamesConverted);
+    socket.broadcast.emit('listNamesConverted', listNamesConverted);
+  });
+
+  socket.on('dataUserEdit', (dataUserEdit) => {
+    listNamesConverted.forEach((user, index) => {
+      if (user.id === dataUserEdit.id) {
+        listNamesConverted.splice(index, 1, dataUserEdit);
+      }
+    });
     socket.emit('listNamesConverted', listNamesConverted);
     socket.broadcast.emit('listNamesConverted', listNamesConverted);
   });

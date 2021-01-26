@@ -6,7 +6,7 @@ socket.on('connect', () => {
   const sessionStorageNickname = sessionStorage.getItem('nickname');
   const nameRandom = listNameRandom[Math.round(Math.random() * 13)];
   socket.id = {
-    idRandom: socket.id,
+    id: socket.id,
     nickname: sessionStorageNickname || nameRandom,
   };
   sessionStorage.setItem('nickname', socket.id.nickname);
@@ -20,6 +20,7 @@ function editNickname() {
     sessionStorage.setItem('nickname', inputNickname.value);
     socket.id.nickname = inputNickname.value;
     inputNickname.value = '';
+    socket.emit('dataUserEdit', socket.id);
   });
 }
 
@@ -76,8 +77,8 @@ socket.on('dataServer', (message) => {
 const listUsers = document.getElementById('listUsers');
 
 socket.on('listNamesConverted', (listNamesConverted) => {
-  const userSession = listNamesConverted.filter((user) => user.id === socket.id.idRandom);
-  const othersUsers = listNamesConverted.filter((user) => user.id !== socket.id.idRandom);
+  const userSession = listNamesConverted.filter((user) => user.id === socket.id.id);
+  const othersUsers = listNamesConverted.filter((user) => user.id !== socket.id.id);
   listUsers.innerText = '';
   createItensList(userSession[0], listUsers, 'online-user', 'li-user-session');
   othersUsers.forEach((user) => {
