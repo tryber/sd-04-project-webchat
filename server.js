@@ -69,7 +69,7 @@ io.on('connection', async (socket) => {
     socket.emit('allPrivate', allPrivate);    
   })
 
-  socket.on('privateMsg', ({ chatMessage, nickname, reciver }) => {
+  socket.on('privateMsg', async ({ chatMessage, nickname, reciver }) => {
 
     const timestamp = moment().format('MM-DD-YYYY h:mm a');
     const newMsg = `${timestamp} (private) - ${nickname}: ${chatMessage}`;
