@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>    
+  </head>
+  <body>
+    <header>
+      <h2>Chat!</h2>
+    </header>
+    <main>
+      <div>
+        <h3>Users</h3>
+        <button
+          id="publicBtn"
+          data-testid="public"
+        >Chat Público
+        </button>
+        <ul class="users"></ul>
+      </div>
+      <div class="chatMessages">
+        <strong>Messages</strong>
+      </div>       
+      <form id="chatForm">
+        <label><strong>Message</strong>
+          <input
+            id="inputMessage"
+            type="text"
+            data-testid="message-box"
+            placeholder="Enter Message"
+          />
+        </label>
+        <button
+          type="submit"
+          id="sendBtn"
+          data-testid="send-button"
+        >Send</button>
+      </form>
+      <form id="nickForm">
+        <label><strong>Nickname</strong>
+          <input
+            id="inputNickname"
+            type="text"
+            data-testid="nickname-box"
+            placeholder="Chose a Nickname"
+          />
+        </label>
+        <button
+          type="submit"
+          id="sendNick"
+          data-testid="nickname-save"
+        >Send</button>
+      </form>
+    </main>
+  </body>
+    <script>
+      window.onload = () => {
+        
+        const socket = io('http://localhost:3000');
+        const inputMessage = document.getElementById('inputMessage');
+        const inputNick = document.getElementById('inputNickname');
+        const usersList = document.querySelector('ul.users');
+        const chatMessages = document.querySelector('.chatMessages');
+        const sendBtn = document.getElementById('sendBtn');
+        const sendNick = document.getElementById('sendNick');
+        const publicBtn = document.getElementById('publicBtn');
+        const randon = Math.round(Math.random() * 100);
+        let nickname = `User${randon}`;
+        let reciver = '';
+        const id = socket.id;
+        
+        // enviar nome do usuario
+        socket.emit('initialUser', nickname);
+
+        publicBtn.addEventListener('click', () => {
+          reciver = '';
+          socket.emit('publicMsg');
+          socket.on('publicMsg', (data) => {
+            console.log('datapublic', data);          
+  
+          chatMessages.innerHTML = '';
+          //map maroto pra renderizar as msg na tela
+          const allMessages = data.map((msg) => {
+           const message = document.createElement("p");
+           message.innerText = `${msg.timestamp} - ${msg.nickname}: ${msg.chatMessage}`
+           const div = document.createElement("div");
+           div.appendChild(message);
+           div.setAttribute('data-testid', 'message');
+           chatMessages.appendChild(div);
+          })
+          })
+        })
+
+        // botao de enviar msg
+        sendBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          const chatMessage = inputMessage.value;
+          console.log('chatMessage', chatMessage);
+          console.log('reciver', reciver)
+          if (reciver !== '') {
+           socket.emit('privateMsg', { chatMessage, nickname, reciver });
+           inputMessage.value = '';
+           inputMessage.focus();
+           return null;
+          }
+          socket.emit('message', { chatMessage, nickname });
+
+          // apaga o campo depois do envio
+          inputMessage.value = '';
+          // mantem o campo selecionado depois do envio
+          inputMessage.focus();
+        });
+  
+        // botao de salvar nick
+        sendNick.addEventListener('click', (event) => {
+          event.preventDefault();
+          console.log('socketid', id)
+          const oldName = nickname;
+          const newName = inputNick.value;
+          nickname = inputNick.value;
+          inputNick.value= '';
+          const newNick = {
+            old: oldName,
+            newN: newName          
+          };
+          socket.emit('Nickname',  {newNick} );
+  
+        });
+      
+        // recebe as msg do banco
+        socket.on('allMessage', (data) => {
+          console.log('data', data);
+          const initialUser = document.createElement('li');
+          initialUser.textContent = nickname;
+          usersList.appendChild(initialUser);
+  
+          chatMessages.innerHTML = '';
+          //map maroto pra renderizar as msg na tela
+          const allMessages = data.map((msg) => {
+           const message = document.createElement("p");
+           message.innerText = `${msg.timestamp} - ${msg.nickname}: ${msg.chatMessage}`
+           const div = document.createElement("div");
+           div.appendChild(message);
+           div.setAttribute('data-testid', 'message');
+           chatMessages.appendChild(div);
+          })
+        });
+  
+        // escuta a msg
+        socket.on('message', (msgData) => {
+          console.log('msgData', msgData);
+          const message = document.createElement("p");
+           message.innerText = `${msgData}`
+           const div = document.createElement("div");
+           div.setAttribute('data-testid', 'message');
+  
+           div.appendChild(message);
+           chatMessages.appendChild(div);
+  
+          // concrola barra de rolagem
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+        
+        socket.on('privateMsg', (msgData) => {
+          console.log('privatedata', msgData);
+          const message = document.createElement("p");
+           message.innerText = `${msgData}`
+           const div = document.createElement("div");
+           div.setAttribute('data-testid', 'message');
+  
+           div.appendChild(message);
+           chatMessages.appendChild(div);
+        } )
+        socket.on('users', (users) => {
+          console.log('novousers', users)
+          while(usersList.firstChild) {
+            usersList.removeChild(usersList.firstChild);
+          };
+
+          const filter1 = users.filter((user) => user.nickname === nickname);
+          const guest1 = document.createElement('li');
+          console.log('teste', filter1)
+          guest1.innerHTML = filter1[0].nickname;
+          guest1.setAttribute('data-testid', 'online-user');
+          usersList.appendChild(guest1);
+          
+          const filter2 = users.filter((user) => user.nickname !== nickname);
+          const allUsers = filter2.map((user) => {
+            const btn = document.createElement('button');
+            btn.setAttribute('id', 'privteBtn')
+            btn.innerText = user.nickname;
+            btn.setAttribute('data-testid', 'private');
+            const guest = document.createElement('li');
+            guest.innerHTML = user.nickname;
+            guest.setAttribute('data-testid', 'online-user');
+            usersList.appendChild(guest);
+            usersList.appendChild(btn);            
+            const privateBtn = document.getElementById('privteBtn');
+    
+            privateBtn.addEventListener('click', (event) => {
+              event.preventDefault();
+              reciver = event.target.innerText;
+              socket.emit('allPrivate');
+    
+              socket.on('allPrivate', (allPrivate) => {
+              chatMessages.innerHTML = '';
+              //map maroto pra renderizar as msg na tela
+              const allPrivateMsg = allPrivate.map((msg) => {
+               const message = document.createElement("p");
+               message.innerText = `${msg.timestamp} (private) - ${msg.nickname}: ${msg.chatMessage}`
+               const div = document.createElement("div");
+               div.appendChild(message);
+               div.setAttribute('data-testid', 'message');
+               chatMessages.appendChild(div);
+              })
+            });
+            });
+          })
+        });
+
+
+      } 
+
+    </script>   
+</html>
+<!-- Cada mensagem deve ter o data-testid="message". -->
