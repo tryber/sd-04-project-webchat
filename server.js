@@ -25,7 +25,6 @@ io.on('connection', async (socket) => {
       id: socket.id,
       nickname: dateUser.nickname,
     }];
-
     socket.emit('listNamesConverted', listNamesConverted);
     socket.broadcast.emit('listNamesConverted', listNamesConverted);
   });
@@ -39,9 +38,15 @@ io.on('connection', async (socket) => {
   socket.on('message', async (data) => {
     try {
       const addMessage = await messagesModels.add(data.nickname, data.chatMessage);
-      message = `${addMessage.dateMessage} - ${addMessage.nickname}: ${addMessage.chatMessage}`;
-      socket.emit('dataServer', message);
-      socket.broadcast.emit('dataServer', message);
+      if (data.idPrivate) {
+        message = `${addMessage.dateMessage} (private) - ${addMessage.nickname}: ${addMessage.chatMessage}`;
+        socket.to(data.idPrivate).emit('dataServerPrivate', message);
+        socket.emit('dataServer', message);
+      } else {
+        message = `${addMessage.dateMessage} - ${addMessage.nickname}: ${addMessage.chatMessage}`;
+        socket.emit('dataServer', message);
+        socket.broadcast.emit('dataServer', message);
+      };
     } catch (e) {
       console.log(e.message);
     }

@@ -30,30 +30,47 @@ function emitMessage() {
   const chatMessageBtn = document.querySelector('.chatMessageBtn');
   let data;
   chatMessageBtn.addEventListener('click', () => {
+    const privatesBtns = document.querySelectorAll('.btn-private');
     data = {
       chatMessage: inputChatMessage.value,
       nickname: socket.id.nickname,
+      idPrivate: '',
     };
-    socket.emit('message', data);
+    privatesBtns.forEach((btn) => {
+      if (btn.value) {
+        data.idPrivate = btn.value;
+      }
+    });
+    socket.emit('message', data)
     inputChatMessage.value = '';
   });
 }
 
 emitMessage();
 
-function createItensList(data, list, dataTestid) {
+function createItensList(data, list, dataTestid, liClass, button) {
   const li = document.createElement('li');
+  li.classList.add(liClass);
   const pMessage = document.createElement('p');
   pMessage.setAttribute('data-testid', dataTestid);
-  pMessage.textContent = data;
+  pMessage.textContent = data.nickname || data;
   li.appendChild(pMessage);
+  if (button) {
+    const btnPrivate = document.createElement('button');
+    btnPrivate.textContent = 'Privado';
+    btnPrivate.classList.add('btn-private');
+    li.appendChild(btnPrivate);
+    btnPrivate.addEventListener('click', (e) => {
+      e.target.value = data.id;
+    });
+  };
   list.appendChild(li);
 }
 
 const listMessages = document.getElementById('listMessages');
 
 socket.on('dataServer', (message) => {
-  createItensList(message, listMessages, 'message');
+  createItensList(message, listMessages, 'message', 'li-messages');
 });
 
 const listUsers = document.getElementById('listUsers');
@@ -62,8 +79,12 @@ socket.on('listNamesConverted', (listNamesConverted) => {
   const userSession = listNamesConverted.filter((user) => user.id === socket.id.idRandom);
   const othersUsers = listNamesConverted.filter((user) => user.id !== socket.id.idRandom);
   listUsers.innerText = '';
-  createItensList(userSession[0].nickname, listUsers, 'online-user');
+  createItensList(userSession[0], listUsers, 'online-user', 'li-user-session');
   othersUsers.forEach((user) => {
-    createItensList(user.nickname, listUsers, 'online-user');
+    createItensList(user, listUsers, 'online-user', 'li-users', true);
   });
+});
+
+socket.on('dataServerPrivate', (message) => {
+  createItensList(message, listMessages, 'message', 'li-messages');
 });
