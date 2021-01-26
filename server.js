@@ -23,6 +23,7 @@ const onlineUsers = {};
 io.on('connection', async (socket) => {
   const history = await findAllMessages();
   socket.emit('setHistory', history);
+  io.to(socket.id).emit('setHistory', history, 'public');
 
   let user = socket.id;
 
