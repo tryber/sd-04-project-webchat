@@ -64,7 +64,7 @@ io.on('connection', async (socket) => {
     io.emit('users', users);
   });
 
-  socket.on('allPrivate', () => {
+  socket.on('allPrivate', async () => {
     const allPrivate = await getallPrivateMessages();
     socket.emit('allPrivate', allPrivate);    
   })
