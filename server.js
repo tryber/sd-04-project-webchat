@@ -80,7 +80,7 @@ io.on('connection', async (socket) => {
 
     socket.to(reciver).emit('privateMsg', newMsg);
     // socket.emit('privateMsg', newMsg);
-    io.emit('privateMsg', newMsg);
+    // io.emit('privateMsg', newMsg);
   });
 
   // desconecta o usuario e tira o nome da lista de usuarios
