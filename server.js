@@ -23,13 +23,17 @@ let guestId = 0;
 
 io.on('connection', async (socket) => {
   guestId += 1;
+  let user = `Guest${guestId}`;
   // Traz todas mensagens do banco de dados e envia para o front
   const historyInitial = await getAll();
   io.emit('history', historyInitial);
 
   // Escuta a entrada do nickname assim que inicia a conexão
   socket.on('nickname', (nickname) => {
-    clients.filter((client) => socket.id !== client.id);
+    console.log('nickname before', nickname, clients);
+    clients = clients.filter((client) => client.nickname !== user);
+    console.log('nickname after', clients);
+
     clients.push({ id: socket.id, nickname });
     socket.emit('nickname', nickname);
     io.emit('online-users', clients);
@@ -42,9 +46,11 @@ io.on('connection', async (socket) => {
       console.log(history);
       io.emit('history', history);
     }
-    const historyPrivate = await getPrivate(nickname, to);
-    console.log(historyPrivate);
-    return socket.emit('history', historyPrivate);
+    const first = await getPrivate(nickname, to);
+    const second = await getPrivate(to, nickname);
+    first.concat(second);
+    // console.log(historyPrivate);
+    return socket.emit('history', first);
   });
 
   // Escuta a mensagem vinda do FRONT e armazena no banco de dados,
@@ -72,9 +78,10 @@ io.on('connection', async (socket) => {
 
   socket.on('logged', ({ nickname }) => {
     if (nickname === 'Guest') {
+      console.log('conectou');
       const obj = { id: socket.id, nickname: `Guest${guestId}` };
       clients.push(obj);
-      console.log('obj', obj);
+      console.log('clients', clients);
       return io.emit('online-users', clients);
     }
     const obj = { id: socket.id, nickname };
