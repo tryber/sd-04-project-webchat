@@ -3,30 +3,27 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>webchat</title>
+    <title>Web chat</title>
   </head>
   <body>
-    <form id="nickname-form">
-      <input type="text" id="nickname" data-testid="nickname-box">
+    <form id="nicknameForm">
+      <input type="text" id="nickname" placeholder="Type your nickname" data-testid="nickname-box">
       <button class="nickname-save" data-testid="nickname-save">Save</button>
     </form>
-    <ul id="messages-list"></ul>
-    <form id="chat-form" action="">
-      <input data-testid="message-box" id="message" type="text" />
-      <button data-testid="send-button">
-        Send
-      </button>
+    <div id="chatMessagesView"></div>
+    <form id="chat-form">
+      <input type="text" id="message" placeholder="Enter message" required data-testid="message-box">
+      <button class="send-btn" data-testid="send-button">Send</button>
     </form>
     <button id="public-button" data-testid="public" disabled>Public</button>
     <ul id="users-list"></ul>
-    <script src="socket.io/socket.io.js"></script>
-
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script>
       const chatForm = document.getElementById('chat-form');
-      const chatMessages = document.getElementById('messages-list');
-      const nicknameForm = document.getElementById('nickname-form');
-      const usersList = document.getElementById('users-list');
-      const publicButton = document.getElementById('public-button')
+      const chatMessages = document.getElementById('chatMessagesView');
+      const nicknameForm = document.getElementById('nicknameForm');
+      const userList = document.getElementById('users-list');
+      const btnPublic = document.getElementById('public-button');
 
       const socket = io();
       const localHistory = {
@@ -36,17 +33,14 @@
       let nickname;
       let receiver;
       let chatType = 'public';
-
       const addMessage = (message) => {
         const div = document.createElement('div');
-        div.innerHTML = `<p data-testid="message">${message}</p>`;
+        div.innerHTML = `<p class="meta" data-testid="message">${message}</p>`;
         chatMessages.appendChild(div);
       };
-
       const clearChat = () => {
         chatMessages.innerHTML = '';
       }
-
       chatForm.addEventListener('submit', (event) => {
         event.preventDefault();
         const chatMessage = event.target.elements.message.value;
@@ -54,26 +48,22 @@
         event.target.elements.message.value = '';
         event.target.elements.message.focus();
       });
-
       nicknameForm.addEventListener('submit', (event) => {
         event.preventDefault();
         nickname = event.target.elements.nickname.value;
         socket.emit('updateNick', nickname);
       });
-
-      publicButton.addEventListener('click', (_event) => {
-        publicButton.disabled = true;
+      btnPublic.addEventListener('click', (_event) => {
+        btnPublic.disabled = true;
         clearChat();
         chatType = 'public'
         receiver = '';
         localHistory['public'].map(m => addMessage(m));
       })
-
       socket.on('connect', () => {
         if (!nickname) nickname = `Guest_${socket.id}`;
-        socket.emit('userConnection', nickname);
+        socket.emit('userConection', nickname);
       })
-
       socket.on('displayHistory', (history, type) => {
         let msg;
         if (type === 'public') {
@@ -90,13 +80,12 @@
           });
         }
       });
-
       socket.on('displayUsers', (users) => {
-        usersList.innerHTML = '';
-        Object.entries(users).map(([key, val]) => {
+        userList.innerHTML = '';
+        Object.entries(users).map(([key, value]) => {
           const li = document.createElement('li');
           const div = document.createElement('div');
-          div.innerText = `${val}`;
+          div.innerText = `${value}`;
           div.setAttribute('data-testid', 'online-user');
           li.appendChild(div);
           if (key !== socket.id) {
@@ -106,24 +95,22 @@
             btn.setAttribute("data-testid", "private")
             btn.addEventListener('click', (event) => {
               clearChat();
-              publicButton.disabled = false;
+              btnPublic.disabled = false;
               chatType = 'private'
               receiver = event.target.id;
               localHistory['private'].map(m => addMessage(m));
             });
             li.appendChild(btn);
           }
-          usersList.appendChild(li);
+          userList.appendChild(li);
         });
       })
-
       socket.on('message', (message, type) => {
         localHistory[type].push(message);
         console.log(localHistory);
         if (type === chatType) addMessage(message);
         chatMessages.scrollTop = chatMessages.scrollHeight;
       });
-
     </script>
   </body>
 </html>

@@ -26,9 +26,8 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 const users = {};
 
 io.on('connection', async (socket) => {
-  const msgs = await getMessages();
-
-  io.to(socket.id).emit('displayHistory', msgs, 'public');
+  const messages = await getMessages();
+  io.to(socket.id).emit('displayHistory', messages, 'public');
 
   socket.on('userConection', (currentUser) => {
     users[socket.id] = currentUser;
@@ -53,11 +52,7 @@ io.on('connection', async (socket) => {
         message: chatMessage,
         timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
       });
-      io.emit(
-        'message',
-        `${msg.timestamp} - ${nickname}: ${chatMessage}`,
-        'public',
-      );
+      io.emit('message', `${msg.timestamp} - ${nickname}: ${chatMessage}`, 'public');
     } else {
       msg = await createPrivateMessage({
         nickname,
@@ -65,11 +60,9 @@ io.on('connection', async (socket) => {
         timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
         receiver,
       });
-      io.to(socket.id).to(receiver).emit(
-        'message',
-        `${msg.timestamp} (private) - ${nickname}: ${chatMessage}`,
-        'private',
-      );
+      io.to(socket.id)
+        .to(receiver)
+        .emit('message', `${msg.timestamp} (private) - ${nickname}: ${chatMessage}`, 'private');
     }
   });
 });
