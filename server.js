@@ -12,7 +12,6 @@ const PORT = 3000;
 const server = http.createServer(app);
 const io = socketIo(server);
 
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
