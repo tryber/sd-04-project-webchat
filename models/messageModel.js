@@ -1,25 +1,21 @@
-const moment = require('moment');
 const connection = require('./connection');
 
-const findAllMessages = async () =>
+const findAllMessages = async (collection) =>
   connection()
-    .then((db) => db.collection('messages').find().toArray())
+    .then((db) => db.collection(collection).find().toArray())
     .catch((err) => {
       console.error(err);
       return process.exit();
     });
 
-const insertMessage = async (chatMessage, nickname) => {
-  const messageDate = moment(new Date()).format('DD-MM-yyyy HH-mm:ss');
+const insertMessage = async (chatMessage, collection) => {
   connection()
     .then((db) => {
-      db.collection('messages').insertOne({ chatMessage, nickname, messageDate });
+      db.collection(collection).insertOne(chatMessage);
     })
     .catch((err) => {
       console.error(err);
       return process.exit(1);
     });
-  return `${messageDate} ${nickname}: ${chatMessage}`;
-};
 
-module.exports = { findAllMessages, insertMessage };
+  module.exports = { findAllMessages, insertMessage };
