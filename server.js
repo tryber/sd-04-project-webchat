@@ -1,62 +1,79 @@
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
-const axios = require('axios');
 const moment = require('moment');
-const express = require('express');
-const serverIo = require('socket.io');
-const bodyParser = require('body-parser');
-
-const { messageController } = require('./controllers');
+const { createMessage, createPrivateMessage, getMessages } = require('./models/messagesModel');
 
 const app = express();
+const PORT = 3000;
 
-const PORT = process.env.PORT || 3000;
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+  },
+});
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cors());
-app.use(bodyParser.json());
+
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-app.post('/msg', messageController.saveMessages);
-app.get('/msg', messageController.msgHistory);
+const users = {};
 
-const server = app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+io.on('connection', async (socket) => {
+  const msgs = await getMessages();
 
-const io = serverIo(server);
+  io.to(socket.id).emit('displayHistory', msgs, 'public');
 
-const onlineUser = [];
+  socket.on('userConection', (currentUser) => {
+    users[socket.id] = currentUser;
+    io.emit('displayUsers', users);
+  });
 
-io.on('connect', (socket) => {
-  axios({
-    method: 'GET',
-    url: 'http://localhost:3000/msg',
-  }).then(({ data }) => socket.emit('messages-history', data));
-
-  socket.emit('online-users', onlineUser);
-
-  socket.on('user-nickname', ({ nickname: newUser }) => {
-    onlineUser.push({ name: newUser, id: socket.id });
-    socket.emit('new-online-user', newUser);
-    socket.broadcast.emit('new-online-user', newUser);
+  socket.on('updateNick', (nickname) => {
+    users[socket.id] = nickname;
+    io.emit('displayUsers', users);
   });
 
   socket.on('disconnect', () => {
-    const index = onlineUser.map(({ id }) => id).indexOf(socket.id);
-    if (index !== -1) onlineUser.splice(index, 1);
-    socket.broadcast.emit('new-online-list', onlineUser);
+    delete users[socket.id];
+    io.emit('displayUsers', users);
   });
 
-  socket.on('message', ({ chatMessage, nickname }) => {
-    const message = `${moment(new Date()).format('DD-MM-yyyy hh:mm')} - ${nickname} -> ${chatMessage}`;
-
-    axios({
-      method: 'POST',
-      url: 'http://localhost:3000/msg',
-      data: {
-        message,
-      },
-    });
-
-    socket.emit('message', message);
-    socket.broadcast.emit('message', message);
+  socket.on('message', async ({ nickname, chatMessage, receiver }) => {
+    let msg;
+    if (!receiver) {
+      msg = await createMessage({
+        nickname,
+        message: chatMessage,
+        timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
+      });
+      io.emit(
+        'message',
+        `${msg.timestamp} - ${nickname}: ${chatMessage}`,
+        'public',
+      );
+    } else {
+      msg = await createPrivateMessage({
+        nickname,
+        message: chatMessage,
+        timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
+        receiver,
+      });
+      io.to(socket.id).to(receiver).emit(
+        'message',
+        `${msg.timestamp} (private) - ${nickname}: ${chatMessage}`,
+        'private',
+      );
+    }
   });
+});
+
+server.listen(PORT, () => {
+  console.log(`Server on port ${PORT}`);
 });
