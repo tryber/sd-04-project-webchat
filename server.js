@@ -12,25 +12,25 @@ const PORT = process.env.PORT || 3000;
 const socketIoServer = http.createServer(app);
 const io = socketIo(socketIoServer);
 
-const onlineUsers = {};
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors);
 
+const onlineUsers = {};
+
 io.on('connection', async (socket) => {
   const history = await findAllMessages();
   socket.emit('setHistory', history);
 
-  let user = `Guest-${socket.id}`;
+  let user = socket.id;
 
-  socket.emit('setName', user);
   const setUsers = (newNickname, deleteUser) => {
     if (!deleteUser) {
       onlineUsers[socket.id] = newNickname;
     }
-    io.emit('onlineUsers', onlineUsers);
+    io.emit('setUsers', onlineUsers);
   };
   setUsers(user, onlineUsers);
   socket.on('setName', (userParam) => {
@@ -40,15 +40,15 @@ io.on('connection', async (socket) => {
 
   socket.broadcast.emit('connectMessage', `${user} está online!`);
 
-  socket.on('disconnect', () => {
-    socket.broadcast.emit('disconnectMessage', `${user} saiu!`);
-    delete onlineUsers[socket.id];
-    setUsers(null, true);
-  });
 
-  socket.on('mensagem', async (message) => {
+  socket.on('message', async (message) => {
     const formatedMessage = await insertMessage(message, user);
     io.emit('menssage', formatedMessage);
+  });
+
+  socket.on('disconnect', async () => {
+    delete onlineUsers[socket.id];
+    io.emit('setUsers', onlineUsers);
   });
 
   socket.on('error', (error) => console.error(error));
