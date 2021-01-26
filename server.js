@@ -25,6 +25,8 @@ io.on('connection', (socket) => {
   console.log('Socket connectado', socket.id);
 
   const { id } = socket;
+  // usersOnline[id] = id;
+  io.emit('userConnect', usersOnline);
 
   webChatModel
     .getAll()
@@ -34,6 +36,8 @@ io.on('connection', (socket) => {
     delete usersOnline[id];
     socket.emit('offline', usersOnline);
   });
+  
+  // io.to(id).emit('privateMessage', message);
 
   socket.on('saveNickname', (nickname) => {
     if (nickname.length) {

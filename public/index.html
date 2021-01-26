@@ -39,8 +39,14 @@
           </div>`);
       }
 
-      function renderUser(user) {
-        $('#usersOnline').append(`<li data-testid="online-user">${user}</li>`)
+      function renderUser(user, key) {
+        $('#usersOnline')
+          .append(`<li><button type="button" id=${key} onclick="privateButton(this.id)"
+            data-testid="online-user">${user}</button></li>`);
+      }
+
+      function privateButton (idPrivate) {
+        alert(idPrivate);
       }
 
       socket.on('message', (message) => {
@@ -55,17 +61,17 @@
       });
 
       socket.on('userConnect', (user) => {
-        Object.entries(user).forEach(([key, value]) => renderUser(value));
+        $('li').remove();
+        Object.entries(user).forEach(([key, value]) => renderUser(value, key));
       });
 
       socket.on('offline', (user) => {
         Object.entries(user).forEach(([key, value]) => renderUser(value));
       });
 
-      
-      $('#buttonSalvar').click(function () {
+      $('#buttonSalvar').click(function () {        
         let nickname = $('input[name=username]').val();
-        console.log(nickname);
+
         socket.emit('saveNickname', nickname);
       })
 
