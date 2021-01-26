@@ -17,25 +17,25 @@ app.use(cors());
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-const users = {};
+const loggedUsers = {};
 
 io.on('connection', async (socket) => {
   const messages = await getMessages();
   io.to(socket.id).emit('displayHistory', messages, 'public');
 
   socket.on('userConnection', (currentUser) => {
-    users[socket.id] = currentUser;
-    io.emit('displayUsers', users);
+    loggedUsers[socket.id] = currentUser;
+    io.emit('displayUsers', loggedUsers);
   });
 
   socket.on('updateNick', (nickname) => {
-    users[socket.id] = nickname;
-    io.emit('displayUsers', users);
+    loggedUsers[socket.id] = nickname;
+    io.emit('displayUsers', loggedUsers);
   });
 
   socket.on('disconnect', () => {
-    delete users[socket.id];
-    io.emit('displayUsers', users);
+    delete loggedUsers[socket.id];
+    io.emit('displayUsers', loggedUsers);
   });
 
   socket.on('message', async ({ nickname, chatMessage, receiver }) => {
@@ -62,5 +62,5 @@ io.on('connection', async (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server on port ${PORT}`);
+  console.log(`Server listening at port: ${PORT}`);
 });

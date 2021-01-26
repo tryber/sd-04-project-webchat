@@ -103,18 +103,18 @@
         div.setAttribute('data-testid', 'online-user');
         li.appendChild(div);
         if (key !== socket.id) {
-          const btn = document.createElement('button');
-          btn.innerText = 'Private';
-          btn.id = key;
-          btn.setAttribute("data-testid", "private")
-          btn.addEventListener('click', (event) => {
+          const privateButton = document.createElement('button');
+          privateButton.innerText = 'Private';
+          privateButton.id = key;
+          privateButton.setAttribute("data-testid", "private")
+          privateButton.addEventListener('click', (event) => {
             clearChat();
             publicButton.disabled = false;
             chatType = 'private'
             receiver = event.target.id;
-            localHistory['private'].map(m => addMessage(m));
+            localHistory.private.map(m => addMessage(m));
           });
-          li.appendChild(btn);
+          li.appendChild(privateButton);
         }
         userList.appendChild(li);
       });
