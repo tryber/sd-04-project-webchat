@@ -46,7 +46,7 @@ io.on('connection', async (socket) => {
         message = `${addMessage.dateMessage} - ${addMessage.nickname}: ${addMessage.chatMessage}`;
         socket.emit('dataServer', message);
         socket.broadcast.emit('dataServer', message);
-      };
+      }
     } catch (e) {
       console.log(e.message);
     }

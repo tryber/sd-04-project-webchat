@@ -41,7 +41,7 @@ function emitMessage() {
         data.idPrivate = btn.value;
       }
     });
-    socket.emit('message', data)
+    socket.emit('message', data);
     inputChatMessage.value = '';
   });
 }
@@ -63,7 +63,7 @@ function createItensList(data, list, dataTestid, liClass, button) {
     btnPrivate.addEventListener('click', (e) => {
       e.target.value = data.id;
     });
-  };
+  }
   list.appendChild(li);
 }
 
