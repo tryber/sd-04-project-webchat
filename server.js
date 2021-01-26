@@ -38,8 +38,7 @@ io.on('connection', async (socket) => {
         nickname,
         message,
         timestamp: now,
-      },
-        'messages');
+      }, 'messages');
       return io.emit('menssage', `${formatedMessage.timestamp} - ${nickname}: ${message}, public`);
     }
 
@@ -48,8 +47,7 @@ io.on('connection', async (socket) => {
       message,
       timestamp: now,
       receiver,
-    },
-      'private');
+    }, 'private');
 
     io.to(socket.id)
       .to(receiver)
