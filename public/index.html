@@ -15,12 +15,14 @@
     <input type="text" id="message" placeholder="send message" required data-testid="message-box">
     <button id="send-btn" data-testid="send-button">Send</button>
   </form>
+  <ul id="users-list"></ul>
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script>
     const nicknameForm = document.querySelector('#nicknameForm');
     const nicknameSaveBtn = document.querySelector('#nickname-save');
     const chatMessages = document.querySelector('#chatMessages');
     const chatForm = document.querySelector('#chat-form');
+    const usersList = document.querySelector('#users-list');
 
     const socket = io();
 
@@ -62,6 +64,16 @@
       });
     });
 
+    socket.on('showOnlineUsers', (users) => {
+      usersList.innerHTML = '';
+      const usersKeys = Object.keys(users);
+      usersKeys.forEach((userKey) => {
+        const li = document.createElement('li');
+        li.innerText = users[userKey];
+        li.setAttribute('data-testid', 'online-user');
+        usersList.appendChild(li);
+      });
+    })
 
   </script>
 </body>

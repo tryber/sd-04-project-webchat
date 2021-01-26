@@ -17,21 +17,20 @@ app.use(cors());
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
+const users = {};
 io.on('connection', async (socket) => {
   console.log('Conectado');
   const messages = await crudMessages.getAllMessages();
   io.to(socket.id).emit('showMessageHistory', messages);
 
-  const users = {};
-
   socket.on('userConection', (currentUser) => {
     users[socket.id] = currentUser;
-    io.emit('displayUsers', users);
+    io.emit('showOnlineUsers', users);
   });
 
   socket.on('changeNickname', (nickname) => {
     users[socket.id] = nickname;
-    io.emit('displayUsers', users);
+    io.emit('showOnlineUsers', users);
   });
 
   socket.on('message', async ({ nickname, chatMessage }) => {
@@ -45,6 +44,8 @@ io.on('connection', async (socket) => {
   });
   socket.on('disconnect', () => {
     console.log('Desconectado');
+    delete users[socket.id];
+    io.emit('showOnlineUsers', users);
   });
 });
 
