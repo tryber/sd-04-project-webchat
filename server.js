@@ -10,7 +10,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const { getAllMessages, addMessage } = require('./models/message');
+const { getAllMessages, getallPrivateMessages, addPrivateMessage, addMessage } = require('./models/message');
 
 const PORT = 3000 || process.env.PORT;
 
@@ -63,6 +63,22 @@ io.on('connection', async (socket) => {
 
     io.emit('users', users);
   });
+
+  socket.on('allPrivate', () => {
+    const allPrivate = await getallPrivateMessages();
+    socket.emit('allPrivate', allPrivate);    
+  })
+
+  socket.on('privateMsg', ({ chatMessage, nickname, reciver }) => {
+
+    const timestamp = moment().format('MM-DD-YYYY h:mm a');
+    const newMsg = `${timestamp} (private) - ${nickname}: ${chatMessage}`;
+    await addPrivateMessage(chatMessage, nickname, timestamp, reciver);
+
+    socket.to(reciver).emit('privateMsg', newMsg);
+    // socket.emit('privateMsg', newMsg);
+    // io.emit('privateMsg', newMsg);
+  })
 
   // desconecta o usuario e tira o nome da lista de usuarios
   socket.on('disconnect', () => {

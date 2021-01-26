@@ -10,6 +10,11 @@
     <main>
       <div>
         <h3>Users</h3>
+        <button
+          id="publicBtn"
+          data-testid="public"
+        >Chat Público
+        </button>
         <ul class="users"></ul>
       </div>
       <div class="chatMessages">
@@ -57,20 +62,45 @@
         const chatMessages = document.querySelector('.chatMessages');
         const sendBtn = document.getElementById('sendBtn');
         const sendNick = document.getElementById('sendNick');
+        const publicBtn = document.getElementById('publicBtn');
         const randon = Math.round(Math.random() * 100);
         let nickname = `User${randon}`;
+        let reciver = '';
         const id = socket.id;
         
         // enviar nome do usuario
         socket.emit('initialUser', nickname);
 
-        // // botao de enviar msg
+        publicBtn.addEventListener('click', () => {
+          reciver = '';
+          socket.on('allMessage', (data) => {
+          const initialUser = document.createElement('li');
+          initialUser.textContent = nickname;
+          usersList.appendChild(initialUser);
+  
+          chatMessages.innerHTML = '';
+          //map maroto pra renderizar as msg na tela
+          const allMessages = data.map((msg) => {
+           const message = document.createElement("p");
+           message.innerText = `${msg.timestamp} - ${msg.nickname}: ${msg.chatMessage}`
+           const div = document.createElement("div");
+           div.appendChild(message);
+           div.setAttribute('data-testid', 'message');
+           chatMessages.appendChild(div);
+          })
+        });
+        })
+
+        // botao de enviar msg
         sendBtn.addEventListener('click', (event) => {
           event.preventDefault();
           const chatMessage = inputMessage.value;
           console.log('chatMessage', chatMessage);
+          if (reciver !== '') {
+            socket.emit('privateMsg', { chatMessage, nickname, reciver });
+          }
           socket.emit('message', { chatMessage, nickname });
-  
+
           // apaga o campo depois do envio
           inputMessage.value = '';
           // mantem o campo selecionado depois do envio
@@ -140,12 +170,38 @@
           
           const filter2 = users.filter((user) => user.nickname !== nickname);
           const allUsers = filter2.map((user) => {
+            const btn = document.createElement('button');
+            btn.setAttribute('id', 'privteBtn')
+            btn.innerText = user.nickname;
             const guest = document.createElement('li');
             guest.innerHTML = user.nickname;
             guest.setAttribute('data-testid', 'online-user');
             usersList.appendChild(guest);
+            usersList.appendChild(btn);            
           })
         });
+
+        const privateBtn = document.getElementById('privteBtn');
+
+        privateBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          reciver = event.target.innerText;
+          socket.emit('allPrivate');
+
+          socket.on('allPrivate', (allPrivate) => {
+          chatMessages.innerHTML = '';
+          //map maroto pra renderizar as msg na tela
+          const allPrivate = allPrivate.map((msg) => {
+           const message = document.createElement("p");
+           message.innerText = `${msg.timestamp} (private) - ${msg.nickname}: ${msg.chatMessage}`
+           const div = document.createElement("div");
+           div.appendChild(message);
+           div.setAttribute('data-testid', 'message');
+           chatMessages.appendChild(div);
+          })
+        });
+        });
+
       } 
 
     </script>   
