@@ -24,7 +24,7 @@ io.on('connection', async (socket) => {
   const messages = await getMessages();
   io.to(socket.id).emit('displayHistory', messages, 'public');
 
-  socket.on('userConection', (currentUser) => {
+  socket.on('userConnection', (currentUser) => {
     users[socket.id] = currentUser;
     io.emit('displayUsers', users);
   });

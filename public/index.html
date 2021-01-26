@@ -26,7 +26,7 @@
     const chatMessages = document.getElementById('chat-messages');
     const nicknameForm = document.getElementById('nickname-form');
     const userList = document.getElementById('users-list');
-    const btnPublic = document.getElementById('public-button');
+    const publicButton = document.getElementById('public-button');
 
     const socket = io();
     const localHistory = {
@@ -64,17 +64,17 @@
       socket.emit('updateNick', nickname);
     });
 
-    btnPublic.addEventListener('click', (_event) => {
-      btnPublic.disabled = true;
+    publicButton.addEventListener('click', (_event) => {
+      publicButton.disabled = true;
       clearChat();
       chatType = 'public'
       receiver = '';
-      localHistory['public'].map(m => addMessage(m));
+      localHistory.public.map(m => addMessage(m));
     })
 
     socket.on('connect', () => {
       if (!nickname) nickname = `Guest_${socket.id}`;
-      socket.emit('userConection', nickname);
+      socket.emit('userConnection', nickname);
     })
 
     socket.on('displayHistory', (history, type) => {
@@ -109,7 +109,7 @@
           btn.setAttribute("data-testid", "private")
           btn.addEventListener('click', (event) => {
             clearChat();
-            btnPublic.disabled = false;
+            publicButton.disabled = false;
             chatType = 'private'
             receiver = event.target.id;
             localHistory['private'].map(m => addMessage(m));
