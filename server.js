@@ -22,10 +22,10 @@ let clients = [];
 let guestId = 0;
 
 io.on('connection', async (socket) => {
-  guestId++;
+  guestId += 1;
   // Traz todas mensagens do banco de dados e envia para o front
-  const history = await getAll();
-  io.emit('history', history);
+  const historyInitial = await getAll();
+  io.emit('history', historyInitial);
 
   // Escuta a entrada do nickname assim que inicia a conexão
   socket.on('nickname', (nickname) => {
