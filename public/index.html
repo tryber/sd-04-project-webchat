@@ -68,37 +68,49 @@
   <script>
     $(() => {
       const socket = io('http://localhost:3000');
+      let nicknameValue = $('#nicknameInput').val();
+      let messageValue = $('#mensagemInput').val();
       const setMessage = (message, dataTestid) => $('#messagens').append($('<li>').text(message).attr('data-testid', dataTestid));
+      const localHistory = {
+        'public': [],
+        'private': [],
+      }
+      let nickname;
+      let receiver;
+      let chatType = 'public';
+
       try {
-        $('document').ready(() => {
-          socket.on('setHistory', (history) => {
-            history.forEach((message) => {
-              const formatedMessage = `${message.messageDate} ${message.nickname}: ${message.chatMessage}`;
-              setMessage(formatedMessage, 'message');
-            });
+        socket.on('connect', () => {
+          if (!nicknameValue) {
+            nicknameValue = `Guest_${socket.id}`;
+            socket.emit('setNickname', nicknameValue);
+          }
+        });
+
+        socket.on('setHistory', (history, type) => {
+          history.forEach(({ nickname, message, timestamp }) => {
+            const formatedMessage = `${timestamp} ${type == 'private' ? '(private)' : ''} - ${nickname}: ${message}`;
+            localHistory[type].push(formatedMessage);
+            setMessage(formatedMessage, 'message');
           });
         });
 
-        socket.on('setName', (user) => {
-          console.log(user);
-          $('#nicknameInput').val(user)
-          $('#nicknameForm').submit((e) => {
-            e.preventDefault();
-            if ($('#nicknameInput').val()) {
-              socket.emit('setName', $('#nicknameInput').val())
-            }
-          });
+        $('#nicknameForm').submit((e) => {
+          e.preventDefault();
+          if (nicknameValue) {
+            socket.emit('setNickname', nicknameValue);
+          }
         });
 
         $('#chatForm').submit((e) => {
           e.preventDefault();
-          if ($('#mensagemInput').val()) {
-            socket.emit('mensagem', $('#mensagemInput').val());
+          if (messageValue) {
+            socket.emit('mensagem', messageValue);
             $('#mensagemInput').val('');
           }
         });
 
-        socket.on('menssage', (message) => {
+        socket.on('menssage', (message = { nickname, message, receiver }) => {
           setMessage(message, 'message');
         });
 
@@ -115,7 +127,7 @@
           $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
           Object.values(users).map(value => $('#userList').append($('<li>').text(value)));
         });
-        
+
       } catch (error) {
         io.emit('error', error);
       };
