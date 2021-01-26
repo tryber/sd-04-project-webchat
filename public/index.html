@@ -68,8 +68,8 @@
   <script>
     $(() => {
       const socket = io('http://localhost:3000');
-      let nicknameValue = $('#nicknameInput').val();
-      let messageValue = $('#mensagemInput').val();
+      let standartNicknameValue;
+
       const setMessage = (message, dataTestid) => $('#messagens').append($('<li>').text(message).attr('data-testid', dataTestid));
       const localHistory = {
         'public': [],
@@ -81,9 +81,10 @@
 
       try {
         socket.on('connect', () => {
-          if (!nicknameValue) {
-            nicknameValue = `Guest_${socket.id}`;
-            socket.emit('setNickname', nicknameValue);
+          if (!$('#nicknameInput').val()) {
+            standartNicknameValue = `Guest_${socket.id}`;
+            $('#nicknameInput').val(standartNicknameValue);
+            socket.emit('setNickname', standartNicknameValue);
           }
         });
 
@@ -97,29 +98,27 @@
 
         $('#nicknameForm').submit((e) => {
           e.preventDefault();
-          if (nicknameValue) {
+          const nicknameValue = $('#nicknameInput').val();
+          if (nicknameValue && nicknameValue != standartNicknameValue) {
+            console.log(nicknameValue);
             socket.emit('setNickname', nicknameValue);
           }
         });
 
         $('#chatForm').submit((e) => {
           e.preventDefault();
+          const messageValue = $('#mensagemInput').val();
+          const nicknameValue = $('#nicknameInput').val();
           if (messageValue) {
-            socket.emit('mensagem', messageValue);
+            console.log(messageValue);
+            socket.emit('menssages', { nicknameValue, messageValue, receiver: null });
             $('#mensagemInput').val('');
           }
         });
 
-        socket.on('menssage', (message = { nickname, message, receiver }) => {
+        socket.on('menssage', (message) => {
+          console.log(message);
           setMessage(message, 'message');
-        });
-
-        socket.on('connectMessage', (message) => {
-          setMessage(message, 'online-user');
-        });
-
-        socket.on('disconnectMessage', (message) => {
-          setMessage(message, 'online-user');
         });
 
         socket.on('onlineUsers', async (users) => {
