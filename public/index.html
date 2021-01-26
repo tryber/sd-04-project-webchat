@@ -15,9 +15,7 @@
   <body>
     <div class="d-flex justify-content-around">
       <div>
-        <ul class="list-group" id="users-online">
-          <li class="list-group-item">Cras justo odio</li>
-        </ul>
+        <ul class="list-group" id="users-online"></ul>
         <div class="input-group mb-3">
           <input type="text" id="nickname" data-testid="nickname-box" class="form-control" />
           <div class="input-group-append">
@@ -43,6 +41,7 @@
               Send
             </button>
           </div>
+          <button type="button" data-testid="public" id="public">Publico</button>
         </div>
         <div>
           <ol id="message"></ol>
@@ -65,9 +64,12 @@
     window.onload = async () => {
       const message = document.querySelector('#message');
       const btnSend = document.querySelector('#btn-send');
+      const btnPrivat = document.querySelector('#btn-private');
+
       const btnNickname = document.querySelector('#btn-nickname-save');
       const name = document.querySelector('#name');
-
+      const public = document.querySelector('#public');
+      // const private = document.querySelector('#private');
       const inputMsg = document.querySelector('#input-msg');
       const inputNickname = document.querySelector('#nickname');
       const usersOnline = document.querySelector('#users-online');
@@ -75,33 +77,65 @@
       const socket = io('http://localhost:3000');
 
       let nickname = 'Guest';
+      let to = '';
+      let privateStatus = false;
+
+      const clear = () => {
+        message.innerHTML = '';
+      };
+
+      public.addEventListener('click', () => {
+        clear();
+        privateStatus = false;
+        return socket.emit('private-chat', { privateStatus });
+      });
+
       socket.emit('logged', { nickname });
 
       socket.on('nickname', async (nickname) => {
-        console.log();
         name.innerHTML = nickname;
       });
 
       socket.on('history', async (data) => {
-        console.log(data);
-        message.innerHTML = await data
-          .map(
-            (msg) =>
-              `<li data-testid="message">${msg.timestamp} - ${msg.nickname}: ${msg.chatMessage}</li>`,
-          )
-          .join(' ');
+        return data.forEach((msg) => {
+          const li = document.createElement('li');
+          li.setAttribute('data-testid', 'message');
+          li.innerHTML = `${msg.timestamp} - ${msg.nickname}: ${msg.chatMessage}`;
+          message.appendChild(li);
+        });
+        // .join(' ');
       });
 
       socket.on('message', (msg) => {
         addMsg(message, msg);
       });
 
+      // socket.emit('private-chat', { to, private });
+
       socket.on('online-users', (users) => {
+        usersOnline.innerHTML = '';
         users.forEach((user) => {
           const li = document.createElement('li');
-          li.innerText = user.nickname;
-          li.classList = 'list-group-item';
+
           li.setAttribute('data-testid', 'online-user');
+          li.innerText = user.nickname;
+          li.classList = 'list-group-item list-group-item-action';
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.id = user.id;
+          btn.innerHTML = 'Private';
+          btn.classList = 'btn btn-primary input-group-text';
+          btn.setAttribute('data-testid', 'private');
+
+          btn.addEventListener('click', (event) => {
+            event.preventDefault();
+            clear();
+            privateStatus = true;
+            to = user.nickname;
+            socket.emit('private-chat', { privateStatus, nickname, to });
+          });
+          li.appendChild(btn);
           usersOnline.appendChild(li);
         });
       });
@@ -110,7 +144,7 @@
         event.preventDefault();
         const date = new Date().toLocaleString();
         const chatMessage = inputMsg.value;
-        socket.emit('message', { chatMessage, nickname });
+        socket.emit('message', { chatMessage, nickname, to, privateStatus });
         inputMsg.value = '';
       });
 
