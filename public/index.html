@@ -79,12 +79,15 @@
       let receiver;
       let chatType = 'public';
 
-      const updateUserList = (users, type) => {
+      const updateUserList = (users, type, nickname) => {
         $('#userList').remove();
-        
+        const curretUser = users[socket.id]
+        delete users[socket.id]
         let userList = Object.keys(users)
-        const index = userList.indexOf(socket.id)
-        if(index != 0) {userList = userList.reverse()} 
+        console.log(nickname);
+        userList.push(socket.id)
+        userList = userList.reverse()
+
         $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
         if (userList.length > 1) {
           if (type !== 'private') {
@@ -107,7 +110,7 @@
               )
             );
           } else {
-            $('#userList').append($('<li>').text(users[userId]).attr('data-testid', 'online-user'));
+            $('#userList').append($('<li>').text(nickname).attr('data-testid', 'online-user'));
           }
         })
       }
@@ -139,8 +142,7 @@
               setMessage(formatedMessage);
             });
           }
-
-          updateUserList(users, type);
+          updateUserList(users, type, users[socket.id]);
         });
 
 
@@ -201,7 +203,7 @@
 
 
         socket.on('setUsers', (users) => {
-          updateUserList(users)
+          updateUserList(users, 'public', users[socket.id])
         });
 
       } catch (error) {
