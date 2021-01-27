@@ -117,11 +117,11 @@
             updateUserList(users, 'public', users[socket.id])
           });
 
-          if (!$('#nicknameInput').val()) {
-            standartNicknameValue = `Guest_${socket.id}`;
-            $('#nicknameInput').val(standartNicknameValue);
-            socket.emit('setNickname', standartNicknameValue);
-          }
+          standartNicknameValue = `Guest_${socket.id}`;
+          $('#nicknameValue').val(standartNicknameValue)
+          socket.emit('setNickname', standartNicknameValue);
+
+
           socket.emit('history', 'public')
 
         });
@@ -149,9 +149,8 @@
         $('#nicknameForm').submit((e) => {
           e.preventDefault();
           const nickname = $('#nicknameInput').val();
-          if (nickname) {
-            socket.emit('setNickname', nickname);
-          }
+          $('#nicknameValue').val(nickname)
+          socket.emit('setNickname', nickname);
           $('#nicknameInput').val('')
         });
 
@@ -205,6 +204,7 @@
     <form id="nicknameForm">
       <input id=nicknameInput data-testid="nickname-box" type="text">
       <input type="text" id="privateReceiver" style="display: none;">
+      <div id='nicknameValue'></div>
       <button data-testid="nickname-save">Salvar</button>
     </form>
     <div>
