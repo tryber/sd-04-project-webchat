@@ -62,7 +62,7 @@ io.on('connection', async (socket) => {
     const messages = await messagesModels.getAll();
     messages.forEach((item) => {
       message = `${item.dateMessage} - ${item.nickname}: ${item.chatMessage}`;
-      socket.emit('dataServer', message);
+      socket.emit('message', message);
     });
   } catch (e) {
     console.log(e.message);
