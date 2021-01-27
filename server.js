@@ -19,10 +19,9 @@ app.use(express.json());
 app.use(cors);
 
 const onlineUsers = {};
-const now = moment(new Date()).format('DD-MM-yyyy HH-mm-ss');
+const now = moment(new Date()).format('DD-MM-yyyy HH:mm:ss');
 
 io.on('connection', async (socket) => {
-  console.log(socket.rooms);
   socket.on('disconnect', async () => {
     delete onlineUsers[socket.id];
     io.emit('setUsers', onlineUsers);
