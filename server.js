@@ -54,7 +54,7 @@ io.on('connection', async (socket) => {
         }, 'private');
         io.to(socket.id)
           .to(receiver)
-          .emit('message', `${now} (private) - ${nickname}: ${chatMessage}`, 'private', receiver);
+          .emit('message', `${formatedMessage.timestamp} (private) - ${nickname}: ${chatMessage}`, 'private', receiver);
       }
     });
 

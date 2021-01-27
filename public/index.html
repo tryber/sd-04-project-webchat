@@ -88,7 +88,7 @@
         userList.push(socket.id)
         userList = userList.reverse()
 
-        $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
+        $('#onlineUsers').append($('<div>').attr('id', 'userList'));
         if (userList.length > 1) {
           if (type !== 'private') {
             $('#public').attr('class', 'choosed')
@@ -97,8 +97,8 @@
         userList.forEach((userId) => {
           if (userId !== socket.id) {
             $('#userList').append(
-              $('<li>').text(users[userId]).append(
-                $('<button>').text('X').val(userId).attr('class', 'selectUser').attr('id', 'private').attr('data-testid', 'private').click(() => {
+              $('<div>').text(users[userId]).append(
+                $('<button>').text('X').val(userId).attr('class', 'selectUser').attr('id', userId).attr('data-testid', 'private').click((e) => {
                   $('#privateReceiver').text(userId)
                   $('#messagens').empty()
                   socket.emit('history', 'private')
@@ -106,7 +106,7 @@
               )
             );
           } else {
-            $('#userList').append($('<li>').append($('<div>').text(nickname).attr('data-testid', 'online-user')));
+            $('#userList').append($('<div>').text(nickname).attr('data-testid', 'online-user'));
           }
         })
       }
@@ -180,12 +180,8 @@
         });
 
         $('#public').click(() => {
-          $('#privateReceiver').val('')
+          $('#privateReceiver').text('')
 
-          $('#public').attr('disabled', true)
-          $('#public').attr('class', 'choosed')
-          $('#private').removeAttr('disabled')
-          $('#private').removeAttr('class')
           $('#messagens').empty()
           socket.emit('history', 'public')
         })
@@ -216,7 +212,6 @@
       <ul id="onlineUsers"></ul>
     </div>
     <button data-testid="public" id="public" value="public">Public</button>
-    <button data-testid="private" id="private" value="private">Private</button>
   </nav>
   <ul id="messagens"></ul>
   <form id="chatForm">
