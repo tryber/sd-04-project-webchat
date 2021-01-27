@@ -158,6 +158,7 @@
           e.preventDefault();
           const nickname = $('#nicknameInput').val();
           $('#nicknameValue').val(nickname)
+          console.log('nickname' + nickname);
           socket.emit('setNickname', nickname);
           $('#nicknameInput').val('')
         });
@@ -165,7 +166,7 @@
         $('#chatForm').submit((e) => {
           e.preventDefault();
           const chatMessage = $('#mensagemInput').val();
-          const nickname = $('#nicknameInput').val();
+          const nickname = $('#nicknameValue').val();
           receiver = $('#privateReceiver').text();
           console.log(receiver);
           if (chatMessage && chatType == 'public' || chatType == 'private' && receiver) {
