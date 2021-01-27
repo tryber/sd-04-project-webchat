@@ -10,8 +10,9 @@ const findAllMessages = async (collection) =>
 
 const insertMessage = async (chatMessage, collection) =>
   connection()
-    .then((db) => {
-      db.collection(collection).insertOne(chatMessage);
+    .then(async (db) => {
+      const document = await db.collection(collection).insertOne(chatMessage);
+      return document.ops[0]
     })
     .catch((err) => {
       console.error(err);
