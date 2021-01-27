@@ -22,37 +22,41 @@ const onlineUsers = {};
 const now = moment(new Date()).format('DD-MM-yyyy HH:mm:ss');
 
 io.on('connection', async (socket) => {
-  socket.on('disconnect', async () => {
-    delete onlineUsers[socket.id];
-    io.emit('setUsers', onlineUsers);
-  });
-  socket.on('setNickname', (nickname) => {
-    onlineUsers[socket.id] = nickname;
-    io.emit('setUsers', onlineUsers);
-  });
-  socket.on('history', async (type) => {
-    const history = await findAllMessages('messages');
-    io.to(socket.id).emit('history', history, type, onlineUsers);
-  });
+  try {
+    socket.on('disconnect', async () => {
+      delete onlineUsers[socket.id];
+      io.emit('setUsers', onlineUsers);
+    });
+    socket.on('setNickname', (nickname) => {
+      onlineUsers[socket.id] = nickname;
+      io.emit('setUsers', onlineUsers);
+    });
+    socket.on('history', async (type) => {
+      const history = await findAllMessages('messages');
+      io.to(socket.id).emit('history', history, type, onlineUsers);
+    });
 
-  socket.on('message', async ({ nickname, chatMessage, receiver }) => {
-    let formatedMessage;
-    if (!receiver) {
-      formatedMessage = await insertMessage({
-        nickname,
-        message: chatMessage,
-        timestamp: now,
-      }, 'messages');
-      console.log(formatedMessage);
-      io.emit('message', `${formatedMessage.timestamp} - ${nickname}: ${chatMessage}`, 'public');
-    } else {
-      io.to(socket.id)
-        .to(receiver)
-        .emit('message', `${now} (private) - ${nickname}: ${chatMessage}`, 'private', socket.id);
-    }
-  });
+    socket.on('message', async ({ nickname, chatMessage, receiver }) => {
+      let formatedMessage;
+      if (!receiver) {
+        formatedMessage = await insertMessage({
+          nickname,
+          message: chatMessage,
+          timestamp: now,
+        }, 'messages');
+        console.log(formatedMessage);
+        io.emit('message', `${formatedMessage.timestamp} - ${nickname}: ${chatMessage}`, 'public');
+      } else {
+        io.to(socket.id)
+          .to(receiver)
+          .emit('message', `${now} (private) - ${nickname}: ${chatMessage}`, 'private', socket.id);
+      }
+    });
 
-  socket.on('error', (error) => console.error(error));
+    socket.on('error', (error) => console.error(error));
+  } catch (e) {
+    console.error(e);
+  }
 });
 
 socketIoServer.listen(PORT, () => {
