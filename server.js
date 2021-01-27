@@ -48,11 +48,11 @@ io.on('connection', async (socket) => {
       if (data.idPrivateRecipient) {
         message = `${addMessage.dateMessage} (private) - ${addMessage.nickname}: ${addMessage.chatMessage}`;
         socket.to(data.idPrivateRecipient).emit('dataServerPrivate', message);
-        socket.emit('dataServer', message);
+        socket.emit('message', message);
       } else {
         message = `${addMessage.dateMessage} - ${addMessage.nickname}: ${addMessage.chatMessage}`;
-        socket.emit('dataServer', message);
-        socket.broadcast.emit('dataServer', message);
+        socket.emit('message', message);
+        socket.broadcast.emit('message', message);
       }
     } catch (e) {
       console.log(e.message);

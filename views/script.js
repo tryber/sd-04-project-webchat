@@ -75,7 +75,7 @@ returnPublicChat();
 
 const listMessages = document.getElementById('listMessages');
 
-socket.on('dataServer', (message) => {
+socket.on('message', (message) => {
   createItensList(message, listMessages, 'message', 'li-messages');
 });
 
