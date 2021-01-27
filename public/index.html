@@ -82,9 +82,9 @@
       const updateUserList = async (users, type) => {
         $('#userList').remove();
         $('#chatType').remove();
-
+        const userList = Object.keys(users);
         $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
-        if (Object.values(users).length > 1) {
+        if (userList.length > 1) {
           $('nav').append($('<select>').attr('id', 'chatType'));
           $('#chatType').append($('<option>').text('').val(''))
           if (type !== 'private') {
@@ -92,8 +92,7 @@
             $('#public').attr('class', 'choosed')
           }
         }
-        Object.keys(users).forEach((userId) => {
-          console.log(userId);
+        userList.forEach((userId) => {
           if (userId !== socket.id) {
             $('#chatType').append($('<option>').text(users[userId]).val(userId))
           }
@@ -114,12 +113,21 @@
         socket.on('history', (history, type, users) => {
           if (type === 'public') {
             localHistory['public'] = history
+            console.log('entrou');
+            console.log(localHistory[type]);
+            localHistory['public'].forEach(({ nickname, message, timestamp }) => {
+              const formatedMessage = `${timestamp} - ${nickname}: ${message}`;
+              localHistory['public'].push({ nickname, message, timestamp });
+              setMessage(formatedMessage);
+            });
+          } else {
+            localHistory['private'].forEach((message) => {
+              const formatedMessage = message;
+              localHistory['private'].push(message);
+              setMessage(formatedMessage);
+            });
           }
-          localHistory[type].forEach(({ nickname, message, timestamp }) => {
-            const formatedMessage = `${timestamp} ${type == 'private' ? '(private)' : ''} - ${nickname}: ${message}`;
-            localHistory[type].push(formatedMessage);
-            setMessage(formatedMessage);
-          });
+
           updateUserList(users, type);
         });
 
@@ -127,27 +135,40 @@
 
         $('#nicknameForm').submit((e) => {
           e.preventDefault();
-          const nicknameValue = $('#nicknameInput').val();
-          if (nicknameValue && nicknameValue != standartNicknameValue) {
-            console.log(nicknameValue);
-            socket.emit('setNickname', nicknameValue);
+          const nickname = $('#nicknameInput').val();
+          if (nickname && nickname != standartNicknameValue) {
+            console.log(nickname);
+            socket.emit('setNickname', nickname);
           }
         });
 
         $('#chatForm').submit((e) => {
           e.preventDefault();
-          const messageValue = $('#mensagemInput').val();
-          const nicknameValue = $('#nicknameInput').val();
-          const type = $('#type').val();
-          const receiver = $('#chatType').val();
+          const chatMessage = $('#mensagemInput').val();
+          const nickname = $('#nicknameInput').val();
+          const type = $('.choosed').val();
+          receiver = $('#chatType').val();
           console.log(receiver);
-          if (messageValue && socket.id !== receiver) {
-            socket.emit('message', { nicknameValue, messageValue, receiver }, type);
+          if (chatMessage && type === 'public' || type === 'private' && receiver) {
+            console.log(type);
+            socket.emit('message', { nickname, chatMessage, receiver }, type);
             $('#mensagemInput').val('');
           }
         });
-        socket.on('message', (message) => {
-          console.log(message);
+        socket.on('message', (message, type, id) => {
+          console.log(type);
+          if (type === 'private') {
+            $('#messagens').empty()
+            $('#chatType').removeAttr('disabled')
+            $('#public').removeAttr('class')
+            $('#private').attr('class', 'choosed')
+            console.log(id);
+            if (id !== socket.id) {
+              $('#chatType').val(id)
+            }
+            localHistory[type].push(message);
+
+          }
           setMessage(message);
         });
 
