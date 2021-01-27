@@ -12,7 +12,7 @@ const insertMessage = async (chatMessage, collection) =>
   connection()
     .then(async (db) => {
       const document = await db.collection(collection).insertOne(chatMessage);
-      return document.ops[0]
+      return document.ops[0];
     })
     .catch((err) => {
       console.error(err);

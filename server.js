@@ -35,7 +35,6 @@ io.on('connection', async (socket) => {
     io.to(socket.id).emit('history', history, type, onlineUsers);
   });
 
-
   socket.on('message', async ({ nicknameValue, messageValue, receiver }) => {
     let formatedMessage;
     if (!receiver) {
