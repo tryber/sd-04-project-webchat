@@ -68,6 +68,7 @@
   <script>
     $(() => {
       const socket = io();
+      let standartNicknameValue;
 
       const setMessage = (message) => $('#messagens').append($('<li>').text(message).attr('data-testid', 'message'));
       const localHistory = {
@@ -89,11 +90,11 @@
           if (userId !== socket.id) {
             $('#userList').append(
               $('<div>').text(users[userId]).append(
-                $('<button>').attr('data-testid', 'private').text('private').val(userId).attr('class', 'selectUser').attr('id', userId).click((e) => {
+                $('<button>').text('X').val(userId).attr('class', 'selectUser').attr('id', userId).click((e) => {
                   $('#privateReceiver').text(userId)
                   $('#messagens').empty()
                   socket.emit('history', 'private')
-                })
+                }).attr('data-testid', 'private')
               )
             )
           } else {
@@ -103,8 +104,12 @@
       }
       try {
         socket.on('connect', () => {
-          $('#nicknameInput').val(`Guest_${socket.id}`);
-          socket.emit('setNickname', `Guest_${socket.id}`);
+
+          if (!$('#nicknameInput').val()) {
+            standartNicknameValue = `Guest_${socket.id}`;
+            $('#nicknameInput').val(standartNicknameValue);
+            socket.emit('setNickname', standartNicknameValue);
+          }
           socket.emit('history', 'public')
         });
 
@@ -129,14 +134,20 @@
 
 
 
-
+        $('#nicknameForm').submit((e) => {
+          e.preventDefault();
+          const nickname = $('#nicknameInput').val();
+          if (nickname && nickname != standartNicknameValue) {
+            console.log(nickname);
+            socket.emit('setNickname', nickname);
+          }
+        });
 
         $('#chatForm').submit((e) => {
           e.preventDefault();
           const chatMessage = $('#mensagemInput').val();
           const nickname = $('#nicknameInput').val();
           receiver = $('#privateReceiver').text();
-          if (chatType == 'public') receiver = ''
           if (chatMessage && chatType == 'public' || chatType == 'private' && receiver) {
             socket.emit('message', { nickname, chatMessage, receiver }, chatType);
             $('#mensagemInput').val('');
@@ -159,9 +170,9 @@
         });
 
         $('#public').click(() => {
-          $('#messagens').empty()
-          $('#privateReceiver').text('').val('')
+          $('#privateReceiver').text('')
 
+          $('#messagens').empty()
           socket.emit('history', 'public')
         })
 
@@ -171,14 +182,7 @@
         socket.on('setUsers', (users) => {
           updateUserList(users, 'public', users[socket.id])
         });
-        $('#nicknameForm').submit((e) => {
-          e.preventDefault();
-          const nickname = $('#nicknameInput').val();
-          if (nickname) {
-            console.log(nickname);
-            socket.emit('setNickname', nickname);
-          }
-        });
+
       } catch (error) {
         console.log(error);
         socket.emit('error', error);
