@@ -100,21 +100,16 @@
               $('<li>').text(users[userId]).append(
                 $('<button>').text('X').val(userId).attr('class', 'selectUser').attr('id', 'private').attr('data-testid', 'private').click(() => {
                   $('#privateReceiver').text(userId)
-                  $('#private').attr('disabled', true)
-                  $('#private').attr('class', 'choosed')
-                  $('#public').removeAttr('disabled')
-                  $('#public').removeAttr('class')
                   $('#messagens').empty()
                   socket.emit('history', 'private')
                 })
-              ).attr('data-testid', 'online-user')
+              )
             );
           } else {
-            $('#userList').append($('<li>').text(nickname).attr('data-testid', 'online-user'));
+            $('#userList').append($('<li>').append($('<div>').text(nickname).attr('data-testid', 'online-user')));
           }
         })
       }
-
       try {
         socket.on('connect', () => {
 
@@ -175,10 +170,6 @@
           }
           if (type === 'private') {
             $('#messagens').empty()
-            $('#private').attr('disabled', true)
-            $('#private').attr('class', 'choosed')
-            $('#public').removeAttr('disabled')
-            $('#public').removeAttr('class')
             localHistory['private'].push(message)
             socket.emit('history', 'private')
           } else {
