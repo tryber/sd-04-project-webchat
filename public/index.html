@@ -68,16 +68,18 @@
   <script>
     $(document).ready(() => {
       const clearList = () => {
-        document.getElementById('messages').remove()
-        $('#messageList').append($('<div>').attr('id', 'messages'))
+        const list = document.getElementById('messages')
+        console.log(list);
+        list.remove()
         const li = document.createElement('div')
         li.id = 'messages'
-        document.getElementById('messagesList').appendChild(li)
+        const messageList = document.getElementById('messagesList')
+        messageList.appendChild(li)
       }
       const socket = io();
       let standartNicknameValue;
 
-      const setMessage = (message) => $('#messagens').append($('<li>').text(message).attr('data-testid', 'message'));
+      const setMessage = (message) => $('#messages').append($('<li>').text(message).attr('data-testid', 'message'));
       const localHistory = {
         'public': [],
         'private': [],
@@ -217,8 +219,8 @@
     </div>
     <button data-testid="public" type=button id="public" value="public" autofocus>Public</button>
   </nav>
-  <div id="messagensList">
-    <div id="messagens"></div>
+  <div id="messagesList">
+    <div id="messages"></div>
   </div>
   <form id="chatForm">
     <input id="mensagemInput" data-testid="message-box" autocomplete="on" />
