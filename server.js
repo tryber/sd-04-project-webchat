@@ -22,42 +22,46 @@ const onlineUsers = {};
 const now = moment(new Date()).format('DD-MM-yyyy HH-mm-ss');
 
 io.on('connection', async (socket) => {
-  const history = await findAllMessages('messages');
-  io.to(socket.id).emit('setHistory', history, 'public');
-
-  socket.on('setNickname', (nickname) => {
-    onlineUsers[socket.id] = nickname;
-    io.emit('setUsers', onlineUsers);
-  });
-
-  socket.on('message', async ({ nickname, message, receiver }) => {
-    let formatedMessage;
-    if (!receiver) {
-      formatedMessage = await insertMessage({
-        nickname,
-        message,
-        timestamp: now,
-      }, 'messages');
-      return io.emit('menssage', `${formatedMessage.timestamp} - ${nickname}: ${message}, public`);
-    }
-
-    formatedMessage = await insertMessage({
-      nickname,
-      message,
-      timestamp: now,
-      receiver,
-    }, 'private');
-
-    io.to(socket.id)
-      .to(receiver)
-      .emit('menssage', `${formatedMessage.timestamp} (private) - ${nickname}: ${message}, private`);
-  });
 
   socket.on('disconnect', async () => {
     delete onlineUsers[socket.id];
     io.emit('setUsers', onlineUsers);
+
   });
-  
+  socket.on('setNickname', (nickname) => {
+    onlineUsers[socket.id] = nickname;
+    io.emit('setUsers', onlineUsers);
+  });
+  socket.on('history', async (type) => {
+    const history = await findAllMessages('messages');
+    io.to(socket.id).emit('history', history, type, onlineUsers);
+  })
+
+
+  socket.on('message', async ({ nicknameValue, messageValue, receiver }) => {
+    let formatedMessage;
+    if (!receiver) {
+      formatedMessage = await insertMessage({
+        nickname: nicknameValue,
+        message: messageValue,
+        timestamp: now,
+      }, 'messages');
+      console.log(formatedMessage);
+      io.emit('message', `${formatedMessage.timestamp} - ${nicknameValue}: ${messageValue}`, 'public');
+    } else {
+      formatedMessage = await insertMessage({
+        nickname: nicknameValue,
+        message: messageValue,
+        timestamp: now,
+        receiver,
+      }, 'private');
+console.log(receiver);
+      io.to(socket.id)
+        .to(receiver)
+        .emit('menssage', `${formatedMessage.timestamp} (private) - ${nicknameValue}: ${messageValue}`, 'private');
+    }
+  });
+
   socket.on('error', (error) => console.error(error));
 });
 
