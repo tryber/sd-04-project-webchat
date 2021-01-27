@@ -5,8 +5,6 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
 const moment = require('moment');
-const { emit } = require('process');
-
 const messagesModel = require('./models/messagesModel');
 
 const app = express();
@@ -19,30 +17,41 @@ app.use(cors());
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
+const users = {};
 io.on('connection', async (socket) => {
   console.log('user connected');
   const messages = await messagesModel.getMessages();
-  io.to(socket.id).emit('showMessageHistory', messages);
-  const users = {};
+  io.to(socket.id).emit('showMessageHistory', messages, 'public');
+
   socket.on('userConection', (currentUser) => {
     users[socket.id] = currentUser;
-    io.emit('displayUsers', users);
+    io.emit('showOnlineUsers', users);
   });
   socket.on('changeNickname', (nickname) => {
     users[socket.id] = nickname;
-    io.emit('displayUsers', users);
+    io.emit('showOnlineUsers', users);
   });
-  socket.on('message', async ({ nickname, chatMessage }) => {
-    const msg = {
+
+  socket.on('message', async ({ nickname, chatMessage, receiver }) => {
+    let msg = {
       nickname,
       message: chatMessage,
       timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
     };
-    const message = await messagesModel.newMessage(msg);
-    io.emit('message', `${message.timestamp} - ${message.nickname}: ${message.message}`);
+    if (!receiver) {
+      const message = await messagesModel.newMessage(msg);
+      io.emit('message', `${message.timestamp} - ${message.nickname}: ${message.message}`, 'public');
+    } else {
+      msg = { ...msg, receiver };
+      io.to(socket.id)
+        .to(receiver)
+        .emit('message', `${msg.timestamp} (private) - ${msg.nickname}: ${msg.message}`, 'private');
+    }
   });
   socket.on('disconnect', () => {
     console.log('user disconnected');
+    delete users[socket.id];
+    io.emit('showOnlineUsers', users);
   });
 });
 
