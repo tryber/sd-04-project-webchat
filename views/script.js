@@ -8,6 +8,7 @@ socket.on('connect', () => {
   socket.id = {
     id: socket.id,
     nickname: sessionStorageNickname || nameRandom,
+    idPrivateRecipient: '',
   };
   sessionStorage.setItem('nickname', socket.id.nickname);
   socket.emit('dateUser', socket.id);
@@ -31,17 +32,11 @@ function emitMessage() {
   const chatMessageBtn = document.querySelector('.chatMessageBtn');
   let data;
   chatMessageBtn.addEventListener('click', () => {
-    const privatesBtns = document.querySelectorAll('.btn-private');
     data = {
       chatMessage: inputChatMessage.value,
       nickname: socket.id.nickname,
-      idPrivate: '',
+      idPrivateRecipient: socket.id.idPrivateRecipient,
     };
-    privatesBtns.forEach((btn) => {
-      if (btn.value) {
-        data.idPrivate = btn.value;
-      }
-    });
     socket.emit('message', data);
     inputChatMessage.value = '';
   });
@@ -61,12 +56,22 @@ function createItensList(data, list, dataTestid, liClass, button) {
     btnPrivate.textContent = 'Privado';
     btnPrivate.classList.add('btn-private');
     li.appendChild(btnPrivate);
+    btnPrivate.value = data.id;
     btnPrivate.addEventListener('click', (e) => {
-      e.target.value = data.id;
+      socket.id.idPrivateRecipient = e.target.value;
     });
   }
   list.appendChild(li);
 }
+
+function returnPublicChat() {
+  const btnPublic = document.querySelector('.btn-public');
+  btnPublic.addEventListener('click', () => {
+    socket.id.idPrivateRecipient = '';
+  });
+}
+
+returnPublicChat();
 
 const listMessages = document.getElementById('listMessages');
 

@@ -45,9 +45,9 @@ io.on('connection', async (socket) => {
   socket.on('message', async (data) => {
     try {
       const addMessage = await messagesModels.add(data.nickname, data.chatMessage);
-      if (data.idPrivate) {
+      if (data.idPrivateRecipient) {
         message = `${addMessage.dateMessage} (private) - ${addMessage.nickname}: ${addMessage.chatMessage}`;
-        socket.to(data.idPrivate).emit('dataServerPrivate', message);
+        socket.to(data.idPrivateRecipient).emit('dataServerPrivate', message);
         socket.emit('dataServer', message);
       } else {
         message = `${addMessage.dateMessage} - ${addMessage.nickname}: ${addMessage.chatMessage}`;
