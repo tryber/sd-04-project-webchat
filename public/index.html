@@ -50,7 +50,7 @@
 
     #messagens {
       list-style-type: none;
-      margin: 0;
+      margin-top: 10px;
       padding: 0;
     }
 
@@ -70,7 +70,7 @@
       const socket = io('http://localhost:3000');
       let standartNicknameValue;
 
-      const setMessage = (message, dataTestid) => $('#messagens').append($('<li>').text(message).attr('data-testid', dataTestid));
+      const setMessage = (message) => $('#messagens').append($('<li>').text(message).attr('data-testid', 'message'));
       const localHistory = {
         'public': [],
         'private': [],
@@ -79,6 +79,28 @@
       let receiver;
       let chatType = 'public';
 
+      const updateUserList = async (users, type) => {
+        $('#userList').remove();
+        $('#chatType').remove();
+
+        $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
+        if (Object.values(users).length > 1) {
+          $('nav').append($('<select>').attr('id', 'chatType'));
+          $('#chatType').append($('<option>').text('').val(''))
+          if (type !== 'private') {
+            $('#chatType').attr('disabled', true)
+            $('#public').attr('class', 'choosed')
+          }
+        }
+        Object.keys(users).forEach((userId) => {
+          console.log(userId);
+          if (userId !== socket.id) {
+            $('#chatType').append($('<option>').text(users[userId]).val(userId))
+          }
+          $('#userList').append($('<li>').text(users[userId]));
+        })
+      }
+
       try {
         socket.on('connect', () => {
           if (!$('#nicknameInput').val()) {
@@ -86,15 +108,22 @@
             $('#nicknameInput').val(standartNicknameValue);
             socket.emit('setNickname', standartNicknameValue);
           }
+          socket.emit('history', 'public')
         });
 
-        socket.on('setHistory', (history, type) => {
-          history.forEach(({ nickname, message, timestamp }) => {
+        socket.on('history', (history, type, users) => {
+          if (type === 'public') {
+            localHistory['public'] = history
+          }
+          localHistory[type].forEach(({ nickname, message, timestamp }) => {
             const formatedMessage = `${timestamp} ${type == 'private' ? '(private)' : ''} - ${nickname}: ${message}`;
             localHistory[type].push(formatedMessage);
-            setMessage(formatedMessage, 'message');
+            setMessage(formatedMessage);
           });
+          updateUserList(users, type);
         });
+
+
 
         $('#nicknameForm').submit((e) => {
           e.preventDefault();
@@ -109,26 +138,41 @@
           e.preventDefault();
           const messageValue = $('#mensagemInput').val();
           const nicknameValue = $('#nicknameInput').val();
-          if (messageValue) {
-            console.log(messageValue);
-            socket.emit('menssages', { nicknameValue, messageValue, receiver: null });
+          const type = $('#type').val();
+          const receiver = $('#chatType').val();
+          console.log(receiver);
+          if (messageValue && socket.id !== receiver) {
+            socket.emit('message', { nicknameValue, messageValue, receiver }, type);
             $('#mensagemInput').val('');
           }
         });
-
-        socket.on('menssage', (message) => {
+        socket.on('message', (message) => {
           console.log(message);
-          setMessage(message, 'message');
+          setMessage(message);
         });
 
-        socket.on('onlineUsers', async (users) => {
-          await $('#userList').remove()
-          $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
-          Object.values(users).map(value => $('#userList').append($('<li>').text(value)));
+        $('#public').click(() => {
+          $('#chatType').attr('disabled', true)
+          $('#public').attr('class', 'choosed')
+          $('#private').removeAttr('class')
+          $('#messagens').empty()
+          socket.emit('history', 'public')
+        })
+
+        $('#private').click(() => {
+          $('#chatType').removeAttr('disabled')
+          $('#private').attr('class', 'choosed')
+          $('#public').removeAttr('class')
+          $('#messagens').empty()
+          socket.emit('history', 'private')
+        })
+
+        socket.on('setUsers', (users) => {
+          updateUserList(users)
         });
 
       } catch (error) {
-        io.emit('error', error);
+        socket.emit('error', error);
       };
     });
   </script>
@@ -138,17 +182,18 @@
   <nav>
     <form id="nicknameForm">
       <input id=nicknameInput data-testid="nickname-box" type="text">
-      <button type="submit" data-testid="nickname-save">Salvar</button>
+      <button data-testid="nickname-save">Salvar</button>
     </form>
     <div>
       <ul id="onlineUsers"></ul>
     </div>
+    <button data-testid="public" id="public" value="public">Público</button>
+    <button data-testid="private" id="private" value="private">Privado</button>
   </nav>
   <ul id="messagens"></ul>
   <form id="chatForm">
-    <select name="chatSelect" id="chatSelect"></select>
     <input id="mensagemInput" data-testid="message-box" autocomplete="on" />
-    <button type="submit" data-testid="send-button">Enviar</button>
+    <button data-testid="send-button">Enviar</button>
   </form>
 </body>
 
