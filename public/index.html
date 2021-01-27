@@ -118,10 +118,12 @@
           });
 
           if (!$('#nicknameInput').val()) {
-            standartNicknameValue = `Guest_${socket.id}`;
-            $('#nicknameInput').val(standartNicknameValue);
-            socket.emit('setNickname', standartNicknameValue);
+            nickname = `Guest_${socket.id}`;
+            $('#nicknameInput').val(nickname);
+          } else {
+            nickname = $('#nicknameInput').val();
           }
+          socket.emit('setNickname', nickname);
           socket.emit('history', 'public')
 
         });
