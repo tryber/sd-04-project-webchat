@@ -83,7 +83,7 @@
         $('#userList').remove();
         $('#chatType').remove();
         const userList = Object.keys(users);
-        $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
+        $('#onlineUsers').append($('<ul>').attr('id', 'userList').attr('data-testid', 'online-user'));
         if (userList.length > 1) {
           $('nav').append($('<select>').attr('id', 'chatType'));
           $('#chatType').append($('<option>').text('').val(''))
