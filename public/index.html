@@ -107,7 +107,7 @@
 
           if (id != socket.id) {
             $('#userList').append(
-              $('<div>').append($('<div>').text(users[id]).attr('value', id))
+              $('<div>').append($('<div>').text(users[id]).attr('value', id).attr('data-testid', 'online-user'))
                 .append(
                   $('<button>').attr('data-testid', 'private').text('X').val(id).click((e) => {
                     $('#privateReceiver').text(id)
