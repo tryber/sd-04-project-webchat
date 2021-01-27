@@ -110,6 +110,7 @@
                 .append(
                   $('<button>').attr('data-testid', 'private').text('X').val(id).click((e) => {
                     $('#privateReceiver').text(id)
+                    chatType = 'private'
                     clearList()
                     socket.emit('history', 'private')
                   })
@@ -134,7 +135,12 @@
           socket.emit('history', 'public')
 
         });
-
+        $('#public').click(() => {
+          chatType = 'public'
+          clearList();
+          $('#privateReceiver').text('')
+          socket.emit('history', 'public')
+        })
         socket.on('history', (history, type, users) => {
           updateUserList(users, 'public', users[socket.id], true)
           if (type === 'public') {
@@ -147,10 +153,11 @@
               setMessage(formatedMessage);
             });
           } else {
-            clearList()
             localHistory['private'].forEach((message) => {
               const formatedMessage = message;
-              setMessage(formatedMessage);
+              if (chatType == type) {
+                setMessage(formatedMessage);
+              }
             });
           }
         });
@@ -183,7 +190,10 @@
             $('#privateReceiver').text(id)
           }
           if (type === 'private') {
-            clearList()
+            if (chatType == type) {
+              clearList()
+
+            }
             localHistory['private'].push(message)
             socket.emit('history', 'private')
           } else {
@@ -191,13 +201,11 @@
             setMessage(message);
           }
 
+
+
         });
 
-        $('#public').click(() => {
-          clearList();
-          $('#privateReceiver').text('')
-          socket.emit('history', 'public')
-        })
+
 
       } catch (error) {
         console.log(error);
