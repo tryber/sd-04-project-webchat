@@ -1,60 +1,66 @@
-const socketIo = require('socket.io');
-const moment = require('moment');
 const express = require('express');
 const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors');
 const path = require('path');
-const { messageModel } = require('./models/messages');
+const moment = require('moment');
+const { createMessage, createPrivateMessage, getMessages } = require('./models/messagesModel');
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
 const PORT = 3000;
 
-app.use('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '/index.html'));
-});
+const server = http.createServer(app);
+const io = socketIo(server);
+
+app.use(express.json());
+app.use(cors());
+
+app.use('/', express.static(path.join(__dirname, 'public')));
+
+const loggedUsers = {};
 
 io.on('connection', async (socket) => {
-  const historicList = await messageModel.getAll();
+  const messages = await getMessages();
+  io.to(socket.id).emit('displayHistory', messages, 'public');
 
-  historicList.forEach(({ chatMessage, nickname, timestamp }) => {
-    const message = `${timestamp} - ${nickname}: ${chatMessage}`;
-    socket.emit('history', message);
+  socket.on('userConnection', (currentUser) => {
+    loggedUsers[socket.id] = currentUser;
+    io.emit('displayUsers', loggedUsers);
   });
 
-  socket.on('message', async ({ chatMessage, nickname }) => {
-    const time = new Date();
-    const timestamp = moment(time).format('DD-MM-yyyy HH:mm:ss');
-    await messageModel.create(chatMessage, nickname, timestamp);
-    const message = `${timestamp} - ${nickname}: ${chatMessage}`;
-
-    io.emit('message', message);
-  });
-
-  socket.on('changeNickname', ({ newNickname }) => {
-    io.emit('changeNickname', newNickname);
-  });
-
-  let usersArray = [];
-
-  socket.on('logged-users', ({ nickname }) => {
-    usersArray.push({ socketId: socket.id, nickname });
-    io.emit('online-users', usersArray);
-  });
-
-  socket.on('changeNickname', ({ newNickname }) => {
-    usersArray.filter(({ nickname }) => nickname !== newNickname);
-    usersArray.push({ socketId: socket.id, nickname: newNickname });
-    io.emit('online-users', usersArray);
+  socket.on('updateNick', (nickname) => {
+    loggedUsers[socket.id] = nickname;
+    io.emit('displayUsers', loggedUsers);
   });
 
   socket.on('disconnect', () => {
-    usersArray.filter(({ socketId }) => socketId !== socket.id);
-    usersArray = [];
-    io.emit('online-users', usersArray);
+    delete loggedUsers[socket.id];
+    io.emit('displayUsers', loggedUsers);
+  });
+
+  socket.on('message', async ({ nickname, chatMessage, receiver }) => {
+    let msg;
+    if (!receiver) {
+      msg = await createMessage({
+        nickname,
+        message: chatMessage,
+        timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
+      });
+      io.emit('message', `${msg.timestamp} - ${nickname}: ${chatMessage}`, 'public');
+    } else {
+      msg = await createPrivateMessage({
+        nickname,
+        message: chatMessage,
+        timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
+        receiver,
+      });
+      io.to(socket.id)
+        .to(receiver)
+        .emit('message', `${msg.timestamp} (private) - ${nickname}: ${chatMessage}`, 'private');
+    }
   });
 });
 
 server.listen(PORT, () => {
-  console.log(`Ouvindo na porta: ${PORT}`);
+  console.log(`Server listening at port: ${PORT}`);
 });
