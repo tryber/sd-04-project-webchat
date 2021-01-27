@@ -16,7 +16,15 @@ const sendMessage = async (chatMessage, nickname, timestamp) => connection()
     timestamp,
   }));
 
+const getPrivateMsgs = async () => connection()
+  .then((db) => db.collection('privates').find({}).toArray())
+  .catch((err) => {
+    console.log(err);
+    throw err;
+  });
+
 module.exports = {
   getAllMessages,
   sendMessage,
+  getPrivateMsgs,
 };
