@@ -22,8 +22,9 @@
                 class="text"
                 required
                 placeholder="Name"
+                data-testid="nickname-box"
             />
-            <button class="btn text">Save</button>
+            <button class="btn text"data-testid="nickname-save">Save</button>
           </form>
           <h3 class="text">Users Online:</h3>
           <ul id="users"></ul>
@@ -39,8 +40,9 @@
                 required
                 autocomplete="off"
                 class="text input-chat"
+                data-testid="message-box"
               />
-              <button class="btn btn-chat text">Send</button>
+              <button class="btn btn-chat text" data-testid="send-button">Send</button>
             </form>
           </div>
         </div>
