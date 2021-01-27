@@ -90,13 +90,13 @@
           if (userId !== socket.id) {
             $('#userList').append(
               $('<div>').text(users[userId]).append(
-                $('<button>').text('X').val(userId).attr('class', 'selectUser').attr('id', userId).attr('data-testid', 'private').click((e) => {
+                $('<button>').text('X').val(userId).attr('class', 'selectUser').attr('id', userId).click((e) => {
                   $('#privateReceiver').text(userId)
                   $('#messagens').empty()
                   socket.emit('history', 'private')
-                })
+                }).attr('data-testid', 'private')
               )
-            );
+            ).attr('data-testid', 'online-user')
           } else {
             $('#userList').append($('<div>').text(users[userId]).attr('data-testid', 'online-user'));
           }
