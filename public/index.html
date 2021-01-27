@@ -82,23 +82,23 @@
       const updateUserList = (users, type, nickname) => {
         $('#userList').remove();
         const curretUser = users[socket.id]
-        const userList = Object.keys(users)
+        const userList = Object.entries(users)
 
         $('#onlineUsers').append($('<div>').attr('id', 'userList'));
 
-        userList.forEach((userId) => {
-          if (userId !== socket.id) {
+        userList.forEach((key, value) => {
+          if (key !== socket.id) {
             $('#userList').append(
-              $('<div>').text(users[userId]).append(
-                $('<button>').text('X').val(userId).attr('class', 'selectUser').attr('id', userId).click((e) => {
-                  $('#privateReceiver').text(userId)
+              $('<div>').text(value).append(
+                $('<button>').text('X').val(key).attr('class', 'selectUser').attr('id', key).attr('type', 'button').click((e) => {
+                  $('#privateReceiver').text(key)
                   $('#messagens').empty()
                   socket.emit('history', 'private')
                 }).attr('data-testid', 'private')
               )
             )
           } else {
-            $('#userList').append($('<div>').text(users[userId]).attr('data-testid', 'online-user'));
+            $('#userList').append($('<div>').text(key).attr('data-testid', 'online-user'));
           }
         })
       }
@@ -201,7 +201,7 @@
     <div>
       <ul id="onlineUsers"></ul>
     </div>
-    <button data-testid="public" id="public" value="public">Public</button>
+    <button type="button" data-testid="public" id="public" value="public">Public</button>
   </nav>
   <ul id="messagens"></ul>
   <form id="chatForm">
