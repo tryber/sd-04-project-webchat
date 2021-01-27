@@ -28,6 +28,7 @@
           </form>
           <h3 class="text">Users Online:</h3>
           <ul id="users"></ul>
+          <button class="btn text" data-testid="public" id="public-btn">Public</button>
         </div>
         <div class="main-chat-container">
           <div class="chat-container"></div>
@@ -49,6 +50,116 @@
       </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="client.js"></script>
+    <script>
+      const chatInput = document.getElementById('chat-form');
+      const chatMessages = document.querySelector('.chat-container');
+      const nameInput = document.getElementById('name-form');
+      const nameP = document.getElementById('user-name');
+      const userList = document.getElementById('users');
+      const publicBtn = document.getElementById('public-btn');
+
+      const socket = io();
+      let nickname = 'Zelda';
+      let state = 'global';
+      let target = '';
+      const histPriv = [];
+
+      function OutputMessage(message) {
+        const div = document.createElement('div');
+        div.innerHTML = `
+        <p class="text" data-testid="message">
+          ${message}
+        </p>`;
+
+        chatMessages.appendChild(div);
+      }
+
+      const stateChange = (newState) => {
+        console.log(newState);
+        state = newState;
+        socket.emit('stateJoin', state);
+      }
+
+      const clearMessages = () => {
+        while (chatMessages.firstChild) {
+          chatMessages.removeChild(chatMessages.firstChild);
+        }
+      }
+
+      function OutputUsers(users) {
+        userList.innerHTML = '';
+        const usersKeys = Object.keys(users);
+        usersKeys.forEach((userKey) => {
+          console.log(users[userKey].nickname);
+          const li = document.createElement('li');
+          const div = document.createElement('div');
+          div.innerText = `${users[userKey].nickname}`
+          div.setAttribute('class', 'text');
+          div.setAttribute('data-testid', 'online-user');
+          li.appendChild(div);
+          if (users[userKey].nickname !== nickname) {
+            const privateBtn = document.createElement('button');
+            privateBtn.setAttribute('class', 'text');
+            privateBtn.setAttribute('data-testid', 'private');
+            privateBtn.innerText = 'private';
+            privateBtn.id = userKey;
+            privateBtn.addEventListener('click', (event) => {
+              clearMessages();
+              publicBtn.disabled = false;
+              //chatType = 'private';
+              target = event.target.id;
+              histPriv.map(message => OutputMessage(message));
+            });
+            li.appendChild(privateBtn);
+          }
+          userList.appendChild(li);
+        });
+      }
+
+      socket.emit('start');
+
+      socket.on('message', (message, style) => {
+        //  console.log(message);
+        if (style === 'private') histPriv.push(message);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        OutputMessage(message);
+      });
+
+      socket.on('roomUsers', ({ users }) => {
+        //  console.log(users);
+        OutputUsers(users);
+      });
+
+      socket.on('history', (hist) => {
+        hist.forEach((message) => {
+          OutputMessage(`${message.date} - ${message.nickname}: ${message.chatMessage}`);
+        });
+      });
+
+      chatInput.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const msg = e.target.elements.msg.value;
+
+        socket.emit('message', { chatMessage: msg, nickname, state });
+
+        e.target.elements.msg.value = '';
+      });
+
+      nameInput.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const name = e.target.elements.name.value;
+        nameP.innerHTML = name;
+        nickname = name;
+
+        socket.emit('nameChange', name);
+
+        e.target.elements.name.value = '';
+      });
+
+      publicBtn.addEventListener('click', () => stateChange('global'));
+
+    </script>
   </body>
 </html>
