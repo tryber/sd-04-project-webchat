@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebChat</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <script src="http://chancejs.com/chance.min.js"></script>
+  </head>
+  <body>
+    <header id="header">
+      <h1>Bem vindo ao Bate-papo</h1>
+      <span id="chosenNick"></span>
+    </header>
+    <div id="main">
+      <div id="chat">
+        <div class="chat-container">
+          <ul id="messagesList" style="list-style: none"></ul>
+        </div>
+        <button type="button" id="public" data-testid="public">Public Chat</button>
+        <div>
+          <ul id="privateMessages" class="chat-container"></ul>
+        </div>
+        </div>
+        <form>
+          <textarea type='text' id="messageBox" data-testid="message-box" rows='3'></textarea>
+          <button type='button' id="msgBtn" data-testid="send-button">Enviar</button>
+        </form>
+      </div>
+      <div id="users">
+        <div>
+          <h4>Usuários Online</h4>
+          <ul id="firstUser"></ul>
+          <ul id="onlineUser"></ul>
+        </div>
+        <label>Nickname</label><br>
+        <input type="text" data-testid="nickname-box" id="nickname"/>
+        <button type="button" id="nickBtn" data-testid="nickname-save">Salvar</button>
+      </div>
+    </div>
+    <script>
+      const socket = io('http://localhost:3000');
+
+      const nickName = document.querySelector('#nickname');
+      const nickBtn = document.querySelector('#nickBtn');
+      const chosenNick = document.querySelector('#chosenNick');
+      const messageBox = document.querySelector('#messageBox');
+      const msgBtn = document.querySelector('#msgBtn');
+      const msgList = document.querySelector('#messagesList');
+      const privateMsgList = document.querySelector('#privateMessages');
+      const publicChatBtn = document.querySelector('#public');
+      const privateChatBtn = document.querySelector('#private');
+      const firstUser = document.querySelector('#firstUser');
+      let privateMessage = false;
+      let privateReceiver = '';
+
+      function renderUsers(data) {
+        let element;
+        let onlineUser;
+        let publicChat;
+        for (user of data) {
+          onlineUser = document.createElement('button');
+          onlineUser.setAttribute('type', 'button');
+          onlineUser.setAttribute('id', 'private');
+          onlineUser.setAttribute('data-testid', 'private');
+          onlineUser.setAttribute('class', 'onlineUserButton');
+          onlineUser.setAttribute('onClick', 'privateAction(this.innerText)');
+          onlineUser.innerText = user;
+
+          if (user === chosenNick.innerText) {
+            onlineUser.setAttribute('disabled', 'disabled');
+          }
+
+          element = document.createElement('li');
+          element.setAttribute('data-testid', 'online-user');
+          element.setAttribute('class', 'online');
+          element.appendChild(onlineUser);
+          if (user === chosenNick.innerText) {
+            firstUser.appendChild(element);
+            if (firstUser.innerText.length > 25) {
+              firstUser.removeChild(onlineUser);
+            }
+          } else {
+            document.querySelector('#onlineUser').appendChild(element);
+          }
+        }
+
+        publicChatBtn.addEventListener('click', () => {
+          privateReceiver = '';
+          privateMessage = false;
+          if (document.querySelectorAll('.privateLi').length > 0) {
+            const privateList = document.querySelectorAll('.privateLi');
+            for (li of privateList) {
+              li.remove();
+            }
+          }
+          socket.emit('newHistory', '');
+          socket.on('renderNewHistory', (data) => {
+            const reversedData = Object.values(data).reverse();
+            const date = moment(reversedData.timestamp).format(
+              'DD-MM-yyyy h:mm:ss A'
+            );
+            let li = '';
+            if (document.querySelectorAll('.publicLi')) {
+              li = document.querySelectorAll('.publicLi');
+              for (list of li) {
+                list.remove();
+              }
+            }
+            for (dt of reversedData) {
+              li = document.createElement('li');
+              li.setAttribute('data-testid', 'message');
+              li.setAttribute('class', 'publicLi');
+              li.innerText = `${date} - ${dt.nickname}: ${dt.chatMessage}`;
+              msgList.appendChild(li);
+            }
+          });
+        });
+      }
+
+      function privateAction(data) {
+        privateReceiver = data;
+        privateMessage = true;
+        if (document.querySelectorAll('.publicLi').length > 0) {
+          const publicList = document.querySelectorAll('.publicLi');
+          for (li of publicList) {
+            li.remove();
+          }
+        }
+        socket.emit('privateHistory', privateReceiver);
+        socket.on('renderPrivateHistory', (data) => {
+          for (nick of data.newPrivateHistory) {
+            if (
+              nick.nickname === chosenNick.innerText ||
+              privateReceiver === chosenNick.innerText
+            ) {
+            const reversedData = Object.values(
+              data.newPrivateHistory
+            ).reverse();
+            let li = '';
+            if (document.querySelectorAll('.privateLi')) {
+              li = document.querySelectorAll('.privateLi');
+              for (list of li) {
+                list.remove();
+              }
+            }
+            for (dt of reversedData) {
+              li = document.createElement('li');
+              li.setAttribute('data-testid', 'message');
+              li.setAttribute('class', 'privateLi');
+              li.innerText = `${dt.dateTime} (private) - ${dt.nickname}: ${dt.chatMessage}`;
+              privateMsgList.appendChild(li);
+            }
+            }
+          }
+        });
+      }
+
+      socket.on('updateUsers', (data) => {
+        const users = Object.values(data);
+        let list = document.querySelectorAll('.online');
+        for (let i = 0; i < list.length; i++) {
+          list[i].remove();
+        }
+        renderUsers(users);
+      });
+
+      socket.on('history', (data) => {
+        const reversedData = Object.values(data).reverse();
+        const date = moment(reversedData.timestamp).format(
+          'DD-MM-yyyy h:mm:ss A'
+        );
+        let li = '';
+        if (document.querySelectorAll('.publicLi')) {
+          li = document.querySelectorAll('.publicLi');
+          for (list of li) {
+            list.remove();
+          }
+        }
+        for (dt of reversedData) {
+          li = document.createElement('li');
+          li.setAttribute('data-testid', 'message');
+          li.setAttribute('class', 'publicLi');
+          li.innerText = `${date} - ${dt.nickname}: ${dt.chatMessage}`;
+          msgList.appendChild(li);
+        }
+      });
+
+      socket.on('newUser', (data) => {
+        chosenNick.innerText = data;
+      });
+
+      nickBtn.addEventListener('click', () => {
+        chosenNick.innerHTML = nickName.value;
+        socket.emit('chosenNick', nickName.value);
+      });
+
+      msgBtn.addEventListener('click', () => {
+        if (privateReceiver === '') {
+          if (document.querySelectorAll('.privateLi').length > 0) {
+            const privateList = document.querySelectorAll('.privateLi');
+            for (li of privateList) {
+              li.remove();
+            }
+          }
+          const chatMessage = messageBox.value;
+          const nickname = chosenNick.innerText;
+          socket.emit('message', { chatMessage, nickname });
+          messageBox.value = '';
+        } else {
+          if (document.querySelectorAll('.publicLi').length > 0) {
+            const publicList = document.querySelectorAll('.publicLi');
+            for (li of publicList) {
+              li.remove();
+            }
+          }
+          const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
+          const chatMessage = messageBox.value;
+          const nickname = chosenNick.innerText;
+          socket.emit('privateMessage', {
+            chatMessage,
+            nickname,
+            privateReceiver,
+          });
+          messageBox.value = '';
+        }
+      });
+
+      socket.on('message', (data) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'message');
+        li.setAttribute('class', 'publicLi');
+        li.innerText = data;
+        msgList.appendChild(li);
+      });
+
+      socket.on('new privateMessageSender', (data) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'message');
+        li.setAttribute('class', 'privateLi');
+        li.innerText = data;
+        privateMsgList.appendChild(li);
+      });
+
+      socket.on('new privateMessage', (data) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'message');
+        li.setAttribute('class', 'privateLi');
+        li.innerText = data;
+        privateMsgList.appendChild(li);
+      });
+    </script>
+  </body>
+</html>
