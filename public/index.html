@@ -118,12 +118,10 @@
           });
 
           if (!$('#nicknameInput').val()) {
-            nickname = `Guest_${socket.id}`;
-            $('#nicknameInput').val(nickname);
-          } else {
-            nickname = $('#nicknameInput').val();
+            standartNicknameValue = `Guest_${socket.id}`;
+            $('#nicknameInput').val(standartNicknameValue);
+            socket.emit('setNickname', standartNicknameValue);
           }
-          socket.emit('setNickname', nickname);
           socket.emit('history', 'public')
 
         });
@@ -151,7 +149,7 @@
         $('#nicknameForm').submit((e) => {
           e.preventDefault();
           const nickname = $('#nicknameInput').val();
-          if (nickname && nickname != standartNicknameValue) {
+          if (nickname) {
             socket.emit('setNickname', nickname);
           }
         });
