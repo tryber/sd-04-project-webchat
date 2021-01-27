@@ -1,10 +1,10 @@
-const express = require('express');
-const http = require('http');
 const socketIo = require('socket.io');
+const express = require('express');
+const moment = require('moment');
+const http = require('http');
 const cors = require('cors');
 const path = require('path');
-const moment = require('moment');
-const { createMessage, createPrivateMessage, getMessages } = require('./models/messagesModel');
+const { messageModel } = require('./models/messagesModel');
 
 const app = express();
 const PORT = 3000;
@@ -20,7 +20,7 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 const loggedUsers = {};
 
 io.on('connection', async (socket) => {
-  const messages = await getMessages();
+  const messages = await messageModel.getAll();
   io.to(socket.id).emit('displayHistory', messages, 'public');
 
   socket.on('userConnection', (currentUser) => {
@@ -39,16 +39,20 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('message', async ({ nickname, chatMessage, receiver }) => {
-    let msg;
+    let message;
     if (!receiver) {
-      msg = await createMessage({
+      message = await messageModel.create({
         nickname,
         message: chatMessage,
         timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
       });
-      io.emit('message', `${msg.timestamp} - ${nickname}: ${chatMessage}`, 'public');
+      io.emit(
+        'message',
+        `${message.timestamp} - ${nickname}: ${chatMessage}`,
+        'public',
+      );
     } else {
-      msg = await createPrivateMessage({
+      message = await messageModel.createPrivate({
         nickname,
         message: chatMessage,
         timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
@@ -56,11 +60,15 @@ io.on('connection', async (socket) => {
       });
       io.to(socket.id)
         .to(receiver)
-        .emit('message', `${msg.timestamp} (private) - ${nickname}: ${chatMessage}`, 'private');
+        .emit(
+          'message',
+          `${message.timestamp} (private) - ${nickname}: ${chatMessage}`,
+          'private',
+        );
     }
   });
 });
 
 server.listen(PORT, () => {
-  console.log(`Server listening at port: ${PORT}`);
+  console.log(`Ouvindo na porta: ${PORT}`);
 });

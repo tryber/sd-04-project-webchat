@@ -1,6 +1,6 @@
 const connection = require('./connection');
 
-const createMessage = async (messageObj) => {
+const create = async (messageObj) => {
   try {
     const database = await connection();
     const message = await database.collection('messages').insertOne(messageObj);
@@ -11,10 +11,12 @@ const createMessage = async (messageObj) => {
   }
 };
 
-const createPrivateMessage = async (messageObj) => {
+const createPrivate = async (messageObj) => {
   try {
     const database = await connection();
-    const privateMessage = await database.collection('private').insertOne(messageObj);
+    const privateMessage = await database
+      .collection('private')
+      .insertOne(messageObj);
     return privateMessage.ops[0];
   } catch (err) {
     console.error(err.message);
@@ -22,7 +24,7 @@ const createPrivateMessage = async (messageObj) => {
   }
 };
 
-const getMessages = async () => {
+const getAll = async () => {
   try {
     const database = await connection();
     const messages = await database.collection('messages').find({}).toArray();
@@ -33,8 +35,10 @@ const getMessages = async () => {
   }
 };
 
-module.exports = {
-  createMessage,
-  createPrivateMessage,
-  getMessages,
+const messageModel = {
+  create,
+  createPrivate,
+  getAll,
 };
+
+module.exports = { messageModel };

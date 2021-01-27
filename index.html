@@ -32,7 +32,7 @@
 
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script>
-      const chatForm = document.getElementById('chat-form');
+      const form = document.getElementById('chat-form');
       const chatMessages = document.getElementById('chat-messages');
       const nicknameForm = document.getElementById('nickname-form');
       const userList = document.getElementById('users-list');
@@ -47,20 +47,20 @@
       let receiver;
       let chatType = 'public';
 
-      const addMessage = (message) => {
+      const add = (message) => {
         const messageElement = document.createElement('p');
         messageElement.setAttribute('data-testid', 'message');
         messageElement.innerText = message;
         chatMessages.appendChild(messageElement);
       };
 
-      const clearChat = () => {
+      const clear = () => {
         while (chatMessages.firstChild) {
           chatMessages.removeChild(chatMessages.lastChild);
         }
       };
 
-      chatForm.addEventListener('submit', (event) => {
+      form.addEventListener('submit', (event) => {
         event.preventDefault();
         const chatMessage = event.target.elements.message.value;
         socket.emit('message', { chatMessage, nickname, receiver });
@@ -76,10 +76,10 @@
 
       publicButton.addEventListener('click', (_event) => {
         publicButton.disabled = true;
-        clearChat();
+        clear();
         chatType = 'public';
         receiver = '';
-        localHistory.public.map((m) => addMessage(m));
+        localHistory.public.map((m) => add(m));
       });
 
       socket.on('connect', () => {
@@ -93,13 +93,13 @@
           history.map(({ timestamp, nickname, message }) => {
             msg = `${timestamp} - ${nickname}: ${message}`;
             localHistory[type].push(msg);
-            if (type === chatType) addMessage(msg);
+            if (type === chatType) add(msg);
           });
         } else {
           history.map(({ timestamp, nickname, message, receiver }) => {
             msg = `${timestamp} (private) - ${nickname}: ${message}`;
             localHistory[type].push(msg);
-            if (type === chatType) addMessage(msg);
+            if (type === chatType) add(msg);
           });
         }
       });
@@ -118,11 +118,11 @@
             privateButton.id = key;
             privateButton.setAttribute('data-testid', 'private');
             privateButton.addEventListener('click', (event) => {
-              clearChat();
+              clear();
               publicButton.disabled = false;
               chatType = 'private';
               receiver = event.target.id;
-              localHistory.private.map((m) => addMessage(m));
+              localHistory.private.map((m) => add(m));
             });
             li.appendChild(privateButton);
           }
@@ -133,7 +133,7 @@
       socket.on('message', (message, type) => {
         localHistory[type].push(message);
         console.log(localHistory);
-        if (type === chatType) addMessage(message);
+        if (type === chatType) add(message);
         chatMessages.scrollTop = chatMessages.scrollHeight;
       });
     </script>
