@@ -99,11 +99,11 @@
           if (id != socket.id) {
             $('#userList').append(
               $('<div>').text(users[id]).attr('value', id).attr('data-testid', 'online-user').append(
-                $('<button>').text('X').val(id).attr('class', 'selectUser').attr('id', id).click((e) => {
+                $('<button>').attr('data-testid', 'private').text('X').val(id).click((e) => {
                   $('#privateReceiver').text(id)
                   $('#messagens').empty()
                   socket.emit('history', 'private')
-                }).attr('data-testid', 'private')
+                })
               )
             )
           } else {
@@ -152,6 +152,7 @@
           if (nickname) {
             socket.emit('setNickname', nickname);
           }
+          $('#nicknameInput').val('')
         });
 
         $('#chatForm').submit((e) => {
