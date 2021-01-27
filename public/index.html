@@ -92,7 +92,7 @@
           if (userId !== socket.id) {
             $('#userList').append(
               $('<li>').text(users[userId]).append(
-                $('<button>').text('X').val(userId).attr('class', 'selectUser').click(() => {
+                $('<button>').text('X').val(userId).attr('class', 'selectUser').attr('id', 'private').click(() => {
                   $('#privateReceiver').text(userId)
                 })
               )
@@ -221,7 +221,6 @@
       <ul id="onlineUsers"></ul>
     </div>
     <button data-testid="public" id="public" value="public">Público</button>
-    <button data-testid="private" id="private" value="private">Privado</button>
   </nav>
   <ul id="messagens"></ul>
   <form id="chatForm">
