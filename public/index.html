@@ -216,6 +216,7 @@
           })
         }
       } catch (error) {
+        console.log(error);
         socket.emit('error', error);
       };
     });
