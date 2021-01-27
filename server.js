@@ -27,17 +27,18 @@ io.on('connection', async (socket) => {
   });
   socket.emit('history', msgHistory);
 
-  const privateHistory = {};
+  const privateHistory = [];
   socket.emit('private-history', privateHistory);
 
   socket.on('private-message', ({ to, message, from }) => {
     console.log('server', message);
     const newDate = new Date();
     const timestamp = moment(newDate).format('DD-MM-yyyy HH:mm:ss');
-    const newMessage = `${timestamp} - ${from}: ${message}`;
+    const newMessage = `${timestamp} (private) - ${from}: ${message}`;
+
     io.to(to)
       .to(socket.id)
-      .emit('message', newMessage);
+      .emit('message', { chatMessage: newMessage, isPrivate: true });
   });
 
   socket.on('message', async ({ chatMessage, nickname }) => {
@@ -49,6 +50,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('newLogin', async ({ nickname }) => {
+    console.log(nickname);
     loggedNickname = nickname;
     onlineUsers.push({ socketId: socket.id, nickname });
     io.emit('onlineUsers', onlineUsers);
