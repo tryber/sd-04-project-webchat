@@ -1,17 +1,18 @@
+
 * {
   background-color: black;
 }
 
 body {
-	font-family: 'Roboto', sans-serif;
-	font-size: 16px;
-	background-color: var(--light-color);
-	margin: 20px;
+  background-color: var(--light-color);
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  margin: 20px;
 }
 
 .title {
-  display: flex;
   color: white;
+  display: flex;
   justify-content: center;
 }
 
@@ -21,8 +22,8 @@ body {
 
 .dynamic-container {
   display: flex;
-  width: 95vw;
   min-height: 70vh;
+  width: 95vw;
 }
 
 .side-bar {
@@ -51,9 +52,9 @@ body {
 
 .btn {
   cursor: pointer;
-	padding: 5px 15px;
-	border: 1;
-	font-size: 14px;
+  padding: 5px 15px;
+  border: 1;
+  font-size: 14px;
 }
 
 .red {
