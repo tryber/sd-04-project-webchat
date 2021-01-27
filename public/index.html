@@ -83,7 +83,7 @@
         $('#userList').remove();
         $('#chatType').remove();
         const userList = Object.keys(users);
-        $('#onlineUsers').append($('<ul>').attr('id', 'userList').attr('data-testid', 'online-user'));
+        $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
         if (userList.length > 1) {
           $('nav').append($('<select>').attr('id', 'chatType'));
           $('#chatType').append($('<option>').text('').val(''))
@@ -94,9 +94,11 @@
         }
         userList.forEach((userId) => {
           if (userId !== socket.id) {
-            $('#chatType').append($('<option>').text(users[userId]).val(userId))
+            $('#chatType').append($('<option>').text(users[userId]).val(userId));
+            $('#userList').append($('<li>').text(users[userId]).append($('<button>').text('X')));
+          } else {
+            $('#userList').append($('<li>').text(users[userId]).attr('data-testid', 'online-user'));
           }
-          $('#userList').append($('<li>').text(users[userId]));
         })
       }
 
@@ -173,7 +175,9 @@
         });
 
         $('#public').click(() => {
-          $('#chatType').attr('disabled', true)
+          $('#public').attr('disabled', true)
+          $('#private').removeAttr('disabled')
+
           $('#public').attr('class', 'choosed')
           $('#private').removeAttr('class')
           $('#messagens').empty()
@@ -181,7 +185,9 @@
         })
 
         $('#private').click(() => {
-          $('#chatType').removeAttr('disabled')
+          $('#private').attr('disabled', true)
+
+          $('#public').removeAttr('disabled')
           $('#private').attr('class', 'choosed')
           $('#public').removeAttr('class')
           $('#messagens').empty()
