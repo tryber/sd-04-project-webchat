@@ -1,4 +1,4 @@
-const chatInput = document.getElementById('chat-form');
+/*  const chatInput = document.getElementById('chat-form');
 const chatMessages = document.querySelector('.chat-container');
 const nameInput = document.getElementById('name-form');
 const nameP = document.getElementById('user-name');
@@ -72,4 +72,4 @@ nameInput.addEventListener('submit', (e) => {
   e.target.elements.name.value = '';
 });
 
-publicBtn.addEventListener('click', () => stateChange('global'));
+publicBtn.addEventListener('click', () => stateChange('global'));  */

@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="css/style.css" />
     <title>WebChat</title>
   </head>
   <body>
@@ -50,8 +51,6 @@
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      require('dotenv').config();
-
       const chatInput = document.getElementById('chat-form');
       const chatMessages = document.querySelector('.chat-container');
       const nameInput = document.getElementById('name-form');
@@ -103,11 +102,6 @@
           OutputMessage(`${message.date} - ${message.nickname}: ${message.chatMessage}`);
         });
       });
-
-      socket.on('private', (message) => {
-        const lock = process.env.PRIVATE;
-        return { message, lock};
-      })
 
       chatInput.addEventListener('submit', (e) => {
         e.preventDefault();
