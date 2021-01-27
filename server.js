@@ -35,7 +35,6 @@ io.on('connection', async (socket) => {
     });
     socket.on('history', async (type) => {
       socket.emit('history', history, type, onlineUsers);
-
     });
 
     socket.on('message', async ({ nickname, chatMessage, receiver }) => {
