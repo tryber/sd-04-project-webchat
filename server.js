@@ -42,7 +42,7 @@ io.on('connection', async (socket) => {
     socket.on('message', async ({ nickname, chatMessage, receiver }) => {
       if (!receiver) {
         io.emit('message', `${now} - ${nickname}: ${chatMessage}`, 'public');
-         await insertMessage({
+        await insertMessage({
           nickname,
           message: chatMessage,
           timestamp: now,
