@@ -88,7 +88,7 @@
         userList.forEach((userId) => {
           if (userId !== socket.id) {
             $('#userList').append(
-              $('<div>').text(users[userId]).attr('data-testid', 'online-user').append(
+              $('<div>').text(users[userId]).append(
                 $('<button>').attr('data-testid', 'private').text('private').val(userId).attr('class', 'selectUser').attr('id', userId).click((e) => {
                   $('#privateReceiver').text(userId)
                   $('#messagens').empty()
@@ -103,11 +103,8 @@
       }
       try {
         socket.on('connect', () => {
-
-          if (!$('#nicknameInput').val()) {
-            $('#nicknameInput').val(`Guest_${socket.id}`);
-            socket.emit('setNickname', `Guest_${socket.id}`);
-          }
+          $('#nicknameInput').val(`Guest_${socket.id}`);
+          socket.emit('setNickname', `Guest_${socket.id}`);
           socket.emit('history', 'public')
         });
 
@@ -132,14 +129,14 @@
 
 
 
-       
+
 
         $('#chatForm').submit((e) => {
           e.preventDefault();
           const chatMessage = $('#mensagemInput').val();
           const nickname = $('#nicknameInput').val();
           receiver = $('#privateReceiver').text();
-          if(chatType == 'public') receiver = null
+          if (chatType == 'public') receiver = ''
           if (chatMessage && chatType == 'public' || chatType == 'private' && receiver) {
             socket.emit('message', { nickname, chatMessage, receiver }, chatType);
             $('#mensagemInput').val('');
