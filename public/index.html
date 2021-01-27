@@ -98,7 +98,7 @@
           if (userId !== socket.id) {
             $('#userList').append(
               $('<li>').text(users[userId]).append(
-                $('<button>').text('X').val(userId).attr('class', 'selectUser').attr('id', 'private').click(() => {
+                $('<button>').text('X').val(userId).attr('class', 'selectUser').attr('id', 'private').attr('data-testid', 'private').click(() => {
                   $('#privateReceiver').text(userId)
                   $('#private').attr('disabled', true)
                   $('#private').attr('class', 'choosed')
@@ -107,7 +107,7 @@
                   $('#messagens').empty()
                   socket.emit('history', 'private')
                 })
-              )
+              ).attr('data-testid', 'online-user')
             );
           } else {
             $('#userList').append($('<li>').text(nickname).attr('data-testid', 'online-user'));
@@ -224,7 +224,8 @@
     <div>
       <ul id="onlineUsers"></ul>
     </div>
-    <button data-testid="public" id="public" value="public">Público</button>
+    <button data-testid="public" id="public" value="public">Public</button>
+    <button data-testid="private" id="private" value="private">Private</button>
   </nav>
   <ul id="messagens"></ul>
   <form id="chatForm">
