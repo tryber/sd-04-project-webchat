@@ -67,7 +67,7 @@
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script>
     $(() => {
-      const socket = io('http://localhost:3000');
+      const socket = io();
       let standartNicknameValue;
 
       const setMessage = (message) => $('#messagens').append($('<li>').text(message).attr('data-testid', 'message'));
@@ -79,7 +79,7 @@
       let receiver;
       let chatType = 'public';
 
-      const updateUserList = async (users, type) => {
+      const updateUserList = (users, type) => {
         $('#userList').remove();
         $('#chatType').remove();
         const userList = Object.keys(users);
@@ -95,7 +95,11 @@
         userList.forEach((userId) => {
           if (userId !== socket.id) {
             $('#chatType').append($('<option>').text(users[userId]).val(userId));
-            $('#userList').append($('<li>').text(users[userId]).append($('<button>').text('X')));
+            $('#userList').append(
+              $('<li>').text(users[userId]).append(
+                $('<button>').text('X').val(userId).attr('class', 'selectUser')
+              )
+            );
           } else {
             $('#userList').append($('<li>').text(users[userId]).attr('data-testid', 'online-user'));
           }
@@ -104,6 +108,8 @@
 
       try {
         socket.on('connect', () => {
+          $('#public').attr('disabled', true)
+
           if (!$('#nicknameInput').val()) {
             standartNicknameValue = `Guest_${socket.id}`;
             $('#nicknameInput').val(standartNicknameValue);
@@ -169,7 +175,6 @@
               $('#chatType').val(id)
             }
             localHistory[type].push(message);
-
           }
           setMessage(message);
         });
@@ -184,6 +189,7 @@
           socket.emit('history', 'public')
         })
 
+
         $('#private').click(() => {
           $('#private').attr('disabled', true)
 
@@ -197,7 +203,18 @@
         socket.on('setUsers', (users) => {
           updateUserList(users)
         });
+        socket.on('disconnect', (users) => {
+          updateUserList(users)          
+          socket.emit('history', 'public')
 
+        });
+        window.onload = () => {
+          const array = document.getElementsByClassName('selectUser')
+
+          array.forEach((index, element) => {
+            console.log(index);
+          })
+        }
       } catch (error) {
         socket.emit('error', error);
       };
