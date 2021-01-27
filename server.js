@@ -33,14 +33,8 @@ io.on('connection', async (socket) => {
     const storedResult = await Messages.saveUserMessage(chatMessage, nickname);
     const splited = storedResult.split(' ');
     const formatada = `${splited[0]} ${splited[1]} (private) - ${nickname}: ${chatMessage}`;
-    console.log('storedResult: ', formatada);
-
-
     socket.emit('private message', formatada);
-    // socket.to(socket.id).emit('private message', formatada);
     socket.to(userSocketId).emit('private message', formatada);
-    // io.emit('private message', formatada);
-    // socket.broadcast.emit('message', storedResult);
   });
 
   socket.on('status', async ({ nickname }) => {

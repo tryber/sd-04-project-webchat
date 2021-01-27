@@ -157,18 +157,8 @@
       }
 
       function insertUserStatus(usersStatus) {
-        // console.log(usersStatus);
         $('#friends-status').empty();
         usersStatus.forEach((user) => {
-          // const span = `<span style="display: none">${user.socketId}</span>`;
-          // const p = `<p data-testid="online-user">${user.nickname}</p>`;
-          // const div = `<div></div>`;
-          // div.append(span);
-          // div.append(p);
-          // if (user.nickname !== nickname) {
-          //   const btn = `<button data-testid="private" class="togglePrivacy" id="private-btn" onclick="privateChat()">Privado</button>`;
-          //   div.append(btn);
-          // }
           $('#friends-status').append();
           if (user.nickname !== nickname) {
             $('#friends-status').append(
@@ -200,7 +190,6 @@
       });
 
       socket.on('message', function (message) {
-        console.log('Chat publico');
         $('#mensagens').empty();
         if (chats.chatType) {
           chats.publicChat.push(message);
@@ -213,10 +202,8 @@
       });
 
       socket.on('private message', function (message) {
-        console.log('Chat PRIVADO');
         // chats.chatType = 0;
         chats.privateChat.push(message);
-        console.log('Chat PRIVADO: ', chats.privateChat);
         if (!chats.chatType) {
           document.getElementById('mensagens').innerHTML = '';
           // $('#mensagens').empty();
@@ -233,13 +220,7 @@
             socket.emit('message', userMessageInfo);
           }
           else {
-            // const userSocketId = $('#private-btn').;
             const userSocketId = $('#private-btn').parent().children()[0].innerHTML;
-            // const meubtn = $('button[data-testid=private]');
-            // alert(meubtn);
-            // console.log(meubtn);
-            // alert(userSocketId);
-            // console.log(userSocketId);
             socket.emit('private message', { userSocketId, userMessageInfo });
           }
           $('#mensagemInput').val('');
