@@ -69,7 +69,6 @@
     $(document).ready(() => {
       const clearList = () => {
         const list = document.getElementById('messages')
-        console.log(list);
         list.remove()
         const li = document.createElement('div')
         li.id = 'messages'
@@ -138,8 +137,9 @@
 
         socket.on('history', (history, type, users) => {
           updateUserList(users, 'public', users[socket.id], true)
-
           if (type === 'public') {
+            clearList()
+
             localHistory['public'] = history
             localHistory['public'].forEach(({ nickname, message, timestamp }) => {
               const formatedMessage = `${timestamp} - ${nickname}: ${message}`;
@@ -147,6 +147,7 @@
               setMessage(formatedMessage);
             });
           } else {
+            clearList()
             localHistory['private'].forEach((message) => {
               const formatedMessage = message;
               setMessage(formatedMessage);
@@ -193,8 +194,8 @@
         });
 
         $('#public').click(() => {
+          clearList();
           $('#privateReceiver').text('')
-          clearList()
           socket.emit('history', 'public')
         })
 
