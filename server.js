@@ -31,9 +31,11 @@ io.on('connection', async (socket) => {
     socket.on('setNickname', (nickname) => {
       onlineUsers[socket.id] = nickname;
       io.emit('setUsers', onlineUsers);
+      socket.emit('setUsers', onlineUsers, true);
     });
     socket.on('history', async (type) => {
-      io.to(socket.id).emit('history', history, type, onlineUsers);
+      socket.emit('history', history, type, onlineUsers);
+
     });
 
     socket.on('message', async ({ nickname, chatMessage, receiver }) => {

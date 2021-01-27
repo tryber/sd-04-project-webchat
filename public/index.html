@@ -79,26 +79,35 @@
       let receiver;
       let chatType = 'public';
 
-      const updateUserList = (users, type, nickname) => {
+      const updateUserList = (users, type, nickname, connect) => {
         $('#userList').remove();
-        const curretUser = users[socket.id]
-        const userList = Object.entries(users)
+        const curconstretUser = users[socket.id]
+        let userList = Object.keys(users)
+        let newUserList = []
+        newUserList.push(socket.id)
+        userList.forEach(element => {
+          if (element !== socket.id) {
+            newUserList.push(element)
+          }
+          userList = newUserList
+        })
 
         $('#onlineUsers').append($('<div>').attr('id', 'userList'));
+console.log(userList);
+        userList.forEach((id) => {
 
-        userList.forEach((key, value) => {
-          if (key !== socket.id) {
+          if (id != socket.id) {
             $('#userList').append(
-              $('<div>').text(value).append(
-                $('<button>').text('X').val(key).attr('class', 'selectUser').attr('id', key).attr('type', 'button').click((e) => {
-                  $('#privateReceiver').text(key)
+              $('<div>').text(users[id]).attr('value', id).attr('data-testid', 'online-user').append(
+                $('<button>').text('X').val(id).attr('class', 'selectUser').attr('id', id).click((e) => {
+                  $('#privateReceiver').text(id)
                   $('#messagens').empty()
                   socket.emit('history', 'private')
                 }).attr('data-testid', 'private')
               )
             )
           } else {
-            $('#userList').append($('<div>').text(key).attr('data-testid', 'online-user'));
+            $('#userList').append($('<div>').text(users[socket.id]).attr('data-testid', 'online-user'));
           }
         })
       }
@@ -111,13 +120,14 @@
             socket.emit('setNickname', standartNicknameValue);
           }
           socket.emit('history', 'public')
+
         });
 
         socket.on('history', (history, type, users) => {
+          updateUserList(users, 'public', users[socket.id], true)
+
           if (type === 'public') {
             localHistory['public'] = history
-            console.log('entrou');
-            console.log(localHistory[type]);
             localHistory['public'].forEach(({ nickname, message, timestamp }) => {
               const formatedMessage = `${timestamp} - ${nickname}: ${message}`;
               localHistory['public'].push({ nickname, message, timestamp });
@@ -129,7 +139,6 @@
               setMessage(formatedMessage);
             });
           }
-          updateUserList(users, type, users[socket.id]);
         });
 
 
@@ -138,7 +147,6 @@
           e.preventDefault();
           const nickname = $('#nicknameInput').val();
           if (nickname && nickname != standartNicknameValue) {
-            console.log(nickname);
             socket.emit('setNickname', nickname);
           }
         });
@@ -148,6 +156,7 @@
           const chatMessage = $('#mensagemInput').val();
           const nickname = $('#nicknameInput').val();
           receiver = $('#privateReceiver').text();
+          console.log(receiver);
           if (chatMessage && chatType == 'public' || chatType == 'private' && receiver) {
             socket.emit('message', { nickname, chatMessage, receiver }, chatType);
             $('#mensagemInput').val('');
@@ -179,7 +188,7 @@
 
 
 
-        socket.on('setUsers', (users) => {
+        socket.on('setUsers', (users, connect) => {
           updateUserList(users, 'public', users[socket.id])
         });
 
@@ -201,7 +210,7 @@
     <div>
       <ul id="onlineUsers"></ul>
     </div>
-    <button type="button" data-testid="public" id="public" value="public">Public</button>
+    <button data-testid="public" id="public" value="public">Public</button>
   </nav>
   <ul id="messagens"></ul>
   <form id="chatForm">
