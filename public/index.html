@@ -70,6 +70,9 @@
       const clearList = () => {
         document.getElementById('messages').remove()
         $('#messageList').append($('<div>').attr('id', 'messages'))
+        const li = document.createElement('div')
+        li.id = 'messages'
+        document.getElementById('messagesList').appendChild(li)
       }
       const socket = io();
       let standartNicknameValue;
@@ -102,13 +105,14 @@
 
           if (id != socket.id) {
             $('#userList').append(
-              $('<div>').text(users[id]).attr('value', id).attr('data-testid', 'online-user').append(
-                $('<button>').attr('data-testid', 'private').text('X').val(id).click((e) => {
-                  $('#privateReceiver').text(id)
-                  clearList()
-                  socket.emit('history', 'private')
-                })
-              )
+              $('<div>').append($('<div>').text(users[id]).attr('value', id))
+                .append(
+                  $('<button>').attr('data-testid', 'private').text('X').val(id).click((e) => {
+                    $('#privateReceiver').text(id)
+                    clearList()
+                    socket.emit('history', 'private')
+                  })
+                )
             )
           } else {
             $('#userList').append($('<div>').text(users[socket.id]).attr('data-testid', 'online-user'));
@@ -190,10 +194,6 @@
           clearList()
           socket.emit('history', 'public')
         })
-
-
-
-
 
       } catch (error) {
         console.log(error);
