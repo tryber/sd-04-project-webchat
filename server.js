@@ -22,6 +22,7 @@ const onlineUsers = {};
 const now = moment(new Date()).format('DD-MM-yyyy HH:mm:ss');
 
 io.on('connection', async (socket) => {
+  const history = await findAllMessages('messages');
   try {
     socket.on('disconnect', () => {
       delete onlineUsers[socket.id];
@@ -32,8 +33,7 @@ io.on('connection', async (socket) => {
       io.emit('setUsers', onlineUsers);
     });
     socket.on('history', async (type) => {
-      const history = await findAllMessages('messages');
-      io.to(socket.id).emit('history', history, type, onlineUsers);
+      socket.emit('history', history, type, onlineUsers);
     });
 
     socket.on('message', async ({ nickname, chatMessage, receiver }) => {

@@ -81,7 +81,7 @@
 
       const updateUserList = (users, type) => {
         $('#userList').remove();
-        const userList = Object.keys(users);
+        const userList = Object.keys(users).reverse();
         $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
         if (userList.length > 1) {
           if (type !== 'private') {
