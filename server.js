@@ -46,15 +46,9 @@ io.on('connection', async (socket) => {
       console.log(formatedMessage);
       io.emit('message', `${formatedMessage.timestamp} - ${nickname}: ${chatMessage}`, 'public');
     } else {
-      formatedMessage = await insertMessage({
-        nickname,
-        message: chatMessage,
-        timestamp: now,
-        receiver,
-      }, 'private');
       io.to(socket.id)
         .to(receiver)
-        .emit('message', `${formatedMessage.timestamp} (private) - ${nickname}: ${chatMessage}`, 'private', socket.id);
+        .emit('message', `${now} (private) - ${nickname}: ${chatMessage}`, 'private', socket.id);
     }
   });
 
