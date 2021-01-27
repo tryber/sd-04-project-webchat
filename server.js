@@ -1,63 +1,83 @@
+const http = require('http');
 const express = require('express');
+const socketIo = require('socket.io');
 const path = require('path');
 const moment = require('moment');
+const { getAllMsg, createMsg, getPrivateMessages, createPrivateMsg } = require('./model/webchatModel');
 
 const app = express();
+const socketIoServer = http.createServer(app); // cria o servidor
+const io = socketIo(socketIoServer); // a partir daqui que escuta
 
-const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+const PUBLIC = path.join(__dirname, 'public');
 
-const webChatModel = require('./model/webchatModel');
+app.use(express.static(PUBLIC));
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.set('views', path.join(__dirname, 'public'));
-app.engine('html', require('ejs').renderFile);
-
-app.set('view engine', 'html');
-
-app.use('/', (req, res) => {
-  res.render('index.html');
+app.get('/', (_req, res) => {
+  res.sendFile('index.html'); // conecta com o index.html
 });
 
-const usersOnline = {};
+const onlineUsers = {};
 
-io.on('connection', (socket) => {
-  console.log('Socket connectado', socket.id);
+io.on('connection', async (socket) => {
+  console.log(`${socket.id} conectado!`);
 
-  const { id } = socket;
-  // usersOnline[id] = id;
-  io.emit('userConnect', usersOnline);
+  onlineUsers[socket.id] = socket.id;
 
-  webChatModel
-    .getAll()
-    .then((messages) => socket.emit('historicMessages', messages));
+  const history = await getAllMsg();
 
-  socket.on('disconnect', () => {
-    delete usersOnline[id];
-    socket.emit('offline', usersOnline);
+  io.emit('history', history);
+
+  socket.on('newHistory', async () => {
+    const newHistory = await getAllMsg();
+    socket.emit('renderNewHistory', newHistory);
   });
-  
-  // io.to(id).emit('privateMessage', message);
 
-  socket.on('saveNickname', (nickname) => {
-    if (nickname.length) {
-      usersOnline[id] = nickname;
+  const privateHistory = await getPrivateMessages();
 
-      io.emit('userConnect', usersOnline);
-    }
+  io.emit('privateHistory', privateHistory);
+
+  socket.on('privateHistory', async (selectedUser) => {
+    const newPrivateHistory = await getPrivateMessages();
+    socket.emit('renderPrivateHistory', { newPrivateHistory, selectedUser });
   });
+
+  socket.emit('newUser', socket.id);
+
+  socket.on('chosenNick', (data) => {
+    onlineUsers[socket.id] = data;
+    io.emit('updateUsers', onlineUsers);
+  });
+
+  io.emit('updateUsers', onlineUsers);
 
   socket.on('message', async (data) => {
-    const date = moment(new Date()).format('DD-MM-yyyy hh:mm:ss A');
-    const dados = { date, ...data };
+    const dateTime = new Date().getTime();
+    const dateToUser = moment(dateTime).format('DD-MM-yyyy h:mm:ss A');
+    const message = `${dateToUser} - ${data.nickname}: ${data.chatMessage}`;
+    await createMsg(data.nickname, data.chatMessage, dateTime);
+    io.emit('message', message);
+  });
 
-    await webChatModel.add(dados);
+  function getKeyByValue(object, value) {
+    return Object.keys(object).find((key) => object[key] === value);
+  }
+  socket.on('privateMessage', (data) => {
+    const dateTime = moment(new Date()).format('DD-MM-yyyy h:mm:ss A');
+    const message = `${dateTime} (private) - ${data.nickname}: ${data.chatMessage}`;
+    const sender = getKeyByValue(onlineUsers, data.nickname);
+    const receiver = getKeyByValue(onlineUsers, data.privateReceiver);
+    createPrivateMsg(data.nickname, data.chatMessage, dateTime);
+    io.to(sender).emit('new privateMessageSender', message);
+    io.to(receiver).emit('new privateMessage', message);
+  });
 
-    socket.broadcast.emit(
-      'message',
-      `<strong>${dados.date} - ${dados.nickname}</strong>: ${dados.chatMessage}`,
-    );
+  socket.on('disconnect', () => {
+    delete onlineUsers[socket.id];
+    io.emit('updateUsers', onlineUsers);
   });
 });
 
-server.listen(3000, () => console.log('Ouvindo na porta 3000'));
+socketIoServer.listen(3000, () => {
+  console.log('Ouvindo!');
+});

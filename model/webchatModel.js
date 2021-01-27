@@ -1,24 +1,21 @@
 const connection = require('./connection');
 
-const MESSAGES = 'messages';
-const PRIVATE_MESSAGE = 'privateMessages';
+const getAllMsg = async () =>
+  connection()
+    .then((db) => db.collection('messages').find({}).toArray());
 
-const add = (data) =>
-  connection().then((db) => db.collection(MESSAGES).insertOne({ data }));
+const createMsg = async (chatMessage, nickname, timestamp) =>
+  connection()
+    .then((db) =>
+      db.collection('messages').insertOne({ chatMessage, nickname, timestamp }));
 
-const getAll = () =>
-  connection().then((db) => db.collection(MESSAGES).find().toArray());
+const createPrivateMsg = async (chatMessage, nickname, timestamp, ReceiverNick) =>
+  connection()
+    .then((db) =>
+      db.collection('privateMessages').insertOne({ chatMessage, nickname, timestamp, ReceiverNick }));
 
 const getPrivateMessages = async () =>
-  connection().then((db) => db.collection(PRIVATE_MESSAGE).find().toArray());
-  
-// chatMessage, nickname, timestamp, ReceiverNick
-const addPrivateMsg = async (data) =>
-  connection().then((db) => db.collection(PRIVATE_MESSAGE).insertOne({ data }));
+  connection()
+    .then((db) => db.collection('privateMessages').find({}).toArray());
 
-module.exports = {
-  add,
-  getAll,
-  addPrivateMsg,
-  getPrivateMessages,
-};
+module.exports = { getAllMsg, createMsg, getPrivateMessages, createPrivateMsg };
