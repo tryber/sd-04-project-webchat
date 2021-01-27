@@ -18,7 +18,7 @@ function OutputMessage(message) {
 
 function OutputUsers(users) {
   userList.innerHTML = `
-    ${users.map((user) => `<li class="text">${user.nickname}</li>`).join('')}
+    ${users.map((user) => `<li class="text" data-testid="online-user">${user.nickname}</li>`).join('')}
   `;
 }
 
