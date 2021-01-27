@@ -4,8 +4,13 @@ const express = require('express');
 const socketio = require('socket.io');
 const moment = require('moment');
 const model = require('./model/mainModel');
-const formatMessage = require('./util/messages');
-const { userAdd, getCurrentUser, changeUser, userLeave, getAllUsers } = require('./util/user');
+const {
+  userAdd,
+  //  getCurrentUser,
+  changeUser,
+  userLeave,
+  getAllUsers,
+} = require('./util/user');
 
 const app = express();
 const server = http.createServer(app);

@@ -25,7 +25,7 @@ function OutputUsers(users) {
 socket.emit('start');
 
 socket.on('message', (message) => {
-  //console.log(message);
+  //  console.log(message);
   OutputMessage(message);
 });
 

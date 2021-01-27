@@ -6,19 +6,14 @@ const userAdd = (id, nickname) => {
   return user;
 };
 
-const getCurrentUser = (id) => {
-  return users.find((user) => user.id === id);
-};
+const getCurrentUser = (id) => users.find((user) => user.id === id);
 
 const changeUser = (id, nickname) => {
-  users.forEach((user) => {
-    if (user.id === id) user.nickname = nickname;
-  });
+  const index = users.findIndex((user) => user.id === id);
+  users[index].nickname = nickname;
 };
 
-const getAllUsers = () => {
-  return users;
-};
+const getAllUsers = () => users;
 
 const userLeave = (id) => {
   const index = users.findIndex((user) => user.id === id);
