@@ -28,8 +28,7 @@ io.on('connection', (socket) => {
 
     if (indexNames === 0) {
       indexNames += 1;
-    }
-    else {
+    } else {
       indexNames -= 1;
     }
 

@@ -23,36 +23,12 @@ const stateChange = (newState) => {
   console.log(newState);
   state = newState;
   socket.emit('stateJoin', state);
-}
+};
 
 function OutputUsers(users) {
-  userList.innerHTML = '';
-  const usersKeys = Object.keys(users);
-  usersKeys.forEach((userKey) => {
-    console.log(users[userKey].nickname);
-    const li = document.createElement('li');
-    const div = document.createElement('div');
-    div.innerText = `${users[userKey].nickname}`
-    div.setAttribute('class', 'text');
-    div.setAttribute('data-testid', 'online-user');
-    li.appendChild(div);
-    if (users[userKey].nickname !== nickname) {
-      const privateBtn = document.createElement('button');
-      privateBtn.innerText = 'private';
-      privateBtn.id = userKey;
-      privateBtn.setAttribute('data-testid', 'private');
-      privateBtn.setAttribute('class', 'text');
-      privateBtn.addEventListener('click', (event) => {
-        //clearChat();
-        publicBtn.disabled = false;
-        chatType = 'private';
-        //receiver = event.target.id;
-        //localMessageHistory.private.map(message => addMessage(message));
-      });
-      li.appendChild(privateBtn);
-    }
-    userList.appendChild(li);
-  });
+  userList.innerHTML = `
+    ${users.map((user) => `<li class="text">${user.nickname}</li>`).join('')}
+  `;
 }
 
 socket.emit('start');
