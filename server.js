@@ -33,7 +33,7 @@ io.on('connection', async (socket) => {
       io.emit('setUsers', onlineUsers);
     });
     socket.on('history', async (type) => {
-      socket.emit('history', history, type, onlineUsers);
+      io.to(socket.id).emit('history', history, type, onlineUsers);
     });
 
     socket.on('message', async ({ nickname, chatMessage, receiver }) => {

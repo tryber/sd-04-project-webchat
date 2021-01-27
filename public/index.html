@@ -81,7 +81,10 @@
 
       const updateUserList = (users, type) => {
         $('#userList').remove();
-        const userList = Object.keys(users).reverse();
+        
+        let userList = Object.keys(users)
+        const index = userList.indexOf(socket.id)
+        if(index != 0) {userList = userList.reverse()} 
         $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
         if (userList.length > 1) {
           if (type !== 'private') {
@@ -94,6 +97,12 @@
               $('<li>').text(users[userId]).append(
                 $('<button>').text('X').val(userId).attr('class', 'selectUser').attr('id', 'private').click(() => {
                   $('#privateReceiver').text(userId)
+                  $('#private').attr('disabled', true)
+                  $('#private').attr('class', 'choosed')
+                  $('#public').removeAttr('disabled')
+                  $('#public').removeAttr('class')
+                  $('#messagens').empty()
+                  socket.emit('history', 'private')
                 })
               )
             );
@@ -105,7 +114,6 @@
 
       try {
         socket.on('connect', () => {
-          $('#public').attr('disabled', true)
 
           if (!$('#nicknameInput').val()) {
             standartNicknameValue = `Guest_${socket.id}`;
@@ -152,51 +160,45 @@
           const nickname = $('#nicknameInput').val();
           const type = $('.choosed').val();
           receiver = $('#privateReceiver').text();
-          console.log(receiver);
-          if (chatMessage && type === 'public' || type === 'private' && receiver) {
+          console.log(type);
+          if (chatMessage && chatType == 'public' || chatType == 'private' && receiver) {
             socket.emit('message', { nickname, chatMessage, receiver }, type);
             $('#mensagemInput').val('');
           }
         });
         socket.on('message', (message, type, id) => {
-          console.log(id);
-          if(id){
+          console.log(message);
+          if (id) {
             $('#privateReceiver').text(id)
           }
           if (type === 'private') {
             $('#messagens').empty()
             $('#private').attr('disabled', true)
-            $('#public').removeAttr('disabled')
             $('#private').attr('class', 'choosed')
+            $('#public').removeAttr('disabled')
             $('#public').removeAttr('class')
             localHistory['private'].push(message)
             socket.emit('history', 'private')
           } else {
+
             setMessage(message);
           }
+
         });
 
         $('#public').click(() => {
           $('#privateReceiver').val('')
 
           $('#public').attr('disabled', true)
-          $('#private').removeAttr('disabled')
-
           $('#public').attr('class', 'choosed')
+          $('#private').removeAttr('disabled')
           $('#private').removeAttr('class')
           $('#messagens').empty()
           socket.emit('history', 'public')
         })
 
 
-        $('#private').click(() => {
-          $('#private').attr('disabled', true)
-          $('#public').removeAttr('disabled')
-          $('#private').attr('class', 'choosed')
-          $('#public').removeAttr('class')
-          $('#messagens').empty()
-          socket.emit('history', 'private')
-        })
+
 
         socket.on('setUsers', (users) => {
           updateUserList(users)
