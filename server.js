@@ -22,11 +22,9 @@ const onlineUsers = {};
 const now = moment(new Date()).format('DD-MM-yyyy HH-mm-ss');
 
 io.on('connection', async (socket) => {
-
   socket.on('disconnect', async () => {
     delete onlineUsers[socket.id];
     io.emit('setUsers', onlineUsers);
-
   });
   socket.on('setNickname', (nickname) => {
     onlineUsers[socket.id] = nickname;
@@ -35,7 +33,7 @@ io.on('connection', async (socket) => {
   socket.on('history', async (type) => {
     const history = await findAllMessages('messages');
     io.to(socket.id).emit('history', history, type, onlineUsers);
-  })
+  });
 
 
   socket.on('message', async ({ nicknameValue, messageValue, receiver }) => {
@@ -55,7 +53,6 @@ io.on('connection', async (socket) => {
         timestamp: now,
         receiver,
       }, 'private');
-console.log(receiver);
       io.to(socket.id)
         .to(receiver)
         .emit('menssage', `${formatedMessage.timestamp} (private) - ${nicknameValue}: ${messageValue}`, 'private');
