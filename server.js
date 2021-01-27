@@ -29,7 +29,9 @@ io.on('connection', async (socket) => {
       io.emit('setUsers', onlineUsers);
     });
     socket.on('setNickname', (nickname) => {
+      console.log(nickname);
       onlineUsers[socket.id] = nickname;
+
       io.emit('setUsers', onlineUsers);
       socket.emit('setUsers', onlineUsers, true);
     });
@@ -38,24 +40,17 @@ io.on('connection', async (socket) => {
     });
 
     socket.on('message', async ({ nickname, chatMessage, receiver }) => {
-      let formatedMessage;
       if (!receiver) {
-        formatedMessage = await insertMessage({
+        io.emit('message', `${now} - ${nickname}: ${chatMessage}`, 'public');
+         await insertMessage({
           nickname,
           message: chatMessage,
           timestamp: now,
         }, 'messages');
-        io.emit('message', `${formatedMessage.timestamp} - ${nickname}: ${chatMessage}`, 'public');
       } else {
-        formatedMessage = await insertMessage({
-          nickname,
-          message: chatMessage,
-          timestamp: now,
-          receiver,
-        }, 'private');
         io.to(socket.id)
           .to(receiver)
-          .emit('message', `${formatedMessage.timestamp} (private) - ${nickname}: ${chatMessage}`, 'private', receiver);
+          .emit('message', `${now} (private) - ${nickname}: ${chatMessage}`, 'private', receiver);
       }
     });
 
