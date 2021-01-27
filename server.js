@@ -18,13 +18,22 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
   console.log('user connected');
+  const users = {};
+  socket.on('userConection', (currentUser) => {
+    users[socket.id] = currentUser;
+    io.emit('displayUsers', users);
+  });
+  socket.on('changeNickname', (nickname) => {
+    users[socket.id] = nickname;
+    io.emit('displayUsers', users);
+  });
   socket.on('message', ({ nickname, chatMessage }) => {
     const msg = {
       nickname,
       message: chatMessage,
       timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
     };
-    io.emit('message', `${msg.timestamp} - ${nickname}: ${chatMessage}`, 'publick ');
+    io.emit('message', `${msg.timestamp} - ${nickname}: ${chatMessage}`);
   });
   socket.on('disconnect', () => {
     console.log('user disconnected');

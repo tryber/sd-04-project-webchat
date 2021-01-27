@@ -6,9 +6,53 @@
     <title>Web chat</title>
   </head>
   <body>
+    <form id="nickForm">
+      <input type="text" id="nickname" placeholder="nickname" data-testid="nickname-box" />
+      <button id="nickname-save" data-testid="nickname-save">Save</button>
+    </form>
+    <div id="chat"></div>
+    <form id="chat-form">
+      <input
+        type="text"
+        id="message"
+        placeholder="send message"
+        required
+        data-testid="message-box"
+      />
+      <button id="send-btn" data-testid="send-button">Send</button>
+    </form>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script>
+      const nickForm = document.querySelector('#nickForm');
+      const chat = document.querySelector('#chat');
+      const chatForm = document.querySelector('#chat-form');
       const socket = io();
+      let nickname = null;
+      const addMessage = (message) => {
+        const newDiv = document.createElement('div');
+        newDiv.innerHTML = `<p class="show-message" data-testid="message">${message}</p>`;
+        chat.appendChild(newDiv);
+      };
+      socket.on('connect', () => {
+        if (!nickname) nickname = `Guest_${socket.id}`;
+        socket.emit('userConection', nickname);
+      });
+      nickForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        nickname = event.target.elements.nickname.value;
+        socket.emit('changeNickname', nickname);
+      });
+      chatForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const chatMessage = event.target.elements.message.value;
+        socket.emit('message', { chatMessage, nickname });
+        event.target.elements.message.value = '';
+        event.target.elements.message.focus();
+      });
+      socket.on('message', (message, type) => {
+        console.log(message);
+        addMessage(message);
+      });
     </script>
   </body>
 </html>
