@@ -149,12 +149,11 @@
         chats.chatType = 0;
         $('#mensagens').empty();
         chats.privateChat.forEach((message) => renderMessages(message));
-        // alert('Oi');
       };
 
       function renderMessages(message) {
         $('#mensagens')
-          .append(`<li data-testid="message">${message}</li>`);
+          .append(`<p data-testid="message">${message}</p>`);
       }
 
       function insertUserStatus(usersStatus) {
@@ -201,9 +200,11 @@
       });
 
       socket.on('message', function (message) {
+        console.log('Chat publico');
         $('#mensagens').empty();
         if (chats.chatType) {
           chats.publicChat.push(message);
+          console.log('Chat publico: ', chats.publicChat);
           chats.publicChat.forEach((message) => renderMessages(message));
         } else {
           chats.privateChat.push(message);
@@ -212,10 +213,15 @@
       });
 
       socket.on('private message', function (message) {
-        chats.chatType = 0;
-        $('#mensagens').empty();
+        console.log('Chat PRIVADO');
+        // chats.chatType = 0;
         chats.privateChat.push(message);
-        chats.privateChat.forEach((message) => renderMessages(message));
+        console.log('Chat PRIVADO: ', chats.privateChat);
+        if (!chats.chatType) {
+          document.getElementById('mensagens').innerHTML = '';
+          // $('#mensagens').empty();
+          chats.privateChat.forEach((message) => renderMessages(message));
+        }
       });
 
       $('#formChat').submit(function(e) {
@@ -234,7 +240,7 @@
             // console.log(meubtn);
             // alert(userSocketId);
             // console.log(userSocketId);
-            socket.emit('private message', { userSocketId, userMessageInfo, type: chats.chatType });
+            socket.emit('private message', { userSocketId, userMessageInfo });
           }
           $('#mensagemInput').val('');
         }
