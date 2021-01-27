@@ -1,80 +1,62 @@
-const path = require('path');
-const http = require('http');
 const express = require('express');
-const socketio = require('socket.io');
-const moment = require('moment');
+const http = require('http');
+const socketIo = require('socket.io');
 const cors = require('cors');
-const model = require('./model/mainModel');
-const {
-  userAdd,
-  //  getCurrentUser,
-  changeUser,
-  userLeave,
-  getAllUsers,
-} = require('./util/user');
+const path = require('path');
+const moment = require('moment');
+const crudMessages = require('./models/crudMessages');
 
 const app = express();
+
 const server = http.createServer(app);
-const io = socketio(server);
+const io = socketIo(server);
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cors());
-const names = ['Zelda', 'Link'];
-let indexNames = 0;
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/', express.static(path.join(__dirname, 'public')));
 
-io.on('connection', (socket) => {
-  socket.on('start', async () => {
-    userAdd(socket.id, names[indexNames]);
+const users = {};
+io.on('connection', async (socket) => {
+  console.log('Conectado');
+  const messages = await crudMessages.getAllMessages();
+  io.to(socket.id).emit('showMessageHistory', messages, 'public');
 
-    if (indexNames === 0) {
-      indexNames += 1;
+  socket.on('userConection', (currentUser) => {
+    users[socket.id] = currentUser;
+    io.emit('showOnlineUsers', users);
+  });
+
+  socket.on('changeNickname', (nickname) => {
+    users[socket.id] = nickname;
+    io.emit('showOnlineUsers', users);
+  });
+
+  socket.on('message', async ({ nickname, chatMessage, receiver }) => {
+    let msg = {
+      nickname,
+      message: chatMessage,
+      timestamp: moment(new Date()).format('DD-MM-yyyy hh:mm:ss'),
+    };
+
+    if (!receiver) {
+      const message = await crudMessages.createMessage(msg);
+      io.emit('message', `${message.timestamp} - ${message.nickname}: ${message.message}`, 'public');
     } else {
-      indexNames -= 1;
+      msg = { ...msg, receiver };
+      io.to(socket.id)
+        .to(receiver)
+        .emit('message', `${msg.timestamp} (private) - ${msg.nickname}: ${msg.message}`, 'private');
     }
-
-    const history = await model.takeData();
-
-    socket.join('global');
-
-    socket.emit('history', history);
-
-    io.to('global').emit('roomUsers', {
-      users: getAllUsers(),
-    });
   });
-
-  socket.on('message', ({ chatMessage, nickname, state }) => {
-    const date = moment().format('DD-MM-yyyy HH:mm:ss');
-    if (state && state === 'private') {
-      return io.to(state).emit('message', `${date} (private) - ${nickname}: ${chatMessage}`);
-    }
-    model.createData(nickname, chatMessage, date);
-
-    io.emit('message', `${date} - ${nickname}: ${chatMessage}`);
-  });
-
-  socket.on('nameChange', (newName) => {
-    changeUser(socket.id, newName);
-    io.emit('roomUsers', {
-      users: getAllUsers(),
-    });
-  });
-
-  socket.on('stateJoin', (state) => {
-    socket.join(state);
-  });
-
   socket.on('disconnect', () => {
-    const user = userLeave(socket.id);
-
-    if (user) {
-      io.emit('roomUsers', {
-        users: getAllUsers(),
-      });
-    }
+    console.log('Desconectado');
+    delete users[socket.id];
+    io.emit('showOnlineUsers', users);
   });
 });
 
-const PORT = 3000 || process.env.PORT;
+const PORT = 3000;
 
-server.listen(PORT, () => console.log(`Hey, listen! ${PORT}`));
+server.listen(PORT, () => console.log(`Servidor ouvindo na porta ${PORT}`));
