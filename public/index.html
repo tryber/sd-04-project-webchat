@@ -82,11 +82,7 @@
       const updateUserList = (users, type, nickname) => {
         $('#userList').remove();
         const curretUser = users[socket.id]
-        delete users[socket.id]
-        let userList = Object.keys(users)
-        console.log(nickname);
-        userList.push(socket.id)
-        userList = userList.reverse()
+        const userList = Object.keys(users)
 
         $('#onlineUsers').append($('<div>').attr('id', 'userList'));
         if (userList.length > 1) {
@@ -106,7 +102,7 @@
               )
             );
           } else {
-            $('#userList').append($('<div>').text(nickname).attr('data-testid', 'online-user'));
+            $('#userList').append($('<div>').text(users[userId]).attr('data-testid', 'online-user'));
           }
         })
       }
