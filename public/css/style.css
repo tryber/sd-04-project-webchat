@@ -1,3 +1,4 @@
+
 * {
   background-color: black;
 }
@@ -41,8 +42,8 @@ body {
 }
 
 .input-chat {
-  font-size: 17px;
   width: 50vw;
+  font-size: 17px;
 }
 
 .btn-chat {
@@ -50,10 +51,10 @@ body {
 }
 
 .btn {
-  border: 1;
   cursor: pointer;
-  font-size: 14px;
   padding: 5px 15px;
+  border: 1;
+  font-size: 14px;
 }
 
 .red {
