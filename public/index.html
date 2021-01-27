@@ -69,7 +69,7 @@
     $(document).ready(() => {
       const clearList = () => {
         const list = document.getElementById('messages')
-        list.remove()
+        list.innerHTML = '';
         const li = document.createElement('div')
         li.id = 'messages'
         const messageList = document.getElementById('messagesList')
