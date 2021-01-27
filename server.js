@@ -23,10 +23,9 @@ const now = moment(new Date()).format('DD-MM-yyyy HH:mm:ss');
 
 io.on('connection', async (socket) => {
   try {
-    socket.on('disconnect', async () => {
+    socket.on('disconnect', () => {
       delete onlineUsers[socket.id];
       io.emit('setUsers', onlineUsers);
-      io.emit('disconnect');
     });
     socket.on('setNickname', (nickname) => {
       onlineUsers[socket.id] = nickname;
@@ -47,9 +46,15 @@ io.on('connection', async (socket) => {
         }, 'messages');
         io.emit('message', `${formatedMessage.timestamp} - ${nickname}: ${chatMessage}`, 'public');
       } else {
+        formatedMessage = await insertMessage({
+          nickname,
+          message: chatMessage,
+          timestamp: now,
+          receiver,
+        }, 'private');
         io.to(socket.id)
           .to(receiver)
-          .emit('message', `${now} (private) - ${nickname}: ${chatMessage}`, 'private', socket.id);
+          .emit('message', `${now} (private) - ${nickname}: ${chatMessage}`, 'private', receiver);
       }
     });
 

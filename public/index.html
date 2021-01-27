@@ -81,23 +81,20 @@
 
       const updateUserList = (users, type) => {
         $('#userList').remove();
-        $('#chatType').remove();
         const userList = Object.keys(users);
         $('#onlineUsers').append($('<ul>').attr('id', 'userList'));
         if (userList.length > 1) {
-          $('nav').append($('<select>').attr('id', 'chatType'));
-          $('#chatType').append($('<option>').text('').val(''))
           if (type !== 'private') {
-            $('#chatType').attr('disabled', true)
             $('#public').attr('class', 'choosed')
           }
         }
         userList.forEach((userId) => {
           if (userId !== socket.id) {
-            $('#chatType').append($('<option>').text(users[userId]).val(userId));
             $('#userList').append(
               $('<li>').text(users[userId]).append(
-                $('<button>').text('X').val(userId).attr('class', 'selectUser')
+                $('<button>').text('X').val(userId).attr('class', 'selectUser').click(() => {
+                  $('#privateReceiver').text(userId)
+                })
               )
             );
           } else {
@@ -131,7 +128,6 @@
           } else {
             localHistory['private'].forEach((message) => {
               const formatedMessage = message;
-              localHistory['private'].push(message);
               setMessage(formatedMessage);
             });
           }
@@ -155,31 +151,34 @@
           const chatMessage = $('#mensagemInput').val();
           const nickname = $('#nicknameInput').val();
           const type = $('.choosed').val();
-          receiver = $('#chatType').val();
+          receiver = $('#privateReceiver').text();
           console.log(receiver);
           if (chatMessage && type === 'public' || type === 'private' && receiver) {
-            console.log(type);
             socket.emit('message', { nickname, chatMessage, receiver }, type);
             $('#mensagemInput').val('');
           }
         });
         socket.on('message', (message, type, id) => {
-          console.log(type);
+          console.log(id);
+          if(id){
+            $('#privateReceiver').text(id)
+          }
           if (type === 'private') {
             $('#messagens').empty()
-            $('#chatType').removeAttr('disabled')
-            $('#public').removeAttr('class')
+            $('#private').attr('disabled', true)
+            $('#public').removeAttr('disabled')
             $('#private').attr('class', 'choosed')
-            console.log(id);
-            if (id !== socket.id) {
-              $('#chatType').val(id)
-            }
-            localHistory[type].push(message);
+            $('#public').removeAttr('class')
+            localHistory['private'].push(message)
+            socket.emit('history', 'private')
+          } else {
+            setMessage(message);
           }
-          setMessage(message);
         });
 
         $('#public').click(() => {
+          $('#privateReceiver').val('')
+
           $('#public').attr('disabled', true)
           $('#private').removeAttr('disabled')
 
@@ -192,7 +191,6 @@
 
         $('#private').click(() => {
           $('#private').attr('disabled', true)
-
           $('#public').removeAttr('disabled')
           $('#private').attr('class', 'choosed')
           $('#public').removeAttr('class')
@@ -203,18 +201,7 @@
         socket.on('setUsers', (users) => {
           updateUserList(users)
         });
-        socket.on('disconnect', (users) => {
-          updateUserList(users)          
-          socket.emit('history', 'public')
 
-        });
-        window.onload = () => {
-          const array = document.getElementsByClassName('selectUser')
-
-          array.forEach((index, element) => {
-            console.log(index);
-          })
-        }
       } catch (error) {
         console.log(error);
         socket.emit('error', error);
@@ -227,6 +214,7 @@
   <nav>
     <form id="nicknameForm">
       <input id=nicknameInput data-testid="nickname-box" type="text">
+      <input type="text" id="privateReceiver" style="display: none;">
       <button data-testid="nickname-save">Salvar</button>
     </form>
     <div>
