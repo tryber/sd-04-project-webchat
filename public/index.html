@@ -66,7 +66,7 @@
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script>
-    $(() => {
+    $(document).ready(() => {
       const socket = io();
       let standartNicknameValue;
 
@@ -93,7 +93,7 @@
         })
 
         $('#onlineUsers').append($('<div>').attr('id', 'userList'));
-console.log(userList);
+        console.log(userList);
         userList.forEach((id) => {
 
           if (id != socket.id) {
@@ -113,6 +113,9 @@ console.log(userList);
       }
       try {
         socket.on('connect', () => {
+          socket.on('setUsers', (users, connect) => {
+            updateUserList(users, 'public', users[socket.id])
+          });
 
           if (!$('#nicknameInput').val()) {
             standartNicknameValue = `Guest_${socket.id}`;
@@ -188,9 +191,6 @@ console.log(userList);
 
 
 
-        socket.on('setUsers', (users, connect) => {
-          updateUserList(users, 'public', users[socket.id])
-        });
 
       } catch (error) {
         console.log(error);
