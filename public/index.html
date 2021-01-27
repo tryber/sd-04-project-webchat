@@ -85,11 +85,7 @@
         const userList = Object.keys(users)
 
         $('#onlineUsers').append($('<div>').attr('id', 'userList'));
-        if (userList.length > 1) {
-          if (type !== 'private') {
-            $('#public').attr('class', 'choosed')
-          }
-        }
+
         userList.forEach((userId) => {
           if (userId !== socket.id) {
             $('#userList').append(
@@ -151,11 +147,9 @@
           e.preventDefault();
           const chatMessage = $('#mensagemInput').val();
           const nickname = $('#nicknameInput').val();
-          const type = $('.choosed').val();
           receiver = $('#privateReceiver').text();
-          console.log(type);
           if (chatMessage && chatType == 'public' || chatType == 'private' && receiver) {
-            socket.emit('message', { nickname, chatMessage, receiver }, type);
+            socket.emit('message', { nickname, chatMessage, receiver }, chatType);
             $('#mensagemInput').val('');
           }
         });
