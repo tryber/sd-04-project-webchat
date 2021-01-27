@@ -26,6 +26,7 @@ io.on('connection', async (socket) => {
     socket.on('disconnect', async () => {
       delete onlineUsers[socket.id];
       io.emit('setUsers', onlineUsers);
+      io.emit('disconnect');
     });
     socket.on('setNickname', (nickname) => {
       onlineUsers[socket.id] = nickname;
@@ -44,7 +45,6 @@ io.on('connection', async (socket) => {
           message: chatMessage,
           timestamp: now,
         }, 'messages');
-        console.log(formatedMessage);
         io.emit('message', `${formatedMessage.timestamp} - ${nickname}: ${chatMessage}`, 'public');
       } else {
         io.to(socket.id)
@@ -55,7 +55,7 @@ io.on('connection', async (socket) => {
 
     socket.on('error', (error) => console.error(error));
   } catch (e) {
-    console.error(e);
+    console.log(e);
   }
 });
 
