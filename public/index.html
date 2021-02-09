@@ -3,44 +3,72 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Web chat</title>
+    <title>Webchat</title>
+    <link rel="icon" href="./favicon.png" />
+    <link rel="stylesheet" href="style.css" />
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   </head>
   <body>
-    <form>
-      <input
-        data-testid="nickname-box"
-        id="nickname"
-        type="text"
-        placeholder="nickname"
-      />
-      <button data-testid="nickname-save" id="nickBtn" type="button">
-        select
-      </button>
-      <span id="chosenNick"></span>
-      <div>
-        <ul id="firstUser"></ul>
-        <ul id="onlineUser"></ul>
-      </div>
-      <br />
-      <input
-        data-testid="message-box"
-        id="messageBox"
-        type="text"
-        placeholder="type your message"
-      />
-      <button data-testid="send-button" id="msgBtn" type="button">send</button>
-      <div>
-        <ul id="messagesList" style="list-style: none"></ul>
-      </div>
-      <div>
-        <button data-testid="public" type="button" id="public">
-          Public Chat
-        </button>
-        <ul id="privateMessages"></ul>
-      </div>
-    </form>
+    <main>
+      <form>
+        <fieldset>
+          <legend>Webchat</legend>
+          <label for="nickname">
+            <input
+              data-testid="nickname-box"
+              id="nickname"
+              name="nickname"
+              type="text"
+              placeholder="nickname"
+              autofocus
+              minlength="1"
+              maxlength="8"
+              size="8"
+              title="O nick pode conter até oito caracteres."
+            />
+          </label>
+          <button
+            data-testid="nickname-save"
+            id="nickBtn"
+            type="button"
+            class="true"
+          >
+            select
+          </button>
+          <span id="chosenNick"></span>
+          <section>
+            <ul id="firstUser"></ul>
+            <ul id="onlineUser"></ul>
+          </section>
+          <label for="messageBox"
+            >message
+            <input
+              data-testid="message-box"
+              id="messageBox"
+              name="messageBox"
+              type="text"
+              placeholder="type your message"
+            />
+          </label>
+          <button
+            data-testid="send-button"
+            id="msgBtn"
+            type="button"
+            class="true"
+          >
+            send
+          </button>
+          <button data-testid="public" type="button" id="public" class="true">
+            Public Chat
+          </button>
+        </fieldset>
+        <section class="messages">
+          <ul id="messagesList" style="list-style: none"></ul>
+          <ul id="privateMessages"></ul>
+        </section>
+      </form>
+    </main>
     <script>
       const socket = io('http://localhost:3000');
 
@@ -66,25 +94,21 @@
           onlineUser.setAttribute('type', 'button');
           onlineUser.setAttribute('id', 'private');
           onlineUser.setAttribute('data-testid', 'private');
-          onlineUser.setAttribute('class', 'onlineUserButton');
+          onlineUser.setAttribute('class', 'onlineUserButton true');
           onlineUser.setAttribute('onClick', 'privateAction(this.innerText)');
           onlineUser.innerText = user;
-
-          if (user === chosenNick.innerText) {
-            onlineUser.setAttribute('disabled', 'disabled');
-          }
 
           element = document.createElement('li');
           element.setAttribute('data-testid', 'online-user');
           element.setAttribute('class', 'online');
           element.appendChild(onlineUser);
           if (user === chosenNick.innerText) {
+            onlineUser.setAttribute('disabled', true);
+            onlineUser.setAttribute('class', 'false');
             firstUser.appendChild(element);
-            if (firstUser.innerText.length > 25) {
-              firstUser.removeChild(onlineUser);
-            }
           } else {
             document.querySelector('#onlineUser').appendChild(element);
+            onlineUser.setAttribute('class', 'true');
           }
         }
 
@@ -137,23 +161,23 @@
               nick.nickname === chosenNick.innerText ||
               privateReceiver === chosenNick.innerText
             ) {
-            const reversedData = Object.values(
-              data.newPrivateHistory
-            ).reverse();
-            let li = '';
-            if (document.querySelectorAll('.privateLi')) {
-              li = document.querySelectorAll('.privateLi');
-              for (list of li) {
-                list.remove();
+              const reversedData = Object.values(
+                data.newPrivateHistory
+              ).reverse();
+              let li = '';
+              if (document.querySelectorAll('.privateLi')) {
+                li = document.querySelectorAll('.privateLi');
+                for (list of li) {
+                  list.remove();
+                }
               }
-            }
-            for (dt of reversedData) {
-              li = document.createElement('li');
-              li.setAttribute('data-testid', 'message');
-              li.setAttribute('class', 'privateLi');
-              li.innerText = `${dt.dateTime} (private) - ${dt.nickname}: ${dt.chatMessage}`;
-              privateMsgList.appendChild(li);
-            }
+              for (dt of reversedData) {
+                li = document.createElement('li');
+                li.setAttribute('data-testid', 'message');
+                li.setAttribute('class', 'privateLi');
+                li.innerText = `${dt.dateTime} (private) - ${dt.nickname}: ${dt.chatMessage}`;
+                privateMsgList.appendChild(li);
+              }
             }
           }
         });
@@ -230,12 +254,6 @@
       });
 
       socket.on('message', (data) => {
-        // if (document.querySelectorAll('.privateLi').length > 0) {
-        //   const privateList = document.querySelectorAll('.privateLi');
-        //   for (list of privateList) {
-        //     list.remove();
-        //   }
-        // }
         const li = document.createElement('li');
         li.setAttribute('data-testid', 'message');
         li.setAttribute('class', 'publicLi');
@@ -252,12 +270,6 @@
       });
 
       socket.on('new privateMessage', (data) => {
-        // if (document.querySelectorAll('.publicLi').length > 0) {
-        //   const publicList = document.querySelectorAll('.publicLi');
-        //   for (list of publicList) {
-        //     list.remove();
-        //   }
-        // }
         const li = document.createElement('li');
         li.setAttribute('data-testid', 'message');
         li.setAttribute('class', 'privateLi');

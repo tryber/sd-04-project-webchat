@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const moment = require('moment');
@@ -5,6 +6,8 @@ const moment = require('moment');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
+
+const { PORT } = process.env;
 
 const {
   addMessage,
@@ -18,8 +21,6 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 const online = {};
 
 io.on('connection', async (socket) => {
-  console.log(`${socket.id} conectado!`);
-
   online[socket.id] = socket.id;
 
   const history = await getMessages();
@@ -76,6 +77,6 @@ io.on('connection', async (socket) => {
   });
 });
 
-server.listen(3000, () => {
+server.listen(PORT, () => {
   console.log('Conectado!');
 });
